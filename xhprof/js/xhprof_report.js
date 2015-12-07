@@ -179,32 +179,33 @@ function ChildRowToolTip(cell, metric)
 }
 
 $(document).ready(function() {
-  $('td[@metric]').tooltip(
-    { bodyHandler: function() {
-          var type = $(this).attr('type');
-          var metric = $(this).attr('metric');
-          if (type == 'Parent') {
-             return ParentRowToolTip(this, metric);
-          } else if (type == 'Child') {
-             return ChildRowToolTip(this, metric);
-          }
-      },
-      showURL : false
-    });
+  //$('td[@metric]').tooltip(
+  //  { bodyHandler: function() {
+  //        var type = $(this).attr('type');
+  //        var metric = $(this).attr('metric');
+  //        if (type == 'Parent') {
+  //           return ParentRowToolTip(this, metric);
+  //        } else if (type == 'Child') {
+  //           return ChildRowToolTip(this, metric);
+  //        }
+  //    },
+  //    showURL : false
+  //  });
   var cur_params = {} ;
   $.each(location.search.replace('?','').split('&'), function(i, x) {
     var y = x.split('='); cur_params[y[0]] = y[1];
   });
-  $('input.function_typeahead')
-    .autocomplete('index.php', { extraParams : cur_params })
-    .result(function(event, item) {
-      cur_params['symbol'] = item;
-      location.search = '?' + jQuery.param(cur_params);
-    });
+  //$('input.function_typeahead')
+  //  .autocomplete('index.php', { extraParams : cur_params })
+  //  .result(function(event, item) {
+  //    cur_params['symbol'] = item;
+  //    location.search = '?' + jQuery.param(cur_params);
+  //  });
 });
 
 function checkbutton()
 {
+    debugger;
     var trs=document.getElementById('tbl').getElementsByTagName('TR');
     var cb,cnt=0,b_cd=document.getElementById('b_cd');
     for(var i=0;i<trs.length;i++){

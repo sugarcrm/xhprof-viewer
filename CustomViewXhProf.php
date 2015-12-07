@@ -3,18 +3,84 @@
 
 class CustomViewXhProf
 {
+    protected $availableSubDirs = array('');
+
+    protected $currentSubDir = '';
+
+    protected $pagination = array(
+        'offset' => 0,
+        'limit' => 100,
+    );
+
+    protected $filters;
+
+    protected $sortByMap = array(
+        'ts' => 'timestamp',
+        'wt' => 'wall_time',
+        'fs' => 'file_size',
+        'sql' => 'sql_queries',
+    );
+
     public function __construct()
     {
+        $this->filters = array(
+            'f_text' => '',
+            'f_date_from' => date('m/d/Y', strtotime("-1 year")),
+            'f_date_to' => date('m/d/Y'),
+            'f_sort_by' => 'ts',
+            'f_sort_dir' => 'desc',
+            'f_wt_min' => 300,
+        );
+
         $GLOBALS['dir'] = $this->getLogTo();
     }
 
     protected function getLogTo()
     {
-        return $GLOBALS['profile_files_dir'];
+        return $GLOBALS['profile_files_dir'] . (!empty($this->currentSubDir) ? '/' . $this->currentSubDir : '');
+    }
+
+    protected function url($params) {
+        return '?' . http_build_query($params);
+    }
+
+    protected function listUrl($params = array())
+    {
+        return $this->url(array_merge(
+            array(
+                'dir' => $this->currentSubDir,
+            ),
+            $this->filters,
+            $this->pagination,
+            $params
+        ));
+    }
+
+    protected function listFilterUrl($sortBy)
+    {
+        $dir = $this->filters['f_sort_by'] == $sortBy ?
+            ($this->filters['f_sort_dir'] == 'desc' ? 'asc' : 'desc')
+            : 'desc';
+
+        return $this->listUrl(array(
+            'f_sort_by' => $sortBy,
+            'f_sort_dir' => $dir,
+        ));
     }
 
     protected function parseFilename($filename)
     {
+        if (preg_match('/^(\d+)d(\d+)d(\d+)d(\d+)d(\d+)\.([^.]+)$/', $filename, $matches)) {
+            return array(
+                'shortname' => '',
+                'timestamp' => floatval($matches[1] . '.' . $matches[2]),
+                'wall_time' => $matches[3],
+                'sql_queries' => $matches[4],
+                'elastic_queries' => $matches[5],
+                'namespace' => $matches[6]
+            );
+        }
+
         // Check of OOTB Sugar file format
         if (preg_match('/^([A-Za-z0-9]+)\.(\d+-\d+)-(.*)$/', $filename, $matches)) {
             return array(
@@ -47,27 +113,14 @@ class CustomViewXhProf
     {
         $bufFiles = array();
 
-        $pagination = [
-            'offset' => 0,
-            'limit' => 100,
-        ];
-
-        $filters = [
-            'f_text' => '',
-            'f_date_from' => date('m/d/Y', strtotime("-1 year")),
-            'f_date_to' => date('m/d/Y'),
-            'f_sort_by' => 'ts',
-            'f_sort_dir' => 'asc',
-        ];
-
-        foreach ($pagination as $k => $v) {
+        foreach ($this->pagination as $k => $v) {
             if (isset($_REQUEST[$k])) {
-                $pagination[$k] = $_REQUEST[$k];
+                $this->pagination[$k] = $_REQUEST[$k];
             }
         }
-        foreach ($filters as $k => $v) {
+        foreach ($this->filters as $k => $v) {
             if (isset($_REQUEST[$k])) {
-                $filters[$k] = $_REQUEST[$k];
+                $this->filters[$k] = $_REQUEST[$k];
             }
         }
 
@@ -75,7 +128,7 @@ class CustomViewXhProf
 
         foreach (glob($this->getLogTo() . '/*') as $index => $file) {
             $pi = pathinfo($file);
-            if ($pi['extension'] == 'xhprof') {
+            if (!empty($pi['extension']) && $pi['extension'] == 'xhprof') {
                 $buf = $this->parseFilename($pi['filename']);
 
                 $stat = stat($file);
@@ -93,8 +146,8 @@ class CustomViewXhProf
 
         // apply filters
         // filter by date
-        $dFrom = date('Y-m-d', strtotime($filters['f_date_from']));
-        $dTo = date('Y-m-d', strtotime($filters['f_date_to']));
+        $dFrom = date('Y-m-d', strtotime($this->filters['f_date_from']));
+        $dTo = date('Y-m-d', strtotime($this->filters['f_date_to']));
         foreach ($bufFiles as $index => $file) {
             $fDate = date('Y-m-d', $file['timestamp']);
             if (!($fDate >= $dFrom && $fDate <= $dTo)) {
@@ -102,7 +155,7 @@ class CustomViewXhProf
             }
         }
 
-        $searchText = trim($filters['f_text']);
+        $searchText = trim($this->filters['f_text']);
         if (!empty($searchText)) {
             foreach ($bufFiles as $index => $file) {
                 if (stripos($file['namespace'], $searchText) === false) {
@@ -111,21 +164,26 @@ class CustomViewXhProf
             }
         }
 
-        $sortByMap = [
-            'ts' => 'timestamp',
-            'wt' => 'wall_time',
-            'fs' => 'file_size',
-            'sql' => 'sql_queries',
-        ];
-        $sortBy = $sortByMap[$filters['f_sort_by']];
-        $sortAsc = $filters['f_sort_dir'] != 'desc';
+        $minWT = (int) trim($this->filters['f_wt_min']);
+        if (!empty($minWT)) {
+            foreach ($bufFiles as $index => $file) {
+                if ($file['wall_time'] < $minWT * 1E3) {
+                    unset($bufFiles[$index]);
+                }
+            }
+        }
+
+        $sortBy = $this->sortByMap[$this->filters['f_sort_by']];
+        $sortAsc = $this->filters['f_sort_dir'] != 'desc';
         usort($bufFiles, function ($a, $b) use ($sortBy, $sortAsc) {
-            return $sortAsc ? ($a[$sortBy] < $b[$sortBy]) : ($a[$sortBy] > $b[$sortBy]);
+            return $sortAsc ? ($a[$sortBy] > $b[$sortBy]) : ($a[$sortBy] < $b[$sortBy]);
         });
 
+        $total = count($bufFiles);
+
         // apply pagination
-        $limit = $pagination['limit'];
-        $offset = $pagination['offset'];
+        $limit = $this->pagination['limit'];
+        $offset = $this->pagination['offset'];
         $start = $offset * $limit;
         if ($start > $total) {
             $start = $total;
@@ -156,7 +214,8 @@ class CustomViewXhProf
         // pull values of these params, and create named globals for each param
         xhprof_param_init($params);
 
-        global $run, $wts, $symbol, $sort, $run1, $run2, $source, $all, $source2;
+        global $run, $wts, $symbol, $sort, $run1, $run2, $source, $all, $source2,
+               $sqlCount, $sqlTime, $sqlFetchTime, $sqlData, $elasticCount, $elasticTime, $elasticData;
         /* reset params to be a array of variable names to values
            by the end of this page, param should only contain values that need
            to be preserved for the next page. unset all unwanted keys in $params.
@@ -170,8 +229,14 @@ class CustomViewXhProf
                 unset($params[$k]);
             }
         }
-        $params['module'] = 'Administration';
-        $params['action'] = 'xhprof';
+
+        $params['dir'] = $this->currentSubDir;
+        $params['list_url'] = !empty($_REQUEST['list_url']) ? $_REQUEST['list_url'] : '';
+        $params['sql_sort_by'] = !empty($_REQUEST['sql_sort_by']) ? $_REQUEST['sql_sort_by'] : 'time';
+
+        $GLOBALS['run_page_params'] = $params;
+
+        $runData = $this->parseFilename($run);
 
         echo "<html>";
 
@@ -179,17 +244,21 @@ class CustomViewXhProf
         xhprof_include_js_css($GLOBALS['base_path'] . '/xhprof');
         echo "</head>";
 
-        echo "<body>";
+        echo "<body class=\"container-fluid\">";
 
         ?>
         <div>
-            <?php if (!defined('XHPROF_ENTRY_POINT')) { ?>
+            <div class="page-header form-inline" style="margin-top: 20px;">
 
-            <?php } ?>
-            <div style="text-align:center"><a href="?">List of profiler files</a></div>
-            <div style="clear:both;">&nbsp;</div>
+                <div class="navbar-form pull-right" style="padding-right:0;">
+                    <a class="btn btn-primary" href="<?php echo $params['list_url'] ?>">
+                        <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> Back To List
+                    </a>
+                </div>
+                <h1><p>SugarCRM XHProf Viewer </p><small><?php echo htmlentities($runData['namespace']) ?></small></h1>
+            </div>
         </div>
-        <?
+        <?php
 
 
         $GLOBALS['vbar'] = ' class="vbar"';
@@ -202,213 +271,98 @@ class CustomViewXhProf
         $xhprof_runs_impl = new XHProfRuns_IBM($this->getLogTo());
 
         $run_fname = $xhprof_runs_impl->file_name($run, $source);
+        $sqlCount = $sqlTime = $sqlFetchTime = 0;
         if ($this->hasSqlFile($run_fname)) {
-            ?>
-            <div style="border:1px solid silver;">
-                <?
-                $data = $GLOBALS['additional_data'] = unserialize(file_get_contents($run_fname . '.sql'));
-                //print_r($data['backtrace_calls']);die();
-                // prepare backtrace_calls
-                if (isset($GLOBALS['additional_data']['backtrace_calls'])) {
-                    $GLOBALS['additional_data']['backtrace_calls_prepared'] = array();
-                    foreach ($GLOBALS['additional_data']['backtrace_calls'] as $k => $v) {
-                        $GLOBALS['additional_data']['backtrace_calls_prepared'][str_replace('->', '::', $k)] = $v;
-                    }
+            $data = $GLOBALS['additional_data'] = unserialize(file_get_contents($run_fname . '.sql'));
+
+            //print_r($data['backtrace_calls']);die();
+            // prepare backtrace_calls
+            if (isset($GLOBALS['additional_data']['backtrace_calls'])) {
+                $GLOBALS['additional_data']['backtrace_calls_prepared'] = array();
+                foreach ($GLOBALS['additional_data']['backtrace_calls'] as $k => $v) {
+                    $GLOBALS['additional_data']['backtrace_calls_prepared'][str_replace('->', '::', $k)] = $v;
+                }
+            }
+
+            $sqlCount = sizeof($data['sql']);
+            $sqlTime = $data['summary_time'];
+            if (!empty($data['summary_fetch_time'])) {
+                $sqlFetchTime = $data['summary_fetch_time'];
+            }
+
+            $sqlData = $dump_hash = array();
+            foreach ($data['sql'] as $row) {
+                $sqlKey = md5($row[0]);
+                $traceKey = md5($row[2]);
+                if (!isset($dump_hash[$sqlKey])) {
+                    $dump_hash[$sqlKey] = array('time' => 0, 'hits' => 0, 'dumps' => array());
                 }
 
-                if (isset($_POST['sort_sql_by_hits'])) {
-                    if ($_POST['sort_sql_by_hits']) {
-                        $_SESSION['sort_sql_by_hits'] = 1;
-                    } else {
-                        unset($_SESSION['sort_sql_by_hits']);
-                    }
+                $dump_hash[$sqlKey]['hits']++;
+                $dump_hash[$sqlKey]['time'] += $row[1];
+                $dump_hash[$sqlKey]['query'] = $row[0];
+                $dump_hash[$sqlKey]['fetch_count'] = isset($row[3]) ? $row[3] : 0;
+                $dump_hash[$sqlKey]['fetch_time'] = isset($row[4]) ? $row[4] : 0;
+
+                if (!isset($dump_hash[$sqlKey]['dumps'][$traceKey])) {
+                    $dump_hash[$sqlKey]['dumps'][$traceKey] = array('hits' => 0, 'time' => 0);
                 }
-                if (isset($_POST['show_custom_data'])) {
-                    if ($_POST['show_custom_data']) {
-                        $_SESSION['show_custom_data'] = 1;
-                    } else {
-                        unset($_SESSION['show_custom_data']);
-                    }
-                }
-                ?>
-                <form method="post" action="?<?= $_SERVER['QUERY_STRING'] ?>">
-                    <input type="hidden" value="0" name="show_custom_data"/>
-                    <input type="checkbox" value="1"
-                           name="show_custom_data" <?= isset($_SESSION['show_custom_data']) ? 'checked="checked"' : '' ?>
-                           onclick="this.parentNode.submit();"/>
-                    Show custom data
-                </form>
-                <?
-                if (isset($_SESSION['show_custom_data']) && $_SESSION['show_custom_data']) {
-                    ?>
-                    <div>Custom data:
-                        <pre><?= isset($data['app_data']) ? $this->printr($this->data2array($data['app_data'])) : 'n/a' ?></pre>
-                    </div>
-                    <?
-                } ?>
-                <div>SQL queries: <?= sizeof($data['sql']) ?></div>
-                <div>SQL summary time: <?= $data['summary_time'] ?></div>
-                <?if(!empty($data['summary_fetch_time'])) {?>
-                    <div>DB fetch summary time: <?=$data['summary_fetch_time']?></div>
-                <?}?>
-                <a href="javascript:void(0)"
-                   onclick="document.getElementById('d_sql').style.display=document.getElementById('d_sql').style.display=='none' ? 'block' : 'none';">See
-                    all SQL queries</a>
 
-                <div id="d_sql" style="border:1px solid silver;display:none;padding:5px;">
+                $dump_hash[$sqlKey]['dumps'][$traceKey]['hits']++;
+                $dump_hash[$sqlKey]['dumps'][$traceKey]['time'] += $row[1];
+                $dump_hash[$sqlKey]['dumps'][$traceKey]['content'] = htmlspecialchars($row[2]);
+//                        $dump_hash[$sqlKey]['dumps'][$traceKey]['fetch_time']+= isset($dump_hash[$sqlKey]['fetch_time']) ? $dump_hash[$sqlKey]['fetch_time'] : 0;
+            }
 
-                    <form method="post" action="?<?= $_SERVER['QUERY_STRING'] ?>">
-                        <input type="hidden" value="0" name="sort_sql_by_hits"/>
-                        <input type="checkbox" value="1"
-                               name="sort_sql_by_hits" <?= isset($_SESSION['sort_sql_by_hits']) ? 'checked="checked"' : '' ?>
-                               onclick="this.parentNode.submit();"/>
-                        Sort by Hits (unchecked - sorted by time)<br/>
-                    </form>
-                    <?
-                    $dump_hash = array();
-                    foreach ($data['sql'] as $row) {
-                        $sqlKey = md5($row[0]);
-                        $traceKey = md5($row[2]);
-                        if (!isset($dump_hash[$sqlKey])) {
-                            $dump_hash[$sqlKey] = array('time' => 0, 'hits' => 0, 'dumps' => array());
-                        }
+            $sortCallback = function($a, $b) use ($params) {
+                return $a[$params['sql_sort_by']] < $b[$params['sql_sort_by']];
+            };
 
-                        $dump_hash[$sqlKey]['hits']++;
-                        $dump_hash[$sqlKey]['time'] += $row[1];
-                        $dump_hash[$sqlKey]['sql'] = $row[0];
-                        $dump_hash[$sqlKey]['fetch_count'] = isset($row[3]) ? $row[3] : 0;
-                        $dump_hash[$sqlKey]['fetch_time'] = isset($row[4]) ? $row[4] : 0;
+            usort($dump_hash, $sortCallback);
+            foreach ($dump_hash as $sql => &$sqlDumps) {
+                usort($sqlDumps['dumps'], $sortCallback);
+            }
 
-                        if (!isset($dump_hash[$sqlKey]['dumps'][$traceKey])) {
-                            $dump_hash[$sqlKey]['dumps'][$traceKey] = array('hits' => 0, 'time' => 0);
-                        }
-
-                        $dump_hash[$sqlKey]['dumps'][$traceKey]['hits']++;
-                        $dump_hash[$sqlKey]['dumps'][$traceKey]['time'] += $row[1];
-                        $dump_hash[$sqlKey]['dumps'][$traceKey]['content'] = $row[2];
-                        $dump_hash[$sqlKey]['dumps'][$traceKey]['fetch_time']+=$dump_hash[$sqlKey]['fetch_time'];
-                    }
-                    // sort dumps
-                    function sortbytime($a, $b)
-                    {
-                        return $a['time'] < $b['time'];
-                    }
-
-                    function sortbyhits($a, $b)
-                    {
-                        return $a['hits'] < $b['hits'];
-                    }
-
-                    $sort_method = isset($_SESSION['sort_sql_by_hits']) ? 'sortbyhits' : 'sortbytime';
-                    usort($dump_hash, $sort_method);
-                    foreach ($dump_hash as $sql => &$sqlDumps) {
-                        usort($sqlDumps['dumps'], $sort_method);
-                    }
-
-
-                    $ind = 0;
-                    foreach ($dump_hash as $sql => $data) {
-                        $ind++;
-                        ?>
-                        <div style="border:1px solid orange;margin:6px 3px;">
-                            <div style="color:gray">
-                                Hits: <span style="color:navy"><?= $data['hits'] ?></span>
-                                Time: <span style="color:navy"><?= $data['time'] ?>s</span>
-                                <? if(!empty($data['fetch_count'])) {
-                                    $data['fetch_time'] = round($data['fetch_time'], 4);
-                                    ?>
-                                    FetchCount: <span style="color:navy"><?=$data['fetch_count']?></span>
-                                    <? if ($data['fetch_time'] > 0) { ?>
-                                        FetchTime: <span style="color:navy">~ <?=$data['fetch_time']?>s</span>
-                                    <? } else { ?>
-                                        <i>[fast]</i>
-                                    <? } ?>
-                                <? } ?>
-                            </div>
-                            <pre style="white-space:pre-line;"><?= $data['sql'] ?></pre>
-                            <a href="javascript:void(0)"
-                               onclick="document.getElementById('bt_cont<?= $ind ?>').style.display
-                                   = document.getElementById('bt_cont<?= $ind ?>').style.display=='block' ? 'none' : 'block';"
-                                ><?= sizeof($data['dumps']) ?> unique backtrace(s) for this query<a>
-                                    <div style="display:none" id="bt_cont<?= $ind ?>">
-                                        <? foreach ($data['dumps'] as $dd) {
-                                            ?>
-                                            <div style="border:1px solid silver;margin:3px;font-size:10px;color:#777;">
-                                                <b style="color:#000">Hits: <?= $dd['hits'] ?>
-                                                    <span style="margin-left:20px">[<?= $dd['time'] ?>s]</span>
-                                                    <span
-                                                        style="margin-left:20px"><?= round(($dd['time'] / $data['time']) * 100, 2) ?>
-                                                        %</span>
-                                                </b>
-                                                <pre><?= $dd['content'] ?></pre>
-                                            </div>
-                                            <?
-                                        } ?>
-                                    </div>
-                        </div>
-                        <?
-                    } ?>
-                </div>
-                <?php
-                if (is_file($run_fname . '.elastic')):
-                    $data = $this->getData($run_fname . '.elastic');
-                    if (!empty($data['queries'])):
-                        ?>
-                        <script type="text/javascript">
-                            var xhprofElastic = {
-                                toggle: function (id) {
-                                    document.getElementById(id).style.display
-                                        = document.getElementById(id).style.display == 'block'
-                                        ? 'none'
-                                        : 'block';
-                                }
-                            }
-                        </script>
-                        <div style="border:1px solid silver;">
-                            <div>Elastic queries: <?= sizeof($data['queries']) ?></div>
-                            <div>Elastic summary time: <?= $data['summary_time'] ?></div>
-                            <?php
-                            foreach ($data['queries'] as $key => $query):
-                                ?>
-                                <a href="javascript:xhprofElastic.toggle('query_<?= $key ?>');">Show elastic query</a>
-                                <div style="border:1px solid orange;margin:6px 3px;display: none;"
-                                     id="query_<?= $key ?>">
-                                    <p>Time: <?= $query->time ?></p>
-
-                                    <p>Query:
-                                    <pre id="query_body_<?= $key ?>"></pre>
-                                    </p>
-                                    <p>
-                                        <a href="javascript:xhprofElastic.toggle('backtrace_<?= $key ?>');">
-                                            Show backtrace
-                                        </a>
-                                    </p>
-
-                                    <div id="backtrace_<?= $key ?>" style="display: none;">
-                                            <pre>
-                                                <?= $query->backtrace ?>
-                                            </pre>
-                                    </div>
-                                </div>
-                                <script type="text/javascript">
-                                    document.getElementById('query_body_<?=$key?>').innerHTML
-                                        = JSON.stringify(<?= $query->query ?>, null, 2);
-                                </script>
-                                <?php
-                            endforeach;
-                            ?>
-                        </div>
-                        <?php
-                    endif;
-                endif;
-                ?>
-            </div>
-            <?
+            $sqlData = $dump_hash;
         }
+
+        $elasticCount = $elasticTime = 0;
+        $elasticData = array();
+        if (is_file($run_fname . '.elastic')) {
+            $data = $this->getData($run_fname . '.elastic');
+            $elasticCount = sizeof($data['queries']);
+            $queries = array();
+            foreach ($data['queries'] as $query) {
+                $queries[] = array(
+                    'query' => array($query[0], $query[1]),
+                    'hits' => 1,
+                    'time' => $query[2],
+                    'dumps' => array(
+                        array(
+                            'hits' => 1,
+                            'time' => $query[2],
+                            'content' => $query[3]
+                        ),
+                    )
+                );
+            }
+            $data['queries'] = $queries;
+            $elasticData = $queries;
+            $elasticTime = $data['summary_time'];
+        }
+
         displayXHProfReport($xhprof_runs_impl, $params, $source, $run, $wts,
             $symbol, $sort, $run1, $run2, $source2);
-        echo "</body>";
-        echo "</html>";
+        ?>
+        <script src='xhprof/js/queries.js'></script>
+        <script src='xhprof/js/symbol-typeahead.js'></script>
+        <script type="text/javascript">
+            window.TYPEAHEAD_URL = '<?php echo xhp_typeahead_url() ?>';
+            window.SYMBOL_URL = '<?php echo xhp_run_url() ?>';
+        </script>
+        </body>
+        </html>
+<?php
     }
 
     /**
@@ -488,6 +442,8 @@ class CustomViewXhProf
 
     public function display()
     {
+        $this->prepareSubdirs();
+
         if (isset($_GET['q'])) {
             $this->displayTypeAhead();
         } else if (isset($_GET['callgraph'])) {
@@ -582,5 +538,22 @@ class CustomViewXhProf
     protected function displayNotEnabled()
     {
         echo 'SugarXHprof is not enabled.';
+    }
+
+    protected function prepareSubdirs()
+    {
+        $root = $GLOBALS['profile_files_dir'];
+
+        $dirs = array_map(function($item) {
+            return basename($item);
+        }, glob($root . '/*', GLOB_ONLYDIR));
+
+        array_unshift($dirs, "");
+
+        $this->availableSubDirs = $dirs;
+
+        if (!empty($_REQUEST['dir']) && in_array($_REQUEST['dir'], $dirs)) {
+            $this->currentSubDir = $_REQUEST['dir'];
+        }
     }
 }

@@ -100,6 +100,82 @@ ul.xhprof_actions li a:hover {
 #tbl, .ut-top .ut-list table {border-spacing: 0;}
 #tbl a {text-decoration: none;}
 #tbl a:hover {text-decoration: underline;}
-#tbl tr:hover {background-color: #DFD8F0;}
-#tbl td {padding-left:20px;}
+#tbl tr.run:hover {background-color: #f5f5f5;}
+#tbl .btn-compare {padding: 5px; font-weight: bolder;}
 #tbl .age-bar {border-bottom:1px solid #DDD; color:gray;}
+
+.query-container {max-height:200px; overflow:hidden; position: relative;}
+.query-container.query-container-expanded {max-height:inherit; margin-bottom: 30px; overflow:visible;}
+.query-container.query-container-expanded .show-more-button {background: transparent;bottom: -28px;}
+.query-container .show-more-button {
+    position:absolute;
+    bottom: 0;
+    width: 100%;
+    height: 50px;
+    padding: 0 15px;
+    background: rgba(255,255,255,0);
+    background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(254,254,254,0.95) 40%, rgba(254,254,254, 1) 67%, rgba(254,254,254,1) 100%);
+}
+.query-container .show-more-button button {position:absolute; bottom:0; padding: 0;}
+
+.query .hljs{background: transparent;}
+.query pre {margin: 0;}
+.query pre code {padding: 0;}
+.traces-list {padding-left: 15px;border-left: 3px solid #eee;}
+
+.btn-link:focus {outline: 0 !important;}
+.query .btn-show-traces {padding-left: 0; border: 0;}
+.query .btn-show-traces .glyphicon {color:#777;}
+.table.table-functions td {padding: 1px; font-size: 12px;}
+.table.table-functions th {padding: 3px; font-size: 14px;}
+
+.panel-functions {display: inline-block; min-width: 100%;}
+
+.tt-menu {min-width: 100%;background:white;    border: 1px solid #ccc;}
+
+.tt-hint {
+    display: block;
+    width: 100%;
+    height: 38px;
+    padding: 8px 12px;
+    font-size: 12px;
+    line-height: 1.428571429;
+    /*color: #555 !important;*/
+    opacity: 0.5 !important;
+    vertical-align: middle;
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    -webkit-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+    transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+}
+.tt-menu {
+    min-width: 160px;
+    margin-top: 2px;
+    padding: 5px 0;
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    background-clip: padding-box;
+
+}
+.tt-suggestion {
+    display: block;
+    padding: 3px 10px;
+    font-size: 12px;
+}
+.tt-suggestion:hover, .tt-suggestion.tt-cursor {
+    color: #fff;
+    background-color: #428bca;
+}
+.tt-suggestion.tt-is-under-cursor a {
+    color: #fff;
+}
+.tt-suggestion p {
+    margin: 0;
+}

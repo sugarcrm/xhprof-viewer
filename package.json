@@ -1,0 +1,23 @@
+{
+  "name": "xhprof-viewer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Extended xhprof viewer that supports both OOTB file format as well as extended file format with sql count and wall time.",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "env": "env"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/sugarcrm/xhprof-viewer.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sugarcrm/xhprof-viewer/issues"
+  },
+  "homepage": "https://github.com/sugarcrm/xhprof-viewer#readme",
+  "dependencies": {
+    "bower": "^1.6.9"
+  }
+}
