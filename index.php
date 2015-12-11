@@ -1,6 +1,5 @@
 <?php
 
-
 $instanceRoot = __DIR__ . '/';
 $XHPProfLibRoot = "$instanceRoot/xhprof/xhprof_lib/";
 

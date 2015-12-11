@@ -52,7 +52,5 @@ if (in_array($q, $functions)) {
   }
 }
 
-foreach ($functions as $f) {
-  echo $f."\n";
-}
-
+header('Content-Type: application/json');
+echo json_encode(array_values($functions));

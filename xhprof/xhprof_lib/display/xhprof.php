@@ -32,19 +32,14 @@ function xhprof_include_js_css($ui_dir_url_path = null) {
   // style sheets
   echo "<link href='$ui_dir_url_path/css/xhprof.css' rel='stylesheet' ".
     " type='text/css' />";
-  echo "<link href='$ui_dir_url_path/jquery/jquery.tooltip.css' ".
-    " rel='stylesheet' type='text/css' />";
-  echo "<link href='$ui_dir_url_path/jquery/jquery.autocomplete.css' ".
-    " rel='stylesheet' type='text/css' />";
 
   // javascript
-  echo "<script src='$ui_dir_url_path/jquery/jquery-1.2.6.js'>".
-       "</script>";
-  echo "<script src='$ui_dir_url_path/jquery/jquery.tooltip.js'>".
-       "</script>";
-  echo "<script src='$ui_dir_url_path/jquery/jquery.autocomplete.js'>"
-       ."</script>";
-  echo "<script src='$ui_dir_url_path/js/xhprof_report.js'></script>";
+    echo "<link href='bower_components/bootstrap/dist/css/bootstrap.min.css' rel='stylesheet' type='text/css' />";
+    echo "<link href='bower_components/highlightjs/styles/default.css' rel='stylesheet' type='text/css' />";
+    echo "<script src='bower_components/jquery/dist/jquery.min.js'></script>";
+    echo "<script src='bower_components/highlightjs/highlight.pack.min.js'></script>";
+    echo "<script src='bower_components/typeahead.js/dist/typeahead.jquery.min.js'></script>";
+    echo "<script src='$ui_dir_url_path/js/xhprof_report.js'></script>";
 }
 
 
@@ -577,20 +572,20 @@ function profiler_report ($url_params,
     $links [] = '<input class="function_typeahead" ' .
         ' type="input" size="40" maxlength="100" />';
 
-    echo xhprof_render_actions($links);
+//    echo xhprof_render_actions($links);
 
 
-    echo
-        '<dl class=phprof_report_info>' .
-        '  <dt>' . $diff_text . ' Report</dt>' .
-        '  <dd>' . ($diff_mode ?
-            $run1_txt . '<br><b>vs.</b><br>' . $run2_txt :
-            $run1_txt) .
-        '  </dd>' .
-        '  <dt>Tip</dt>' .
-        '  <dd>Click a function name below to drill down.</dd>' .
-        '</dl>' .
-        '<div style="clear: both; margin: 3em 0em;"></div>';
+//    echo
+//        '<dl class=phprof_report_info>' .
+//        '  <dt>' . $diff_text . ' Report</dt>' .
+//        '  <dd>' . ($diff_mode ?
+//            $run1_txt . '<br><b>vs.</b><br>' . $run2_txt :
+//            $run1_txt) .
+//        '  </dd>' .
+//        '  <dt>Tip</dt>' .
+//        '  <dd>Click a function name below to drill down.</dd>' .
+//        '</dl>' .
+//        '<div style="clear: both; margin: 3em 0em;"></div>';
 
     // data tables
     if (!empty($rep_symbol)) {
@@ -718,12 +713,10 @@ function print_function_info($url_params, $info, $sort, $run1, $run2) {
         print("<tr>");
     }
     else {
-        print('<tr bgcolor="#e5e5e5">');
+        print('<tr>');
     }
 
-    $href = "?" .
-        http_build_query(xhprof_array_set($url_params,
-            'symbol', $info["fn"]));
+    $href = xhp_run_url(array('symbol' => $info["fn"]));
 
     print('<td>');
     print(xhprof_render_link($info["fn"], $href).getBacktraceCallsForFunction($info["fn"]));
@@ -760,7 +753,7 @@ function print_function_info($url_params, $info, $sort, $run1, $run2) {
  *
  * @author Kannan
  */
-function print_flat_data($url_params, $title, $flat_data, $sort, $run1, $run2, $limit) {
+function print_flat_data($url_params, $title, $flat_data, $sort, $run1, $run2, $limit, $callGraphButton) {
 
     global $stats;
     global $sortable_columns;
@@ -771,23 +764,26 @@ function print_flat_data($url_params, $title, $flat_data, $sort, $run1, $run2, $
         $limit = $size;
         $display_link = "";
     } else {
-        $display_link = xhprof_render_link(" [ <b class=bubble>display all </b>]",
-            "?" .
-                http_build_query(xhprof_array_set($url_params,
-                    'all', 1)));
+        $display_link = "<a href='"
+            . xhp_run_url(array('all' => 1))
+            . "' class='btn btn-sm btn-primary'>Display All</a>";
     }
 
-    print("<h3 align=center>$title $display_link</h3><br>");
+    print('<div class="panel panel-default panel-functions">');
 
-    print('<table border=1 cellpadding=2 cellspacing=1 width="90%" '
-        .'rules=rows bordercolor="#bdc7d8" align=center>');
-    print('<tr bgcolor="#bdc7d8" align=right>');
+    print("<div class=\"panel-heading form-inline \"><h3 class=\"panel-title\" style='display:inline-block;'>$title</h3> ");
+    display_symbol_search_input();
+    echo "$display_link $callGraphButton";
+    print("</div>");
+//    print('<div class="panel-body">');
+
+    print('<table class="table table-functions table-condensed table-bordered table-striped">');
+    print('<tr align=right>');
 
     foreach ($stats as $stat) {
         $desc = stat_description($stat);
         if (array_key_exists($stat, $sortable_columns)) {
-            $href = "?"
-                . http_build_query(xhprof_array_set($url_params, 'sort', $stat));
+            $href = xhp_run_url(array('sort' => $stat));
             $header = xhprof_render_link($desc, $href);
         } else {
             $header = $desc;
@@ -814,10 +810,15 @@ function print_flat_data($url_params, $title, $flat_data, $sort, $run1, $run2, $
     }
     print("</table>");
 
+//    print('</div>');
+
+
     // let's print the display all link at the bottom as well...
     if ($display_link) {
-        echo '<div style="text-align: left; padding: 2em">' . $display_link . '</div>';
+        echo '<div class="panel-footer">' . $display_link . '</div>';
     }
+
+    print('</div>');
 
 }
 
@@ -838,6 +839,13 @@ function full_report($url_params, $symbol_tab, $sort, $run1, $run2) {
     global $sort_col;
     global $format_cbk;
     global $display_calls;
+    global $sqlCount;
+    global $sqlTime;
+    global $sqlData;
+    global $elasticCount;
+    global $elasticTime;
+    global $elasticData;
+    global $run_page_params;
 
     $possible_metrics = xhprof_get_possible_metrics();
 
@@ -886,15 +894,14 @@ function full_report($url_params, $symbol_tab, $sort, $run1, $run2) {
         }
         print('</table>');
 
-        $callgraph_report_title = '[View Regressions/Improvements using Callgraph Diff]';
+        $callgraph_report_title = 'View Regressions/Improvements using Callgraph Diff';
 
     } else {
         print("<p><center>\n");
 
-        print('<table cellpadding=2 cellspacing=1 width="30%" '
-            .'bgcolor="#bdc7d8" align=center>' . "\n");
+        print('<table class="table table-bordered table-striped" style="width:auto;">' . "\n");
         echo "<tr>";
-        echo "<th style='text-align:right'>Overall Summary</th>";
+        echo "<th colspan='2' class='text-center'>Overall Summary</th>";
         echo "<th'></th>";
         echo "</tr>";
 
@@ -904,6 +911,34 @@ function full_report($url_params, $symbol_tab, $sort, $run1, $run2) {
                 . str_replace("<br>", " ", stat_description($metric)) . ":</td>";
             echo "<td>" . number_format($totals[$metric]) .  " "
                 . $possible_metrics[$metric][1] . "</td>";
+            echo "</tr>";
+        }
+
+        if ($sqlCount > 0) {
+            echo "<tr>";
+            echo "<td style='text-align:right; font-weight:bold'>Total SQL Queries Count:</td>";
+            echo "<td>" . number_format($sqlCount) . "</td>";
+            echo "</tr>";
+        }
+
+        if ($sqlTime > 0) {
+            echo "<tr>";
+            echo "<td style='text-align:right; font-weight:bold'>SQL Summary Time (microsec):</td>";
+            echo "<td>" . number_format($sqlTime * 1E6) . " microsec</td>";
+            echo "</tr>";
+        }
+
+        if ($elasticCount > 0) {
+            echo "<tr>";
+            echo "<td style='text-align:right; font-weight:bold'>Total Elastic Queries Count:</td>";
+            echo "<td>" . number_format($elasticCount) . "</td>";
+            echo "</tr>";
+        }
+
+        if ($elasticTime > 0) {
+            echo "<tr>";
+            echo "<td style='text-align:right; font-weight:bold'>Elastic Summary Time (microsec):</td>";
+            echo "<td>" . number_format($elasticTime * 1E6) . " microsec</td>";
             echo "</tr>";
         }
 
@@ -917,14 +952,38 @@ function full_report($url_params, $symbol_tab, $sort, $run1, $run2) {
         echo "</table>";
         print("</center></p>\n");
 
-        $callgraph_report_title = '[View Full Callgraph]';
+        $callgraph_report_title = 'View Full Callgraph';
     }
 
-    print("<center><br><h3>" .
-        xhprof_render_link($callgraph_report_title,
-            "?" . 'callgraph=1&' . http_build_query($url_params))
-        . "</h3></center>");
+    $sqlButtons = array();
+    if ($run_page_params['sql_sort_by'] == 'time') {
+        $sqlButtons[] = array(
+            'href' => xhp_run_url(array('sql_sort_by' => 'hits')),
+            'title' => 'Sort by Hits'
+        );
+    } else {
+        $sqlButtons[] = array(
+            'href' => xhp_run_url(array('sql_sort_by' => 'time')),
+            'title' => 'Sort by Time'
+        );
+    }
 
+    display_queries($sqlData, array(
+        'more_queries_after' => 5,
+        'hightlight_language' => 'sql',
+        'title' => 'SQL Queries (Sorted by ' . ($run_page_params['sql_sort_by'] == 'time' ? 'Time' : 'Hits') . ')',
+        'buttons' => $sqlButtons
+    ));
+
+    display_queries($elasticData, array(
+        'more_queries_after' => 5,
+        'hightlight_language' => 'bash',
+        'title' => 'Elastic Queries',
+        'buttons' => array(),
+    ));
+
+    $callGraphButton = '<a class="btn btn-primary btn-sm" target="_blank" href="' . xhp_callgraph_url() . '">'
+        . $callgraph_report_title . '</a>';
 
     $flat_data = array();
     foreach ($symbol_tab as $symbol => $info) {
@@ -937,7 +996,7 @@ function full_report($url_params, $symbol_tab, $sort, $run1, $run2) {
     }
     usort($flat_data, 'sort_cbk');
 
-    print("<br>");
+//    print("<br>");
 
     if (!empty($url_params['all'])) {
         $all = true;
@@ -965,9 +1024,26 @@ function full_report($url_params, $symbol_tab, $sort, $run1, $run2) {
             $title = "Displaying top $limit functions: Sorted by $desc";
         }
     }
-    print_flat_data($url_params, $title, $flat_data, $sort, $run1, $run2, $limit);
+    print_flat_data($url_params, $title, $flat_data, $sort, $run1, $run2, $limit, $callGraphButton);
 }
 
+function display_queries($queries, $options) {
+    include 'queries_table.php';
+}
+
+function display_symbol_search_input() {
+    global $run_page_params;
+    ?>
+    <div class="input-group input-group-sm input-group-symbol">
+        <span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
+        <input class="form-control twitter-typeahead input-group-sm" style="width:20vw;" name="search" placeholder="Search Functions Here" autocomplete="off" type="text">
+    </div>
+    <?php if (!empty($run_page_params['symbol'])) { ?>
+    <a class="btn btn-primary btn-sm" href="<?php echo xhp_run_url(array('symbol' => '')) ?>">
+        <span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
+        View Top Level Run Report</a>
+    <?php }
+}
 
 /**
  * Return attribute names and values to be used by javascript tooltip.
@@ -1174,19 +1250,20 @@ function symbol_report($url_params,
         print('</table>');
     }
 
-    print("<br><h4><center>");
-    print("Parent/Child $regr_impr report for <b>$rep_symbol</b>");
+    print('<div class="panel panel-default panel-functions">');
 
-    $callgraph_href = "?callgraph=1&"
-        . http_build_query(xhprof_array_set($url_params, 'func', $rep_symbol));
+//    $callgraph_href = "?callgraph=1&" . http_build_query(xhprof_array_set($url_params, 'func', $rep_symbol));
 
-    print(" <a href='$callgraph_href'>[View Callgraph $diff_text]</a><br>");
+    ?>
+    <div class="panel-heading form-inline">
+        <h3 class="panel-title" style="display: inline-block;">Parent/Child <?php echo $regr_impr; ?> report for <b><?php echo $rep_symbol; ?></b>"</h3>
+        <?php display_symbol_search_input() ?>
+        <a class="btn btn-primary btn-sm" target="_blank" href="<?php echo xhp_callgraph_url(array('func' => $rep_symbol)) ?>">View Callgraph <?php echo $diff_text ?></a>
+    </div>
+    <?php
 
-    print("</center></h4><br>");
-
-    print('<table border=1 cellpadding=2 cellspacing=1 width="90%" '
-        .'rules=rows bordercolor="#bdc7d8" align=center>' . "\n");
-    print('<tr bgcolor="#bdc7d8" align=right>');
+    print('<table class="table table-functions table-condensed table-bordered table-striped">' . "\n");
+    print('<tr  align=right>');
 
     foreach ($pc_stats as $stat) {
         $desc = stat_description($stat);
@@ -1296,6 +1373,8 @@ function symbol_report($url_params,
     }
 
     print("</table>");
+
+    print('</div>');
 
     // These will be used for pop-up tips/help.
     // Related javascript code is in: xhprof_report.js
@@ -1422,7 +1501,6 @@ function getBacktraceCallsForFunction($name)
  */
 function displayXHProfReport($xhprof_runs_impl, $url_params, $source,
                              $run, $wts, $symbol, $sort, $run1, $run2,$source2='') {
-
     if ($run) {                              // specific run to display?
 
         // run may be a single run or a comma separate list of runs
@@ -1504,4 +1582,35 @@ function xhp_prepare_xhp_data($xhprof_data, $diff=false)
         }
     }
     return $xhprof_data;
+}
+
+function xhp_run_url($params = array())
+{
+    global $run_page_params;
+    return '?' . http_build_query(array_merge($run_page_params, $params));
+}
+
+function xhp_callgraph_url($params = array())
+{
+    global $run_page_params;
+    return '?' . http_build_query(array_merge(
+        array(
+            'callgraph' => 1,
+            'dir' => $run_page_params['dir'],
+            'run' => $run_page_params['run'],
+        ),
+        $params
+    ));
+}
+
+function xhp_typeahead_url($params = array())
+{
+    global $run_page_params;
+    return '?' . http_build_query(array_merge(
+        array(
+            'dir' => $run_page_params['dir'],
+            'run' => $run_page_params['run'],
+        ),
+        $params
+    ));
 }

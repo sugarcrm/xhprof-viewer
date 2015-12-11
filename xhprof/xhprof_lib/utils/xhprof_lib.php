@@ -19,7 +19,8 @@ function xhprof_get_possible_metrics() {
         "cpu" => array("Cpu", "microsecs", "cpu time"),
         "mu" => array("MUse", "bytes", "memory usage"),
         "pmu" => array("PMUse", "bytes", "peak memory usage"),
-        "samples" => array("Samples", "samples", "cpu time"));
+        "samples" => array("Samples", "samples", "cpu time")
+        );
     return $possible_metrics;
 }
 
