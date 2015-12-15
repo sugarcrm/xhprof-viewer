@@ -52,5 +52,11 @@ if (in_array($q, $functions)) {
   }
 }
 
+$functions = array_slice($functions, 0, 15);
+
+$functions = array_map(function($value) {
+    return array('value' => $value);
+}, $functions);
+
 header('Content-Type: application/json');
 echo json_encode(array_values($functions));

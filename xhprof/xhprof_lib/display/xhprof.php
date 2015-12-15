@@ -38,7 +38,7 @@ function xhprof_include_js_css($ui_dir_url_path = null) {
     echo "<link href='bower_components/highlightjs/styles/default.css' rel='stylesheet' type='text/css' />";
     echo "<script src='bower_components/jquery/dist/jquery.min.js'></script>";
     echo "<script src='bower_components/highlightjs/highlight.pack.min.js'></script>";
-    echo "<script src='bower_components/typeahead.js/dist/typeahead.jquery.min.js'></script>";
+    echo "<script src='bower_components/algolia-autocomplete.js/dist/autocomplete.jquery.min.js'></script>";
     echo "<script src='$ui_dir_url_path/js/xhprof_report.js'></script>";
 }
 
