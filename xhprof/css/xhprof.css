@@ -131,51 +131,37 @@ ul.xhprof_actions li a:hover {
 
 .panel-functions {display: inline-block; min-width: 100%;}
 
-.tt-menu {min-width: 100%;background:white;    border: 1px solid #ccc;}
-
-.tt-hint {
-    display: block;
+.algolia-autocomplete {
     width: 100%;
-    height: 38px;
-    padding: 8px 12px;
-    font-size: 12px;
-    line-height: 1.428571429;
-    /*color: #555 !important;*/
-    opacity: 0.5 !important;
-    vertical-align: middle;
-    background-color: #ffffff;
-    border: 1px solid #cccccc;
-    border-radius: 4px;
-    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-    -webkit-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
-    transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
 }
-.tt-menu {
-    min-width: 160px;
-    margin-top: 2px;
-    padding: 5px 0;
-    background-color: #ffffff;
-    border: 1px solid #cccccc;
-    border: 1px solid rgba(0, 0, 0, 0.15);
-    border-radius: 4px;
-    -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
-    background-clip: padding-box;
+.algolia-autocomplete .aa-input, .algolia-autocomplete .aa-hint {
+    width: 100%;
+}
+.algolia-autocomplete .aa-hint {
+    color: #999;
+}
+.algolia-autocomplete .aa-dropdown-menu {
+    min-width: 100%;
+    background-color: #fff;
+    border: 1px solid #999;
+    border-top: none;
+}
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion {
+    cursor: pointer;
+    padding: 5px 4px;
+    font-size: 12px;
+}
 
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion p {
+    margin: 0;
 }
-.tt-suggestion {
-    display: block;
-    padding: 3px 10px;
-    font-size: 12px;
-}
-.tt-suggestion:hover, .tt-suggestion.tt-cursor {
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion.aa-cursor {
+    /*background-color: #B2D7FF;*/
     color: #fff;
     background-color: #428bca;
 }
-.tt-suggestion.tt-is-under-cursor a {
-    color: #fff;
-}
-.tt-suggestion p {
-    margin: 0;
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion em {
+    font-weight: bold;
+    font-style: normal;
 }

@@ -13,6 +13,7 @@
     "bootstrap": "~3.3.6",
     "font-awesome": "~4.5.0",
     "bootstrap-datepicker": "~1.5.0",
-    "highlightjs": "~8.9.1"
+    "highlightjs": "~8.9.1",
+    "algolia-autocomplete.js": "~0.16.0"
   }
 }
