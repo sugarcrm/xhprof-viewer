@@ -1,6 +1,7 @@
 <?php /** @var CustomViewXhProf $this  */?><html>
 <head>
     <title>XHProf: Hierarchical Profiler Report</title>
+    <link rel="shortcut icon" type="image/png" href="xhprof/images/guitarist-309806_640.png"/>
     <link href='xhprof/css/xhprof.css' rel='stylesheet' type='text/css' />
     <link href='bower_components/bootstrap/dist/css/bootstrap.min.css' rel='stylesheet' type='text/css' />
     <link href='bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css' rel='stylesheet' type='text/css' />
@@ -15,7 +16,7 @@
         <input type="hidden" id="f_sort_dir" name="f_sort_dir" value="<?php echo $this->filters['f_sort_dir'] ?>" />
         <div class="page-header form-inline" style="margin-top: 20px;">
             <a class="btn btn-primary pull-right" href="<?php echo $this->listUrl() ?>"><i class="fa fa-refresh"></i> Refresh</a>
-            <h1>SugarCRM XHProf Viewer <small>List of profiler files in
+            <h1><img class="logo" src="xhprof/images/guitarist-309806_640.png" />SugarCRM XHProf Viewer <small>List of profiler files in
                     <select id="dir" name="dir" class="form-control">
                         <?php foreach ($this->availableSubDirs as $dir) { ?>
                             <option <?php if ($dir == $this->currentSubDir) { ?>selected<?php } ?>

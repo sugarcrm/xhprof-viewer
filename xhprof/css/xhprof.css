@@ -165,3 +165,5 @@ ul.xhprof_actions li a:hover {
     font-weight: bold;
     font-style: normal;
 }
+
+img.logo {width: 40px; position: relative; top: -2px; margin-right: 10px;}

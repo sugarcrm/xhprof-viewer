@@ -241,6 +241,7 @@ class CustomViewXhProf
         echo "<html>";
 
         echo "<head><title>XHProf: Hierarchical Profiler Report</title>";
+        echo "<link rel=\"shortcut icon\" type=\"image/png\" href=\"xhprof/images/guitarist-309806_640.png\"/>";
         xhprof_include_js_css($GLOBALS['base_path'] . '/xhprof');
         echo "</head>";
 
@@ -255,7 +256,7 @@ class CustomViewXhProf
                         <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> Back To List
                     </a>
                 </div>
-                <h1><p>SugarCRM XHProf Viewer </p><small><?php echo htmlentities($runData['namespace']) ?></small></h1>
+                <h1><p><img class="logo" src="xhprof/images/guitarist-309806_640.png" />SugarCRM XHProf Viewer </p><small><?php echo htmlentities($runData['namespace']) ?></small></h1>
             </div>
         </div>
         <?php
