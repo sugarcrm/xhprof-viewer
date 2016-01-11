@@ -54,7 +54,7 @@
                         <p>Hits: <span class="badge"><?php echo $dump['hits'] ?></span>,
                             Time: <span class="badge"><?php echo number_format($dump['time'] * 1E6) ?> microsec</span>,
                             Trace:</p>
-                        <pre><code><?php echo $dump['content'] ?></code></pre>
+                        <pre><code class="stylus"><?php echo $dump['content'] ?></code></pre>
                     <?php } ?>
                     </div>
                 </div>
