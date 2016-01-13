@@ -1,6 +1,7 @@
 <?php /** @var CustomViewXhProf $this  */?><html>
 <head>
     <title>XHProf: Hierarchical Profiler Report</title>
+    <link rel="shortcut icon" type="image/png" href="xhprof/images/guitarist-309806_640.png"/>
     <link href='xhprof/css/xhprof.css' rel='stylesheet' type='text/css' />
     <link href='bower_components/bootstrap/dist/css/bootstrap.min.css' rel='stylesheet' type='text/css' />
     <link href='bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css' rel='stylesheet' type='text/css' />

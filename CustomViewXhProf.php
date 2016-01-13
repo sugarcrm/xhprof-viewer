@@ -241,6 +241,7 @@ class CustomViewXhProf
         echo "<html>";
 
         echo "<head><title>XHProf: Hierarchical Profiler Report</title>";
+        echo "<link rel=\"shortcut icon\" type=\"image/png\" href=\"xhprof/images/guitarist-309806_640.png\"/>";
         xhprof_include_js_css($GLOBALS['base_path'] . '/xhprof');
         echo "</head>";
 

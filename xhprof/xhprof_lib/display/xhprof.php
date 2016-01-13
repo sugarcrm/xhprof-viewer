@@ -36,6 +36,7 @@ function xhprof_include_js_css($ui_dir_url_path = null) {
   // javascript
     echo "<link href='bower_components/bootstrap/dist/css/bootstrap.min.css' rel='stylesheet' type='text/css' />";
     echo "<link href='bower_components/highlightjs/styles/default.css' rel='stylesheet' type='text/css' />";
+    echo "<link href='bower_components/font-awesome/css/font-awesome.min.css' rel='stylesheet' type='text/css' />";
     echo "<script src='bower_components/jquery/dist/jquery.min.js'></script>";
     echo "<script src='bower_components/highlightjs/highlight.pack.min.js'></script>";
     echo "<script src='bower_components/algolia-autocomplete.js/dist/autocomplete.jquery.min.js'></script>";
@@ -952,7 +953,7 @@ function full_report($url_params, $symbol_tab, $sort, $run1, $run2) {
         echo "</table>";
         print("</center></p>\n");
 
-        $callgraph_report_title = 'View Full Callgraph';
+        $callgraph_report_title = '<i class="fa fa-pie-chart"></i> View Full Callgraph';
     }
 
     $sqlButtons = array();
@@ -1258,7 +1259,7 @@ function symbol_report($url_params,
     <div class="panel-heading form-inline">
         <h3 class="panel-title" style="display: inline-block;">Parent/Child <?php echo $regr_impr; ?> report for <b><?php echo $rep_symbol; ?></b>"</h3>
         <?php display_symbol_search_input() ?>
-        <a class="btn btn-primary btn-sm" target="_blank" href="<?php echo xhp_callgraph_url(array('func' => $rep_symbol)) ?>">View Callgraph <?php echo $diff_text ?></a>
+        <a class="btn btn-primary btn-sm" target="_blank" href="<?php echo xhp_callgraph_url(array('func' => $rep_symbol)) ?>"><i class="fa fa-pie-chart"></i> View Callgraph <?php echo $diff_text ?></a>
     </div>
     <?php
 
