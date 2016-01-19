@@ -54,9 +54,25 @@ $(function() {
                 .toggleClass('glyphicon-triangle-bottom');
 
             if (!$tracesList.data('hljs-initialized')) {
-                var $tracesToHighlight = $($.map($tracesList.find('pre code'), $)),
-                    tracesInitializer = getVisibleInitialized($tracesToHighlight, function(block) {
-                        hljs.highlightBlock(block[0]);
+                var $tracesToHighlight = $($.map($tracesList.find('.trace'), $)),
+                    tracesInitializer = getVisibleInitialized($tracesToHighlight, function($trace) {
+                        var $longTrace = $trace.find('pre.trace-long'),
+                            $shortTrace = $trace.find('pre.trace-short'),
+                            $button = $trace.find('button.btn-trace-with-filenames');
+
+                        hljs.highlightBlock($shortTrace.find('code')[0]);
+                        hljs.highlightBlock($longTrace.find('code')[0]);
+                        $button.click(function() {
+                            var $this = $(this);
+                            $this.toggleClass('active');
+                            if ($this.hasClass('active')) {
+                                $longTrace.show();
+                                $shortTrace.hide();
+                            } else {
+                                $longTrace.hide();
+                                $shortTrace.show();
+                            }
+                        });
                     });
 
                 tracesInitializer();
