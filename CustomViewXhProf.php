@@ -312,6 +312,7 @@ class CustomViewXhProf
                 $dump_hash[$sqlKey]['dumps'][$traceKey]['hits']++;
                 $dump_hash[$sqlKey]['dumps'][$traceKey]['time'] += $row[1];
                 $dump_hash[$sqlKey]['dumps'][$traceKey]['content'] = htmlspecialchars($row[2]);
+                $dump_hash[$sqlKey]['dumps'][$traceKey]['content_short'] = htmlspecialchars($this->shortenStackTrace($row[2]));
 //                        $dump_hash[$sqlKey]['dumps'][$traceKey]['fetch_time']+= isset($dump_hash[$sqlKey]['fetch_time']) ? $dump_hash[$sqlKey]['fetch_time'] : 0;
             }
 
@@ -342,7 +343,8 @@ class CustomViewXhProf
                         array(
                             'hits' => 1,
                             'time' => $query[2],
-                            'content' => $query[3]
+                            'content' => $query[3],
+                            'content_short' => $this->shortenStackTrace($query[3])
                         ),
                     )
                 );
@@ -364,6 +366,11 @@ class CustomViewXhProf
         </body>
         </html>
 <?php
+    }
+
+    protected function shortenStackTrace($trace)
+    {
+        return preg_replace('/^(#\d+).*\[Line: \d+\]/m', '$1' ,$trace);
     }
 
     /**

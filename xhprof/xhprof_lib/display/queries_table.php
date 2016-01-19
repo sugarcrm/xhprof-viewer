@@ -48,13 +48,16 @@
 
                     <div class="traces-list" style="display:none;">
                     <?php foreach ($query['dumps'] as $dumpIndex => $dump) { ?>
-                        <?php if ($dumpIndex != 0) { ?>
-                            <hr>
-                        <?php } ?>
-                        <p>Hits: <span class="badge"><?php echo $dump['hits'] ?></span>,
-                            Time: <span class="badge"><?php echo number_format($dump['time'] * 1E6) ?> microsec</span>,
-                            Trace:</p>
-                        <pre><code class="stylus"><?php echo $dump['content'] ?></code></pre>
+                        <div class="trace">
+                            <?php if ($dumpIndex != 0) { ?>
+                                <hr>
+                            <?php } ?>
+                            <p>Hits: <span class="badge"><?php echo $dump['hits'] ?></span>,
+                                Time: <span class="badge"><?php echo number_format($dump['time'] * 1E6) ?> microsec</span>,
+                                Trace <button type="button" class="btn btn-default btn-xs btn-trace-with-filenames">with filenames</button>:</p>
+                            <pre class="trace-short"><code class="stylus"><?php echo $dump['content_short'] ?></code></pre>
+                            <pre class="trace-long" style="display:none;"><code class="stylus"><?php echo $dump['content'] ?></code></pre>
+                        </div>
                     <?php } ?>
                     </div>
                 </div>
