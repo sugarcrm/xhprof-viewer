@@ -192,7 +192,7 @@ class CustomViewXhProf
 
         $files = array_slice($bufFiles, $start, $limit, true);
 
-        require(__DIR__ . '/XHProfList.php');
+        require(__DIR__ . '/xhprof/xhprof_lib/display/runs_list.php');
     }
 
     protected function displayRun()
