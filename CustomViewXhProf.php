@@ -370,7 +370,7 @@ class CustomViewXhProf
 
     protected function shortenStackTrace($trace)
     {
-        return preg_replace('/^(#\d+).*\[Line: \d+\]/m', '$1' ,$trace);
+        return preg_replace('/^(#\d+).*\[Line: (\d+|n\/a)\]/m', '$1' ,$trace);
     }
 
     /**
