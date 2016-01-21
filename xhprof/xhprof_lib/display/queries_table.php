@@ -1,15 +1,13 @@
-<?php if (count($queries) == 0 ) {
-    return;
-} ?>
 <div class="panel panel-default panel-queries">
     <div class="panel-heading">
         <h3 class="panel-title" style="display: inline-block;"><?php echo $options['title'] ?> <span class="badge"><?php echo count($queries) ?></span></h3>
         &nbsp;&nbsp;
-        <?php foreach ($options['buttons'] as $button) { ?>
-            <a class="btn btn-primary btn-sm" href="<?php echo $button['href'] ?>"><?php echo $button['title'] ?></a>
-        <?php } ?>
+        <?php if (!empty($options['buttons'])) require $options['buttons']; ?>
     </div>
     <div class="panel-body">
+        <?php if (count($queries) == 0 ) { ?>
+            There are no queries
+        <? } ?>
         <?php foreach ($queries as $index => $query) {
             if ($index == $options['more_queries_after']) { ?>
                 <div class="more-queries" style="display:none;">

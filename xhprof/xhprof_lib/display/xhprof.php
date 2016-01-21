@@ -972,15 +972,14 @@ function full_report($url_params, $symbol_tab, $sort, $run1, $run2) {
     display_queries($sqlData, array(
         'more_queries_after' => 5,
         'hightlight_language' => 'sql',
-        'title' => 'SQL Queries (Sorted by ' . ($run_page_params['sql_sort_by'] == 'time' ? 'Time' : 'Hits') . ')',
-        'buttons' => $sqlButtons
+        'title' => 'SQL Queries',
+        'buttons' => 'xhprof/xhprof_lib/display/queries_table/sql_buttons.php'
     ));
 
     display_queries($elasticData, array(
         'more_queries_after' => 5,
         'hightlight_language' => 'bash',
         'title' => 'Elastic Queries',
-        'buttons' => array(),
     ));
 
     $callGraphButton = '<a class="btn btn-primary btn-sm" target="_blank" href="' . xhp_callgraph_url() . '">'
@@ -1029,6 +1028,7 @@ function full_report($url_params, $symbol_tab, $sort, $run1, $run2) {
 }
 
 function display_queries($queries, $options) {
+    global $run_page_params;
     include 'queries_table.php';
 }
 

@@ -233,6 +233,7 @@ class CustomViewXhProf
         $params['dir'] = $this->currentSubDir;
         $params['list_url'] = !empty($_REQUEST['list_url']) ? $_REQUEST['list_url'] : '';
         $params['sql_sort_by'] = !empty($_REQUEST['sql_sort_by']) ? $_REQUEST['sql_sort_by'] : 'time';
+        $params['sql_type'] = !empty($_REQUEST['sql_type']) ? $_REQUEST['sql_type'] : 'all';
 
         $GLOBALS['run_page_params'] = $params;
 
@@ -291,8 +292,25 @@ class CustomViewXhProf
                 $sqlFetchTime = $data['summary_fetch_time'];
             }
 
+            $sqlTypeRegexMap = array(
+                'select' => '/^\w*select/i',
+                'modify' => '/^\w*(insert|update)/i'
+            );
+
             $sqlData = $dump_hash = array();
             foreach ($data['sql'] as $row) {
+
+                $sqlType = 'other';
+                foreach ($sqlTypeRegexMap as $type => $regex) {
+                    if (preg_match($regex, $row[0])) {
+                        $sqlType = $type;
+                    }
+                }
+
+                if ($params['sql_type'] != 'all' && $params['sql_type'] != $sqlType) {
+                    continue;
+                }
+
                 $sqlKey = md5($row[0]);
                 $traceKey = md5($row[2]);
                 if (!isset($dump_hash[$sqlKey])) {
