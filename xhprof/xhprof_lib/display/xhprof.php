@@ -12,38 +12,6 @@ require_once $XHPProfLibRoot.'/utils/xhprof_runs.php';
  */
 $base_path = rtrim(dirname($_SERVER['SCRIPT_NAME']), "/");
 
-
-/**
- * Generate references to required stylesheets & javascript.
- *
- * If the calling script (such as index.php) resides in
- * a different location that than 'xhprof_html' directory the
- * caller must provide the URL path to 'xhprof_html' directory
- * so that the correct location of the style sheets/javascript
- * can be specified in the generated HTML.
- *
- */
-function xhprof_include_js_css($ui_dir_url_path = null) {
-
-  if (empty($ui_dir_url_path)) {
-    $ui_dir_url_path = rtrim(dirname($_SERVER['SCRIPT_NAME']), "/");
-  }
-
-  // style sheets
-  echo "<link href='$ui_dir_url_path/css/xhprof.css' rel='stylesheet' ".
-    " type='text/css' />";
-
-  // javascript
-    echo "<link href='bower_components/bootstrap/dist/css/bootstrap.min.css' rel='stylesheet' type='text/css' />";
-    echo "<link href='bower_components/highlightjs/styles/default.css' rel='stylesheet' type='text/css' />";
-    echo "<link href='bower_components/font-awesome/css/font-awesome.min.css' rel='stylesheet' type='text/css' />";
-    echo "<script src='bower_components/jquery/dist/jquery.min.js'></script>";
-    echo "<script src='bower_components/highlightjs/highlight.pack.min.js'></script>";
-    echo "<script src='bower_components/algolia-autocomplete.js/dist/autocomplete.jquery.min.js'></script>";
-    echo "<script src='$ui_dir_url_path/js/xhprof_report.js'></script>";
-}
-
-
 /*
  * Formats call counts for XHProf reports.
  *

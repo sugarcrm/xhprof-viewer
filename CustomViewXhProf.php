@@ -241,30 +241,6 @@ class CustomViewXhProf
 
         $runData = $this->parseFilename($run);
 
-        echo "<html>";
-
-        echo "<head><title>XHProf: Hierarchical Profiler Report</title>";
-        echo "<link rel=\"shortcut icon\" type=\"image/png\" href=\"xhprof/images/guitarist-309806_640.png\"/>";
-        xhprof_include_js_css($GLOBALS['base_path'] . '/xhprof');
-        echo "</head>";
-
-        echo "<body class=\"container-fluid\">";
-
-        ?>
-        <div>
-            <div class="page-header form-inline" style="margin-top: 20px;">
-
-                <div class="navbar-form pull-right" style="padding-right:0;">
-                    <a class="btn btn-primary" href="<?php echo $params['list_url'] ?>">
-                        <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> Back To List
-                    </a>
-                </div>
-                <h1><p>SugarCRM XHProf Viewer </p><small><?php echo htmlentities($runData['namespace']) ?></small></h1>
-            </div>
-        </div>
-        <?php
-
-
         $GLOBALS['vbar'] = ' class="vbar"';
         $GLOBALS['vwbar'] = ' class="vwbar"';
         $GLOBALS['vwlbar'] = ' class="vwlbar"';
@@ -379,18 +355,7 @@ class CustomViewXhProf
             $elasticTime = $data['summary_time'];
         }
 
-        displayXHProfReport($xhprof_runs_impl, $params, $source, $run, $wts,
-            $symbol, $sort, $run1, $run2, $source2);
-        ?>
-        <script src='xhprof/js/queries.js'></script>
-        <script src='xhprof/js/symbol-typeahead.js'></script>
-        <script type="text/javascript">
-            window.TYPEAHEAD_URL = '<?php echo xhp_typeahead_url() ?>';
-            window.SYMBOL_URL = '<?php echo xhp_run_url() ?>';
-        </script>
-        </body>
-        </html>
-<?php
+        require (__DIR__ . '/xhprof/xhprof_lib/display/run.php');
     }
 
     protected function shortenStackTrace($trace)
