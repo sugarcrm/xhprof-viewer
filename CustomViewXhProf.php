@@ -234,6 +234,8 @@ class CustomViewXhProf
         $params['list_url'] = !empty($_REQUEST['list_url']) ? $_REQUEST['list_url'] : '';
         $params['sql_sort_by'] = !empty($_REQUEST['sql_sort_by']) ? $_REQUEST['sql_sort_by'] : 'time';
         $params['sql_type'] = !empty($_REQUEST['sql_type']) ? $_REQUEST['sql_type'] : 'all';
+        $params['sql_regex_text'] = !empty($_REQUEST['sql_regex_text']) ? $_REQUEST['sql_regex_text'] : '';
+        $params['sql_regex_mod'] = !empty($_REQUEST['sql_regex_mod']) ? $_REQUEST['sql_regex_mod'] : 'i';
 
         $GLOBALS['run_page_params'] = $params;
 
@@ -308,6 +310,11 @@ class CustomViewXhProf
                 }
 
                 if ($params['sql_type'] != 'all' && $params['sql_type'] != $sqlType) {
+                    continue;
+                }
+
+                if ($params['sql_regex_text']
+                    && !preg_match('/(' . $params['sql_regex_text'] . ')/' . $params['sql_regex_mod'], $row[0])) {
                     continue;
                 }
 
