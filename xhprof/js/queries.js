@@ -84,7 +84,7 @@ $(function() {
         $container.find('.query-container pre code').each(function(i, block) {
             hljs.highlightBlock(block);
             var highlightPositions = $(block).data('highlight-positions');
-            if (highlightPositions.length > 0) {
+            if (highlightPositions && highlightPositions.length > 0) {
                 highlightMatches(block, highlightPositions)
             }
         });

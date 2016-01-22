@@ -28,7 +28,10 @@
                     Query:
                 </p>
                 <div class="query-container">
-                    <pre><code class="<?php echo $options['hightlight_language'] ?>" data-highlight-positions="<?php echo json_encode($query['highlight_positions']) ?>"><?php
+                    <pre><code class="<?php echo $options['hightlight_language'] ?>"
+                               <?php if (!empty($query['highlight_positions'])) { ?>
+                                   data-highlight-positions="<?php echo json_encode($query['highlight_positions']) ?>"
+                               <?php } ?>><?php
                             if (is_array($query['query'])) {
                                 echo htmlentities($query['query'][0]), "\n", htmlentities(json_encode($query['query'][1], JSON_PRETTY_PRINT));
                             } else {
