@@ -11,6 +11,7 @@
         <script src='bower_components/jquery/dist/jquery.min.js'></script>
         <script src='bower_components/highlightjs/highlight.pack.min.js'></script>
         <script src='bower_components/algolia-autocomplete.js/dist/autocomplete.jquery.min.js'></script>
+        <script src='bower_components/bootstrap/dist/js/bootstrap.min.js'></script>
         <script src='xhprof/js/xhprof_report.js'></script>
     </head>
     <body class="container-fluid">
@@ -34,6 +35,10 @@
         <script type="text/javascript">
             window.TYPEAHEAD_URL = '<?php echo xhp_typeahead_url() ?>';
             window.SYMBOL_URL = '<?php echo xhp_run_url() ?>';
+
+            $(function () {
+                $('[data-toggle="tooltip"]').tooltip({html: true})
+            });
         </script>
     </body>
 </html>

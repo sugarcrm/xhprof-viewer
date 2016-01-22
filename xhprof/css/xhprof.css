@@ -167,3 +167,4 @@ ul.xhprof_actions li a:hover {
 }
 
 .sql-matched-chunk {background-color: wheat;}
+.container-fluid .tooltip-inner {max-width:inherit;}
