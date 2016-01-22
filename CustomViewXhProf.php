@@ -501,55 +501,6 @@ class CustomViewXhProf
         return is_file($file . '.sql');
     }
 
-    function data2array(array $data, $l = 0)
-    {
-        $arr = array();
-        if ($l < 8) {
-            foreach ($data as $index => $row) {
-                if (is_array($row) || ($row instanceof __PHP_Incomplete_Class)) {
-                    $arr[$index] = $this->data2array((array)$row, $l + 1);
-                } else {
-                    $arr[$index] = $row;
-                }
-            }
-        } else {
-            $arr = '... too much recursion';
-        }
-        return $arr;
-    }
-
-    function printr($a, $l = 0)
-    {
-        if (!empty($a)) {
-            $plus = '<span style="margin:1px 5px;border:1px solid #ccc;cursor:pointer;" onclick="expand_node(this);">+</span>';
-            $head = '<div class="node" style="margin-left:' . (20) . 'px;border-left:1px solid #ccc;' . ($l ? 'display:none;' : '') . '" >';
-            $out = '';
-            if (is_array($a)) {
-                $s = '';
-                foreach ($a as $k => $v) {
-                    if (is_array($v)) {
-                        $buf = $this->printr($v, $l + 1);
-                        $s .= '<div style="' . (!empty($buf) ? '' : 'color:#999;') . 'margin-left:' . (20) . 'px"> '
-                            . (!empty($buf) ? $plus : '') . ($k . ': ') . '</div>' . $buf;
-                    } else {
-                        $s .= '<div style="margin-left:' . (20) . 'px">' . $k . ': ' . print_r($v, 1) . '</div>';
-                    }
-                }
-                $out .= '<div style="margin-left:' . (20) . 'px">' . $s . '</div>';
-            } else {
-                $out .= '<div style="margin-left:' . (20) . 'px">' . (is_object($a) ? print_r($a, 1) : $a) . '</div>';
-            }
-            return $out ? $head . $out . '</div>' : '';
-        } else {
-            return '';
-        }
-    }
-
-    protected function displayNotEnabled()
-    {
-        echo 'SugarXHprof is not enabled.';
-    }
-
     protected function prepareSubdirs()
     {
         $root = $GLOBALS['profile_files_dir'];
