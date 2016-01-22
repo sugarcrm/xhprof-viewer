@@ -83,6 +83,10 @@ $(function() {
 
         $container.find('.query-container pre code').each(function(i, block) {
             hljs.highlightBlock(block);
+            var highlightPositions = $(block).data('highlight-positions');
+            if (highlightPositions.length > 0) {
+                highlightMatches(block, highlightPositions)
+            }
         });
     }
 
@@ -114,4 +118,95 @@ $(function() {
             });
         }
     });
+
+    function highlightMatches(code, matches) {
+        var node = code.childNodes[0],
+            fromParent = false,
+            highlighting = false,
+            currentPeacePosition = 0,
+            seekingMatch = matches.shift(),
+            seekingPosition = seekingMatch[0],
+            element;
+
+        while(node !== code) {
+            if (node.nodeType == node.TEXT_NODE) {
+                if (currentPeacePosition + node.textContent.length < seekingPosition) {
+                    currentPeacePosition += node.textContent.length;
+                    if (highlighting) {
+                        element = document.createElement('span');
+                        element.innerText = node.textContent;
+                        element.classList.add('sql-matched-chunk');
+                        node.parentNode.replaceChild(element, node);
+                        node = element;
+                        fromParent = true;
+                    }
+                } else {
+                    //
+                    var currentPosition = 0,
+                        lastChunk = false,
+                        found = false;
+                    while (currentPosition < node.textContent.length) {
+
+                        var chunkEndPosition;
+                        if (seekingPosition - currentPeacePosition > node.textContent.length - 1) {
+                            chunkEndPosition = node.textContent.length;
+                        } else {
+                            chunkEndPosition = seekingPosition - currentPeacePosition;
+                            found = true;
+                        }
+
+                        if (chunkEndPosition > currentPosition) {
+                            var chunk = node.textContent.substring(currentPosition, chunkEndPosition);
+                            currentPosition = chunkEndPosition;
+
+                            if (highlighting) {
+                                element = document.createElement('span');
+                                element.innerText = chunk;
+                                element.classList.add('sql-matched-chunk');
+                            } else {
+                                element = document.createTextNode(chunk);
+                            }
+                            node.parentNode.insertBefore(element, node);
+                        }
+
+                        if (found) {
+                            if (highlighting) {
+                                seekingMatch = matches.shift();
+                                if (seekingMatch) {
+                                    seekingPosition = seekingMatch[0];
+                                } else {
+                                    seekingPosition = currentPeacePosition + node.textContent.length;
+                                    lastChunk = true;
+                                }
+                            } else {
+                                seekingPosition = seekingMatch[1];
+                            }
+                            highlighting = !highlighting;
+                            found = false;
+                        }
+                    }
+
+                    fromParent = true;
+                    node.parentNode.removeChild(node);
+                    currentPeacePosition += node.textContent.length;
+                    node = element;
+
+                    if (lastChunk) {
+                        return;
+                    }
+                }
+            }
+
+            if (!fromParent && node.childNodes.length > 0) {
+                node = node.childNodes[0];
+                fromParent = false;
+            } else if (node.nextSibling) {
+                node = node.nextSibling;
+                fromParent = false;
+            } else {
+                node = node.parentNode;
+                fromParent = true;
+            }
+        }
+    }
 });

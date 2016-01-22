@@ -165,3 +165,5 @@ ul.xhprof_actions li a:hover {
     font-weight: bold;
     font-style: normal;
 }
+
+.sql-matched-chunk {background-color: wheat;}

@@ -235,7 +235,7 @@ class CustomViewXhProf
         $params['sql_sort_by'] = !empty($_REQUEST['sql_sort_by']) ? $_REQUEST['sql_sort_by'] : 'time';
         $params['sql_type'] = !empty($_REQUEST['sql_type']) ? $_REQUEST['sql_type'] : 'all';
         $params['sql_regex_text'] = !empty($_REQUEST['sql_regex_text']) ? $_REQUEST['sql_regex_text'] : '';
-        $params['sql_regex_mod'] = !empty($_REQUEST['sql_regex_mod']) ? $_REQUEST['sql_regex_mod'] : 'i';
+        $params['sql_regex_mod'] = !empty($_REQUEST['sql_regex_mod']) ? $_REQUEST['sql_regex_mod'] : '';
 
         $GLOBALS['run_page_params'] = $params;
 
@@ -289,9 +289,20 @@ class CustomViewXhProf
                     continue;
                 }
 
-                if ($params['sql_regex_text']
-                    && !preg_match('/(' . $params['sql_regex_text'] . ')/' . $params['sql_regex_mod'], $row[0])) {
-                    continue;
+                $matches = array();
+                if ($params['sql_regex_text']) {
+                    if (preg_match_all(
+                        '/' . $params['sql_regex_text'] . '/' . $params['sql_regex_mod'],
+                        $row[0],
+                        $matches,
+                        PREG_PATTERN_ORDER | PREG_OFFSET_CAPTURE
+                    )) {
+                        $matches = array_map(function($match) {
+                            return array($match[1], $match[1] + strlen($match[0]));
+                        }, $matches[0]);
+                    } else {
+                        continue;
+                    }
                 }
 
                 $sqlKey = md5($row[0]);
@@ -305,6 +316,7 @@ class CustomViewXhProf
                 $dump_hash[$sqlKey]['query'] = $row[0];
                 $dump_hash[$sqlKey]['fetch_count'] = isset($row[3]) ? $row[3] : 0;
                 $dump_hash[$sqlKey]['fetch_time'] = isset($row[4]) ? $row[4] : 0;
+                $dump_hash[$sqlKey]['highlight_positions'] = $matches;
 
                 if (!isset($dump_hash[$sqlKey]['dumps'][$traceKey])) {
                     $dump_hash[$sqlKey]['dumps'][$traceKey] = array('hits' => 0, 'time' => 0);
