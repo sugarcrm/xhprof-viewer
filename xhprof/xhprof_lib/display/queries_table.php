@@ -7,7 +7,7 @@
     <div class="panel-body">
         <?php if (count($queries) == 0 ) { ?>
             There are no queries
-        <? } ?>
+        <?php } ?>
         <?php foreach ($queries as $index => $query) {
             if ($index == $options['more_queries_after']) { ?>
                 <div class="more-queries" style="display:none;">
@@ -33,7 +33,7 @@
                                    data-highlight-positions="<?php echo json_encode($query['highlight_positions']) ?>"
                                <?php } ?>><?php
                             if (is_array($query['query'])) {
-                                echo htmlentities($query['query'][0]), "\n", htmlentities(json_encode($query['query'][1], JSON_PRETTY_PRINT));
+                                echo htmlentities($query['query'][0]), !empty($query['query'][0]) ? "\n" : '', htmlentities(json_encode($query['query'][1], JSON_PRETTY_PRINT));
                             } else {
                                 echo htmlentities($query['query']);
                             }

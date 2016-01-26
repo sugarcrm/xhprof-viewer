@@ -1,5 +1,6 @@
 <?php
 
+require_once 'xhprof/xhprof_lib/utils/ibm_elastic_query.php';
 
 class CustomViewXhProf
 {
@@ -280,7 +281,7 @@ class CustomViewXhProf
 
                 $sqlType = 'other';
                 foreach ($sqlTypeRegexMap as $type => $regex) {
-                    if (preg_match($regex, $row[0])) {
+                    if (preg_match($regex, trim($row[0]))) {
                         $sqlType = $type;
                     }
                 }
@@ -322,6 +323,7 @@ class CustomViewXhProf
                     $dump_hash[$sqlKey]['dumps'][$traceKey] = array('hits' => 0, 'time' => 0);
                 }
 
+                $row[2] = $this->handleSalesConnectStackTrace($row[2]);
                 $dump_hash[$sqlKey]['dumps'][$traceKey]['hits']++;
                 $dump_hash[$sqlKey]['dumps'][$traceKey]['time'] += $row[1];
                 $dump_hash[$sqlKey]['dumps'][$traceKey]['content'] = htmlspecialchars($row[2]);
@@ -345,6 +347,7 @@ class CustomViewXhProf
         $elasticData = array();
         if (is_file($run_fname . '.elastic')) {
             $data = $this->getData($run_fname . '.elastic');
+            $data = $this->handleSalesConnectElasticDataFormat($data);
             $elasticCount = sizeof($data['queries']);
             $queries = array();
             foreach ($data['queries'] as $query) {
@@ -481,7 +484,8 @@ class CustomViewXhProf
             }
         }
         $rnd = (reset($r[$usekey]) / 10) >= 1 ? 0 : (reset($r[$usekey]) < 3 ? 2 : 1);
-        return $getmin ? round(reset($r[$usekey]), $rnd) . ' ' . reset(array_keys($r[$usekey])) : $r;
+        $units = array_keys($r[$usekey]);
+        return $getmin ? round(reset($r[$usekey]), $rnd) . ' ' . reset($units) : $r;
     }
 
     function toBytes($v)
@@ -516,5 +520,27 @@ class CustomViewXhProf
         if (!empty($_REQUEST['dir']) && in_array($_REQUEST['dir'], $dirs)) {
             $this->currentSubDir = $_REQUEST['dir'];
         }
+    }
+
+    protected function handleSalesConnectElasticDataFormat($data)
+    {
+        if (isset($data['queries']) && $data['queries'][0] instanceof IBMXHProfElastic\Query)  {
+            $data['queries'] = array_map(function($query) {
+                return array(
+                    '',
+                    json_decode($query->getQuery(), true),
+                    $query->getTime() / 1E3,
+                    $this->handleSalesConnectStackTrace($query->getBacktrace())
+                );
+            }, $data['queries']);
+            $data['summary_time'] = $data['summary_time'] / 1E3;
+        }
+
+        return $data;
+    }
+
+    protected function handleSalesConnectStackTrace($stacktrace)
+    {
+        return preg_replace('/^\s+(#\d+)/m', '$1', $stacktrace);
     }
 }
