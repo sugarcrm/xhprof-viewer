@@ -29,9 +29,8 @@ td.vbar, th.vbar {
 
 td.vbbar, th.vbar {
   text-align: right;
-  border-left:
-  solid 1px #bdc7d8;
-  color:blue;
+  border-left: solid 1px #bdc7d8;
+  color: #337ab7;;
 }
 
 /* diff reports: display regressions in red */

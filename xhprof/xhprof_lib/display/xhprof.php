@@ -163,6 +163,21 @@ $sortable_columns = array("fn" => 1,
     "excl_samples" => 1
 );
 
+$unitSymbols = array(
+    'byte' => 'B',
+    'microsec' => 'μs'
+);
+
+$possible_metrics = array(
+    "wt" => array("Wall", $unitSymbols['microsec'], "walltime"),
+    "ut" => array("User", $unitSymbols['microsec'], "user cpu time"),
+    "st" => array("Sys", $unitSymbols['microsec'], "system cpu time"),
+    "cpu" => array("Cpu", $unitSymbols['microsec'], "cpu time"),
+    "mu" => array("MUse", $unitSymbols['byte'], "memory usage"),
+    "pmu" => array("PMUse", $unitSymbols['byte'], "peak memory usage"),
+    "samples" => array("Samples", "samples", "cpu time")
+);
+
 // Textual descriptions for column headers in "single run" mode
 $descriptions = array(
     "fn" => "Function Name",
@@ -170,34 +185,34 @@ $descriptions = array(
     "ct" =>  "Calls",
     "Calls%" => "Calls%",
 
-    "wt" => "Incl. Wall Time<br>(microsec)",
+    "wt" => "Incl. Wall Time<br>(" . $unitSymbols['microsec'] . ")",
     "IWall%" => "IWall%",
-    "excl_wt" => "Excl. Wall Time<br>(microsec)",
+    "excl_wt" => "Excl. Wall Time<br>(" . $unitSymbols['microsec'] . ")",
     "EWall%" => "EWall%",
 
-    "ut" => "Incl. User<br>(microsecs)",
+    "ut" => "Incl. User<br>(" . $unitSymbols['microsec'] . ")",
     "IUser%" => "IUser%",
-    "excl_ut" => "Excl. User<br>(microsec)",
+    "excl_ut" => "Excl. User<br>(" . $unitSymbols['microsec'] . ")",
     "EUser%" => "EUser%",
 
-    "st" => "Incl. Sys <br>(microsec)",
+    "st" => "Incl. Sys <br>(" . $unitSymbols['microsec'] . ")",
     "ISys%" => "ISys%",
-    "excl_st" => "Excl. Sys <br>(microsec)",
+    "excl_st" => "Excl. Sys <br>(" . $unitSymbols['microsec'] . ")",
     "ESys%" => "ESys%",
 
-    "cpu" => "Incl. CPU<br>(microsecs)",
+    "cpu" => "Incl. CPU<br>(" . $unitSymbols['microsec'] . ")",
     "ICpu%" => "ICpu%",
-    "excl_cpu" => "Excl. CPU<br>(microsec)",
+    "excl_cpu" => "Excl. CPU<br>(" . $unitSymbols['microsec'] . ")",
     "ECpu%" => "ECPU%",
 
-    "mu" => "Incl.<br>MemUse<br>(bytes)",
+    "mu" => "Incl.<br>MemUse<br>(" . $unitSymbols['byte'] . ")",
     "IMUse%" => "IMemUse%",
-    "excl_mu" => "Excl.<br>MemUse<br>(bytes)",
+    "excl_mu" => "Excl.<br>MemUse<br>(" . $unitSymbols['byte'] . ")",
     "EMUse%" => "EMemUse%",
 
-    "pmu" => "Incl.<br> PeakMemUse<br>(bytes)",
+    "pmu" => "Incl.<br> PeakMemUse<br>(" . $unitSymbols['byte'] . ")",
     "IPMUse%" => "IPeakMemUse%",
-    "excl_pmu" => "Excl.<br>PeakMemUse<br>(bytes)",
+    "excl_pmu" => "Excl.<br>PeakMemUse<br>(" . $unitSymbols['byte'] . ")",
     "EPMUse%" => "EPeakMemUse%",
 
     "samples" => "Incl. Samples",
@@ -815,6 +830,7 @@ function full_report($url_params, $symbol_tab, $sort, $run1, $run2) {
     global $elasticTime;
     global $elasticData;
     global $run_page_params;
+    global $unitSymbols;
 
     $possible_metrics = xhprof_get_possible_metrics();
 
@@ -878,7 +894,7 @@ function full_report($url_params, $symbol_tab, $sort, $run1, $run2) {
             echo "<tr>";
             echo "<td style='text-align:right; font-weight:bold'>Total "
                 . str_replace("<br>", " ", stat_description($metric)) . ":</td>";
-            echo "<td>" . number_format($totals[$metric]) .  " "
+            echo "<td>" . number_format($totals[$metric])
                 . $possible_metrics[$metric][1] . "</td>";
             echo "</tr>";
         }
@@ -892,8 +908,8 @@ function full_report($url_params, $symbol_tab, $sort, $run1, $run2) {
 
         if ($sqlTime > 0) {
             echo "<tr>";
-            echo "<td style='text-align:right; font-weight:bold'>SQL Summary Time (microsec):</td>";
-            echo "<td>" . number_format($sqlTime * 1E6) . " microsec</td>";
+            echo "<td style='text-align:right; font-weight:bold'>SQL Summary Time (". $unitSymbols['microsec'] ."):</td>";
+            echo "<td>" . number_format($sqlTime * 1E6) . $unitSymbols['microsec'] . "</td>";
             echo "</tr>";
         }
 
@@ -906,8 +922,8 @@ function full_report($url_params, $symbol_tab, $sort, $run1, $run2) {
 
         if ($elasticTime > 0) {
             echo "<tr>";
-            echo "<td style='text-align:right; font-weight:bold'>Elastic Summary Time (microsec):</td>";
-            echo "<td>" . number_format($elasticTime * 1E6) . " microsec</td>";
+            echo "<td style='text-align:right; font-weight:bold'>Elastic Summary Time (". $unitSymbols['microsec'] ."):</td>";
+            echo "<td>" . number_format($elasticTime * 1E6) . $unitSymbols['microsec'] . "</td>";
             echo "</tr>";
         }
 
@@ -997,6 +1013,7 @@ function full_report($url_params, $symbol_tab, $sort, $run1, $run2) {
 
 function display_queries($queries, $options) {
     global $run_page_params;
+    global $unitSymbols;
     include 'queries_table.php';
 }
 
@@ -1058,6 +1075,9 @@ function pc_info($info, $base_ct, $base_info, $parent) {
 function print_pc_array($url_params, $results, $base_ct, $base_info, $parent,
                         $run1, $run2) {
 
+    global $metrics;
+    global $display_calls;
+
     // Construct section title
     if ($parent) {
         $title = 'Parent function';
@@ -1069,9 +1089,11 @@ function print_pc_array($url_params, $results, $base_ct, $base_info, $parent,
         $title .= 's';
     }
 
-    print("<tr bgcolor='#e0e0ff'><td>");
+    $columnsCount = count($metrics) * 2 + 1 + ($display_calls ? 2 : 0);
+
+    print("<tr><td>");
     print("<b><i><center>" . $title . "</center></i></b>");
-    print("</td></tr>");
+    print("</td><td colspan='$columnsCount'></td></tr>");
 
     $odd_even = 0;
     foreach ($results as $info) {
@@ -1237,25 +1259,25 @@ function symbol_report($url_params,
     foreach ($pc_stats as $stat) {
         $desc = stat_description($stat);
         if (array_key_exists($stat, $sortable_columns)) {
-
-            $href = "?" .
-                http_build_query(xhprof_array_set($url_params,
-                    'sort', $stat));
+            $href = "?" . http_build_query(xhprof_array_set($url_params, 'sort', $stat));
             $header = xhprof_render_link($desc, $href);
         } else {
             $header = $desc;
         }
 
-        if ($stat == "fn")
+        if ($stat == "fn") {
             print("<th align=left><nobr>$header</th>");
-        else
+        } else {
             print("<th " . $vwbar . "><nobr>$header</th>");
+        }
     }
     print("</tr>");
 
-    print("<tr bgcolor='#e0e0ff'><td>");
+    $columnsCount = count($metrics) * 2 + 1 + ($display_calls ? 2 : 0);
+
+    print("<tr><td>");
     print("<b><i><center>Current Function</center></i></b>");
-    print("</td></tr>");
+    print("</td><td colspan='$columnsCount'></td></tr>");
 
     print("<tr>");
     // make this a self-reference to facilitate copy-pasting snippets to e-mails
@@ -1275,8 +1297,10 @@ function symbol_report($url_params,
     print("</tr>");
 
     print("<tr bgcolor='#ffffff'>");
-    print("<td style='text-align:right;color:blue'>"
+    print("<td style='text-align:right;'>"
         ."Exclusive Metrics $diff_text for Current Function</td>");
+
+    print("<td></td>");
 
     if ($display_calls) {
         // Call Count

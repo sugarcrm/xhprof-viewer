@@ -18,12 +18,12 @@
             <div class="query">
                 <p>
                     Hits: <span class="badge"><?php echo $query['hits'] ?></span>,
-                    Time: <span class="badge"><?php echo number_format($query['time'] * 1E6) ?> microsec</span>,
+                    Time: <span class="badge"><?php echo number_format($query['time'] * 1E6) ?><?php echo $unitSymbols['microsec'] ?></span>,
                     <?php if (!empty($query['fetch_count'])) { ?>
                         Fetch Count: <span class="badge"><?php echo number_format($query['fetch_count']) ?></span>,
                     <?php } ?>
                     <?php if (!empty($query['fetch_time'])) { ?>
-                        Fetch Time: <span class="badge"><?php echo number_format($query['fetch_time'] * 1E6)  ?> microsec</span>,
+                        Fetch Time: <span class="badge"><?php echo number_format($query['fetch_time'] * 1E6)  ?><?php echo $unitSymbols['microsec'] ?></span>,
                     <?php } ?>
                     Query:
                 </p>
@@ -54,7 +54,7 @@
                                 <hr>
                             <?php } ?>
                             <p>Hits: <span class="badge"><?php echo $dump['hits'] ?></span>,
-                                Time: <span class="badge"><?php echo number_format($dump['time'] * 1E6) ?> microsec</span>,
+                                Time: <span class="badge"><?php echo number_format($dump['time'] * 1E6) ?><?php echo $unitSymbols['microsec'] ?></span>,
                                 Trace <button type="button" class="btn btn-default btn-xs btn-trace-with-filenames">with filenames</button>:</p>
                             <pre class="trace-short"><code class="stylus"><?php echo $dump['content_short'] ?></code></pre>
                             <pre class="trace-long" style="display:none;"><code class="stylus"><?php echo $dump['content'] ?></code></pre>
