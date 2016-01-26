@@ -1,6 +1,6 @@
 {
   "name": "xhprof-viewer",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "private": true,
   "description": "Extended xhprof viewer that supports both OOTB file format as well as extended file format with sql count and wall time.",
   "scripts": {
