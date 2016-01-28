@@ -253,8 +253,9 @@ class CustomViewXhProf
 
         $run_fname = $xhprof_runs_impl->file_name($run, $source);
         $sqlCount = $sqlTime = $sqlFetchTime = 0;
-        if ($this->hasSqlFile($run_fname)) {
-            $data = $GLOBALS['additional_data'] = unserialize(file_get_contents($run_fname . '.sql'));
+        $sqlData = array();
+        if ($sqlFileName = $this->determineSQLFileName($run_fname)) {
+            $data = $GLOBALS['additional_data'] = $this->getData($sqlFileName);
 
             //print_r($data['backtrace_calls']);die();
             // prepare backtrace_calls
@@ -345,8 +346,8 @@ class CustomViewXhProf
 
         $elasticCount = $elasticTime = 0;
         $elasticData = array();
-        if (is_file($run_fname . '.elastic')) {
-            $data = $this->getData($run_fname . '.elastic');
+        if ($elasticFileName = $this->determineElasticFileName($run_fname)) {
+            $data = $this->getData($elasticFileName);
             $data = $this->handleSalesConnectElasticDataFormat($data);
             $elasticCount = sizeof($data['queries']);
             $queries = array();
@@ -376,6 +377,46 @@ class CustomViewXhProf
     protected function shortenStackTrace($trace)
     {
         return preg_replace('/^(#\d+).*\[Line: (\d+|n\/a)\]/m', '$1' ,$trace);
+    }
+
+    /**
+     * Search for the file with sql queries data
+     *
+     * @param $runFileName
+     * @return bool|string
+     */
+    protected function determineSQLFileName($runFileName)
+    {
+        if (is_file($runFileName . '.sql')) {
+            return $runFileName . '.sql';
+        }
+
+        $sqlFileName = preg_replace('/\.xhprof$/', '.xhsql', $runFileName, 1);
+        if (is_file($sqlFileName)) {
+            return $sqlFileName;
+        }
+
+        return false;
+    }
+
+    /**
+     * Search for the file with elastic queries data
+     *
+     * @param $runFileName
+     * @return bool|string
+     */
+    protected function determineElasticFileName($runFileName)
+    {
+        if (is_file($runFileName . '.elastic')) {
+            return $runFileName . '.elastic';
+        }
+
+        $sqlFileName = preg_replace('/\.xhprof$/', '.xhelastic', $runFileName, 1);
+        if (is_file($sqlFileName)) {
+            return $sqlFileName;
+        }
+
+        return false;
     }
 
     /**
@@ -498,11 +539,6 @@ class CustomViewXhProf
             $level++;
         }
         return ($level > 0 ? round($v, 2) : $v) . $e[$level];
-    }
-
-    function hasSqlFile($file)
-    {
-        return is_file($file . '.sql');
     }
 
     protected function prepareSubdirs()

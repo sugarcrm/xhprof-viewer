@@ -179,7 +179,7 @@
                 </td>
                 <td class="align-right"><?php echo number_format($file['wall_time'], 0, ' ', ' ')?></td>
                 <td class="align-right">
-                    <?php if ($this->hasSqlFile($file['path'])) { ?>
+                    <?php if ($this->determineSQLFileName($file['path'])) { ?>
                         <?php echo $file['sql_queries']?>
                     <?php  } else { ?>
                         <?php echo $file['sql_queries']?> (no file)
