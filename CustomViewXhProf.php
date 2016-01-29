@@ -125,7 +125,7 @@ class CustomViewXhProf
             }
         }
 
-        $total = 0;
+        $grandTotal = $total = 0;
 
         foreach (glob($this->getLogTo() . '/*') as $index => $file) {
             $pi = pathinfo($file);
@@ -180,6 +180,7 @@ class CustomViewXhProf
             return $sortAsc ? ($a[$sortBy] > $b[$sortBy]) : ($a[$sortBy] < $b[$sortBy]);
         });
 
+        $grandTotal = $total;
         $total = count($bufFiles);
 
         // apply pagination

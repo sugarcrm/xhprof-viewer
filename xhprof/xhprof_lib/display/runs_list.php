@@ -227,10 +227,10 @@
                     <li<?php echo $liClass?>><a href="<?php echo $this->listUrl(array('offset' => $offset+1))?>"> &gt;</a></li>
                     <li<?php echo $liClass?>><a href="<?php echo $this->listUrl(array('offset' => $pages-1))?>"> &gt;&gt;&gt;</a></li>
                 </ul>
-                <p>Results total: <?php echo $total?> / <?php echo $pages?> pages</p>
+                <p>Filtered: <?php echo $total?> / Total: <?php echo $grandTotal ?> / <?php echo $pages?> pages</p>
                 <?php
             } else { ?>
-                <p>Results total: <?php echo $total?></p>
+                <p>Filtered: <?php echo $total?> / Total: <?php echo $grandTotal ?></p>
             <?php  } ?>
 
             <p>
