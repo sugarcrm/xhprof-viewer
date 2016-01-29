@@ -40,6 +40,11 @@ rsync -Rr --exclude=.DS_Store \
  dist/$package_name
 
 cd dist/
+
+sed -i.bak "s/<!--VIEWER_VERSION-->/<p>v$npm_package_version<\/p>/g" \
+ $package_name/xhprof/xhprof_lib/display/runs_list.php
+rm $package_name/xhprof/xhprof_lib/display/runs_list.php.bak
+
 tar -czf "../$package_name.tgz" $package_name
 cd ..
 rm -r dist
