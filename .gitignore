@@ -2,6 +2,8 @@
 node_modules/
 bower_components/
 /dist/
+/vendor/
+/config_override.php
 
 .DS_Store
 *.tgz

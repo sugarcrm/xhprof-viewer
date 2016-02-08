@@ -1,7 +1,6 @@
 <?php
 
 
-require_once $XHPProfLibRoot.'/utils/xhprof_lib.php';
 require_once $XHPProfLibRoot.'/utils/callgraph_utils.php';
 require_once $XHPProfLibRoot.'/utils/xhprof_runs.php';
 
@@ -823,11 +822,7 @@ function full_report($url_params, $symbol_tab, $sort, $run1, $run2) {
     global $sort_col;
     global $format_cbk;
     global $display_calls;
-    global $sqlCount;
-    global $sqlTime;
     global $sqlData;
-    global $elasticCount;
-    global $elasticTime;
     global $elasticData;
     global $run_page_params;
     global $unitSymbols;
@@ -899,31 +894,27 @@ function full_report($url_params, $symbol_tab, $sort, $run1, $run2) {
             echo "</tr>";
         }
 
-        if ($sqlCount > 0) {
+        if ($sqlData['count'] > 0) {
             echo "<tr>";
             echo "<td style='text-align:right; font-weight:bold'>Total SQL Queries Count:</td>";
-            echo "<td>" . number_format($sqlCount) . "</td>";
+            echo "<td>" . number_format($sqlData['count']) . "</td>";
             echo "</tr>";
-        }
 
-        if ($sqlTime > 0) {
             echo "<tr>";
             echo "<td style='text-align:right; font-weight:bold'>SQL Summary Time (". $unitSymbols['microsec'] ."):</td>";
-            echo "<td>" . number_format($sqlTime * 1E6) . $unitSymbols['microsec'] . "</td>";
+            echo "<td>" . number_format($sqlData['time'] * 1E6) . $unitSymbols['microsec'] . "</td>";
             echo "</tr>";
         }
 
-        if ($elasticCount > 0) {
+        if ($elasticData['count'] > 0) {
             echo "<tr>";
             echo "<td style='text-align:right; font-weight:bold'>Total Elastic Queries Count:</td>";
-            echo "<td>" . number_format($elasticCount) . "</td>";
+            echo "<td>" . number_format($elasticData['count']) . "</td>";
             echo "</tr>";
-        }
 
-        if ($elasticTime > 0) {
             echo "<tr>";
             echo "<td style='text-align:right; font-weight:bold'>Elastic Summary Time (". $unitSymbols['microsec'] ."):</td>";
-            echo "<td>" . number_format($elasticTime * 1E6) . $unitSymbols['microsec'] . "</td>";
+            echo "<td>" . number_format($elasticData['time'] * 1E6) . $unitSymbols['microsec'] . "</td>";
             echo "</tr>";
         }
 
@@ -1552,23 +1543,36 @@ function displayXHProfReport($xhprof_runs_impl, $url_params, $source,
     }
 }
 
+function displaySingleXHProfReport($xhprof_data, $url_params, $run, $symbol, $sort)
+{
+    $xhprof_data = xhp_prepare_xhp_data($xhprof_data);
+
+    profiler_single_run_report(
+        $url_params,
+        $xhprof_data,
+        '',
+        $symbol,
+        $sort,
+        $run
+    );
+}
 
 function xhp_prepare_xhp_data($xhprof_data, $diff=false)
 {
     // include additional column
-    global $additional_data;
-    if(isset($additional_data['backtrace_calls_prepared'])){
-        foreach($xhprof_data as $k=>$v){
+    global $sqlData;
+    if (isset($sqlData['backtrace_calls'])) {
+        foreach($xhprof_data as $k=>$v) {
             $xhprof_data[$k]['bcc']='';
-            if($diff){
-                if(isset($additional_data['backtrace_calls_prepared'][$k])){
-                    $xhprof_data[$k]['bcc']=$additional_data['backtrace_calls_prepared'][$k];
+            if ($diff) {
+                if (isset($sqlData['backtrace_calls'][$k])) {
+                    $xhprof_data[$k]['bcc']=$sqlData['backtrace_calls'][$k];
                 }
-            }else{
+            } else {
                 $kparts=explode('==>',$k);
-                if(sizeof($kparts) == 2){
-                    if(isset($additional_data['backtrace_calls_prepared'][$kparts[1]])){
-                        $xhprof_data[$k]['bcc']=$additional_data['backtrace_calls_prepared'][$kparts[1]];
+                if (sizeof($kparts) == 2) {
+                    if (isset($sqlData['backtrace_calls'][$kparts[1]])) {
+                        $xhprof_data[$k]['bcc']=$sqlData['backtrace_calls'][$kparts[1]];
                     }
                 }
             }

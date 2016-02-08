@@ -27,8 +27,7 @@
             </div>
         </div>
 
-        <?php displayXHProfReport($xhprof_runs_impl, $params, $source, $run, $wts,
-            $symbol, $sort, $run1, $run2, $source2); ?>
+        <?php displaySingleXHProfReport($xhprofData, $params, $run, $symbol, $sort) ?>
 
         <script src='xhprof/js/queries.js'></script>
         <script src='xhprof/js/symbol-typeahead.js'></script>

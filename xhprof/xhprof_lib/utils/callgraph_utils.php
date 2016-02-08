@@ -387,7 +387,7 @@ function  xhprof_render_diff_image($xhprof_runs_impl, $run1, $run2,
 /**
  * Generate image content from phprof run id.
  *
- * @param object  $xhprof_runs_impl  An object that implements
+ * @param \Sugarcrm\XHProf\Viewer\Storage\StorageInterface  $storage  An object that implements
  *                                   the iXHProfRuns interface
  * @param run_id, integer, the unique id for the phprof run, this is the
  *                primary key for phprof database table.
@@ -402,20 +402,19 @@ function  xhprof_render_diff_image($xhprof_runs_impl, $run1, $run2,
  *
  * @author cjiang
  */
-function xhprof_get_content_by_run($xhprof_runs_impl, $run_id, $type,
+function xhprof_get_content_by_run(\Sugarcrm\XHProf\Viewer\Storage\StorageInterface $storage, $run_id, $type,
                                    $threshold, $func, $source,
                                    $critical_path) {
   if (!$run_id)
     return "";
 
-  $raw_data = $xhprof_runs_impl->get_run($run_id, $source, $description);
+  $raw_data = $storage->getRunXHProfData($run_id);
   if (!$raw_data) {
     xhprof_error("Raw data is empty");
     return "";
   }
 
-  $script = xhprof_generate_dot_script($raw_data, $threshold, $source,
-                                       $description, $func, $critical_path);
+  $script = xhprof_generate_dot_script($raw_data, $threshold, $source, $run_id, $func, $critical_path);
 
   $content = xhprof_generate_image_by_dot($script, $type);
   return $content;
@@ -424,7 +423,7 @@ function xhprof_get_content_by_run($xhprof_runs_impl, $run_id, $type,
 /**
  * Generate image from phprof run id and send it to client.
  *
- * @param object  $xhprof_runs_impl  An object that implements
+ * @param \Sugarcrm\XHProf\Viewer\Storage\StorageInterface  $storage  An object that implements
  *                                   the iXHProfRuns interface
  * @param run_id, integer, the unique id for the phprof run, this is the
  *                primary key for phprof database table.
@@ -438,16 +437,16 @@ function xhprof_get_content_by_run($xhprof_runs_impl, $run_id, $type,
  * @param bool, does this run correspond to a PHProfLive run or a dev run?
  * @author cjiang
  */
-function xhprof_render_image($xhprof_runs_impl, $run_id, $type, $threshold,
+function xhprof_render_image(\Sugarcrm\XHProf\Viewer\Storage\StorageInterface $storage, $run_id, $type, $threshold,
                              $func, $source, $critical_path) {
 
-  $content = xhprof_get_content_by_run($xhprof_runs_impl, $run_id, $type,
+  $content = xhprof_get_content_by_run($storage, $run_id, $type,
                                        $threshold,
                                        $func, $source, $critical_path);
   if (!$content) {
     print "Error: either we can not find profile data for run_id ".$run_id
           ." or the threshold ".$threshold." is too small or you do not"
-          ." have 'dot' image generation utility installed.";
+          ." have 'dot' image generation utility installed (brew install graphviz).";
     exit();
   }
 

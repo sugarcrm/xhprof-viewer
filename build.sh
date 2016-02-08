@@ -7,6 +7,7 @@ fi;
 
 npm install
 bower install
+composer install
 
 if [ -a 'dist' ]; then
     rm -r ./dist
@@ -19,6 +20,8 @@ fi;
 
 mkdir -p dist/$package_name
 rsync -Rr --exclude=.DS_Store \
+ src \
+ vendor \
  xhprof \
  config.php \
  CustomViewXhProf.php \

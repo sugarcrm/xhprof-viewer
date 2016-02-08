@@ -9,7 +9,7 @@ that shows some additional information like sql and elastic queries, their timin
 * In `config.php` specify the directory where profile files are located
 
 ## Development
-If you want to hack on this tool just clone the repo and run `npm install && bower install`.
+If you want to hack on this tool just clone the repo and run `npm install && bower install && composer install`.
 
 ## Screenshots
 ![image](https://cloud.githubusercontent.com/assets/1901945/12235839/afa0b62e-b876-11e5-9383-4f78ac143e3f.png)

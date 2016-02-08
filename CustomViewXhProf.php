@@ -1,12 +1,11 @@
 <?php
 
-require_once 'xhprof/xhprof_lib/utils/ibm_elastic_query.php';
-
 class CustomViewXhProf
 {
-    protected $availableSubDirs = array('');
-
-    protected $currentSubDir = '';
+    /**
+     * @var \Sugarcrm\XHProf\Viewer\Storage\StorageInterface
+     */
+    protected $storage;
 
     protected $pagination = array(
         'offset' => 0,
@@ -24,6 +23,8 @@ class CustomViewXhProf
 
     public function __construct()
     {
+        $this->storage = new \Sugarcrm\XHProf\Viewer\Storage\FileStorage();
+
         $this->filters = array(
             'f_text' => '',
             'f_date_from' => date('m/d/Y', strtotime("-1 year")),
@@ -32,13 +33,6 @@ class CustomViewXhProf
             'f_sort_dir' => 'desc',
             'f_wt_min' => 300,
         );
-
-        $GLOBALS['dir'] = $this->getLogTo();
-    }
-
-    protected function getLogTo()
-    {
-        return $GLOBALS['profile_files_dir'] . (!empty($this->currentSubDir) ? '/' . $this->currentSubDir : '');
     }
 
     protected function url($params) {
@@ -49,7 +43,7 @@ class CustomViewXhProf
     {
         return $this->url(array_merge(
             array(
-                'dir' => $this->currentSubDir,
+                'dir' => $this->storage->getCurrentDirectory(),
             ),
             $this->filters,
             $this->pagination,
@@ -69,51 +63,8 @@ class CustomViewXhProf
         ));
     }
 
-    protected function parseFilename($filename)
-    {
-        if (preg_match('/^(\d+)d(\d+)d(\d+)d(\d+)d(\d+)\.([^.]+)$/', $filename, $matches)) {
-            return array(
-                'shortname' => '',
-                'timestamp' => floatval($matches[1] . '.' . $matches[2]),
-                'wall_time' => $matches[3],
-                'sql_queries' => $matches[4],
-                'elastic_queries' => $matches[5],
-                'namespace' => $matches[6]
-            );
-        }
-
-        // Check of OOTB Sugar file format
-        if (preg_match('/^([A-Za-z0-9]+)\.(\d+-\d+)-(.*)$/', $filename, $matches)) {
-            return array(
-                'shortname' => '',
-                'timestamp' => floatval(str_replace('-', '.', $matches[2])),
-                'wall_time' => 0,
-                'sql_queries' => 0,
-                'namespace' => $matches[3]
-            );
-        }
-
-        $name_parts = explode('.', $filename);
-        $shortname = array_shift($name_parts);
-        $shortname .= '.' . array_shift($name_parts);
-        $slq_queries = array_shift($name_parts);
-        $wt = array_shift($name_parts);
-        $namespace = implode('_', $name_parts);
-        $buf = array(
-            'shortname' => $shortname,
-            'timestamp' => floatval($shortname),
-            'wall_time' => $wt,
-            'sql_queries' => intval($slq_queries),
-            'namespace' => $namespace
-        );
-
-        return $buf;
-    }
-
     public function displayList()
     {
-        $bufFiles = array();
-
         foreach ($this->pagination as $k => $v) {
             if (isset($_REQUEST[$k])) {
                 $this->pagination[$k] = $_REQUEST[$k];
@@ -125,74 +76,33 @@ class CustomViewXhProf
             }
         }
 
-        $grandTotal = $total = 0;
-
-        foreach (glob($this->getLogTo() . '/*') as $index => $file) {
-            $pi = pathinfo($file);
-            if (!empty($pi['extension']) && $pi['extension'] == 'xhprof') {
-                $buf = $this->parseFilename($pi['filename']);
-
-                $stat = stat($file);
-                $buf['stat'] = $stat;
-                $buf['file_size'] = $stat['size'];
-                $buf['pi'] = $pi;
-                $buf['file'] = str_replace($this->getLogTo() . '/', '', $file);
-                $buf['path'] = $file;
-
-                $bufFiles[] = $buf;
-
-                $total++;
-            }
-        }
-
-        // apply filters
-        // filter by date
         $dFrom = date('Y-m-d', strtotime($this->filters['f_date_from']));
         $dTo = date('Y-m-d', strtotime($this->filters['f_date_to']));
-        foreach ($bufFiles as $index => $file) {
-            $fDate = date('Y-m-d', $file['timestamp']);
-            if (!($fDate >= $dFrom && $fDate <= $dTo)) {
-                unset($bufFiles[$index]);
-            }
-        }
-
         $searchText = trim($this->filters['f_text']);
-        if (!empty($searchText)) {
-            foreach ($bufFiles as $index => $file) {
-                if (stripos($file['namespace'], $searchText) === false) {
-                    unset($bufFiles[$index]);
-                }
-            }
-        }
-
         $minWT = (int) trim($this->filters['f_wt_min']);
-        if (!empty($minWT)) {
-            foreach ($bufFiles as $index => $file) {
-                if ($file['wall_time'] < $minWT * 1E3) {
-                    unset($bufFiles[$index]);
-                }
-            }
-        }
-
         $sortBy = $this->sortByMap[$this->filters['f_sort_by']];
         $sortAsc = $this->filters['f_sort_dir'] != 'desc';
-        usort($bufFiles, function ($a, $b) use ($sortBy, $sortAsc) {
-            return $sortAsc ? ($a[$sortBy] > $b[$sortBy]) : ($a[$sortBy] < $b[$sortBy]);
-        });
-
-        $grandTotal = $total;
-        $total = count($bufFiles);
+        $limit = $this->pagination['limit'];
+        $page = $this->pagination['offset'];
 
         // apply pagination
-        $limit = $this->pagination['limit'];
-        $offset = $this->pagination['offset'];
-        $start = $offset * $limit;
-        if ($start > $total) {
-            $start = $total;
-            $offset = ceil($total / $limit);
-        }
+        $start = $page * $limit;
 
-        $files = array_slice($bufFiles, $start, $limit, true);
+        $runs = $this->storage->getRunsList(array(
+            'date_from' => $dFrom,
+            'date_to' => $dTo,
+            'text' => $searchText,
+            'wall_time_min' => $minWT,
+            'sort_by' => $sortBy,
+            'sort_dir' => $sortAsc,
+            'limit' => $limit,
+            'offset' => $start
+        ));
+
+        if ($start > $runs['total']) {
+            $start = $runs['total'];
+            $page = ceil($runs['total'] / $limit);
+        }
 
         require(__DIR__ . '/xhprof/xhprof_lib/display/runs_list.php');
     }
@@ -216,8 +126,7 @@ class CustomViewXhProf
         // pull values of these params, and create named globals for each param
         xhprof_param_init($params);
 
-        global $run, $wts, $symbol, $sort, $run1, $run2, $source, $all, $source2,
-               $sqlCount, $sqlTime, $sqlFetchTime, $sqlData, $elasticCount, $elasticTime, $elasticData;
+        global $run, $wts, $symbol, $sort, $run1, $run2, $source, $all, $source2, $sqlData, $elasticData;
         /* reset params to be a array of variable names to values
            by the end of this page, param should only contain values that need
            to be preserved for the next page. unset all unwanted keys in $params.
@@ -232,7 +141,7 @@ class CustomViewXhProf
             }
         }
 
-        $params['dir'] = $this->currentSubDir;
+        $params['dir'] = $this->storage->getCurrentDirectory();
         $params['list_url'] = !empty($_REQUEST['list_url']) ? $_REQUEST['list_url'] : '';
         $params['sql_sort_by'] = !empty($_REQUEST['sql_sort_by']) ? $_REQUEST['sql_sort_by'] : 'time';
         $params['sql_type'] = !empty($_REQUEST['sql_type']) ? $_REQUEST['sql_type'] : 'all';
@@ -241,8 +150,6 @@ class CustomViewXhProf
 
         $GLOBALS['run_page_params'] = $params;
 
-        $runData = $this->parseFilename($run);
-
         $GLOBALS['vbar'] = ' class="vbar"';
         $GLOBALS['vwbar'] = ' class="vwbar"';
         $GLOBALS['vwlbar'] = ' class="vwlbar"';
@@ -250,184 +157,17 @@ class CustomViewXhProf
         $GLOBALS['vrbar'] = ' class="vrbar"';
         $GLOBALS['vgbar'] = ' class="vgbar"';
 
-        $xhprof_runs_impl = new XHProfRuns_IBM($this->getLogTo());
-
-        $run_fname = $xhprof_runs_impl->file_name($run, $source);
-        $sqlCount = $sqlTime = $sqlFetchTime = 0;
-        $sqlData = array();
-        if ($sqlFileName = $this->determineSQLFileName($run_fname)) {
-            $data = $GLOBALS['additional_data'] = $this->getData($sqlFileName);
-
-            //print_r($data['backtrace_calls']);die();
-            // prepare backtrace_calls
-            if (isset($GLOBALS['additional_data']['backtrace_calls'])) {
-                $GLOBALS['additional_data']['backtrace_calls_prepared'] = array();
-                foreach ($GLOBALS['additional_data']['backtrace_calls'] as $k => $v) {
-                    $GLOBALS['additional_data']['backtrace_calls_prepared'][str_replace('->', '::', $k)] = $v;
-                }
-            }
-
-            $sqlCount = sizeof($data['sql']);
-            $sqlTime = $data['summary_time'];
-            if (!empty($data['summary_fetch_time'])) {
-                $sqlFetchTime = $data['summary_fetch_time'];
-            }
-
-            $sqlTypeRegexMap = array(
-                'select' => '/^\w*select/i',
-                'modify' => '/^\w*(insert|update)/i'
-            );
-
-            $sqlData = $dump_hash = array();
-            foreach ($data['sql'] as $row) {
-
-                $sqlType = 'other';
-                foreach ($sqlTypeRegexMap as $type => $regex) {
-                    if (preg_match($regex, trim($row[0]))) {
-                        $sqlType = $type;
-                    }
-                }
-
-                if ($params['sql_type'] != 'all' && $params['sql_type'] != $sqlType) {
-                    continue;
-                }
-
-                $matches = array();
-                if ($params['sql_regex_text']) {
-                    if (preg_match_all(
-                        '/' . $params['sql_regex_text'] . '/' . $params['sql_regex_mod'],
-                        $row[0],
-                        $matches,
-                        PREG_PATTERN_ORDER | PREG_OFFSET_CAPTURE
-                    )) {
-                        $matches = array_map(function($match) {
-                            return array($match[1], $match[1] + strlen($match[0]));
-                        }, $matches[0]);
-                    } else {
-                        continue;
-                    }
-                }
-
-                $sqlKey = md5($row[0]);
-                $traceKey = md5($row[2]);
-                if (!isset($dump_hash[$sqlKey])) {
-                    $dump_hash[$sqlKey] = array('time' => 0, 'hits' => 0, 'dumps' => array());
-                }
-
-                $dump_hash[$sqlKey]['hits']++;
-                $dump_hash[$sqlKey]['time'] += $row[1];
-                $dump_hash[$sqlKey]['query'] = $row[0];
-                $dump_hash[$sqlKey]['fetch_count'] = isset($row[3]) ? $row[3] : 0;
-                $dump_hash[$sqlKey]['fetch_time'] = isset($row[4]) ? $row[4] : 0;
-                $dump_hash[$sqlKey]['highlight_positions'] = $matches;
-
-                if (!isset($dump_hash[$sqlKey]['dumps'][$traceKey])) {
-                    $dump_hash[$sqlKey]['dumps'][$traceKey] = array('hits' => 0, 'time' => 0);
-                }
-
-                $row[2] = $this->handleSalesConnectStackTrace($row[2]);
-                $dump_hash[$sqlKey]['dumps'][$traceKey]['hits']++;
-                $dump_hash[$sqlKey]['dumps'][$traceKey]['time'] += $row[1];
-                $dump_hash[$sqlKey]['dumps'][$traceKey]['content'] = htmlspecialchars($row[2]);
-                $dump_hash[$sqlKey]['dumps'][$traceKey]['content_short'] = htmlspecialchars($this->shortenStackTrace($row[2]));
-//                        $dump_hash[$sqlKey]['dumps'][$traceKey]['fetch_time']+= isset($dump_hash[$sqlKey]['fetch_time']) ? $dump_hash[$sqlKey]['fetch_time'] : 0;
-            }
-
-            $sortCallback = function($a, $b) use ($params) {
-                return $a[$params['sql_sort_by']] < $b[$params['sql_sort_by']];
-            };
-
-            usort($dump_hash, $sortCallback);
-            foreach ($dump_hash as $sql => &$sqlDumps) {
-                usort($sqlDumps['dumps'], $sortCallback);
-            }
-
-            $sqlData = $dump_hash;
-        }
-
-        $elasticCount = $elasticTime = 0;
-        $elasticData = array();
-        if ($elasticFileName = $this->determineElasticFileName($run_fname)) {
-            $data = $this->getData($elasticFileName);
-            $data = $this->handleSalesConnectElasticDataFormat($data);
-            $elasticCount = sizeof($data['queries']);
-            $queries = array();
-            foreach ($data['queries'] as $query) {
-                $queries[] = array(
-                    'query' => array($query[0], $query[1]),
-                    'hits' => 1,
-                    'time' => $query[2],
-                    'dumps' => array(
-                        array(
-                            'hits' => 1,
-                            'time' => $query[2],
-                            'content' => $query[3],
-                            'content_short' => $this->shortenStackTrace($query[3])
-                        ),
-                    )
-                );
-            }
-            $data['queries'] = $queries;
-            $elasticData = $queries;
-            $elasticTime = $data['summary_time'];
-        }
+        $runData = $this->storage->getRunMetaData($run);
+        $xhprofData = $this->storage->getRunXHProfData($run);
+        $sqlData = $this->storage->getRunSqlData($run, array(
+            'sort_by' => $params['sql_sort_by'],
+            'type' => $params['sql_type'],
+            'regex_text' => $params['sql_regex_text'],
+            'regex_mod' => $params['sql_regex_mod'],
+        ));
+        $elasticData = $this->storage->getRunElasticData($run);
 
         require (__DIR__ . '/xhprof/xhprof_lib/display/run.php');
-    }
-
-    protected function shortenStackTrace($trace)
-    {
-        return preg_replace('/^(#\d+).*\[Line: (\d+|n\/a)\]/m', '$1' ,$trace);
-    }
-
-    /**
-     * Search for the file with sql queries data
-     *
-     * @param $runFileName
-     * @return bool|string
-     */
-    protected function determineSQLFileName($runFileName)
-    {
-        if (is_file($runFileName . '.sql')) {
-            return $runFileName . '.sql';
-        }
-
-        $sqlFileName = preg_replace('/\.xhprof$/', '.xhsql', $runFileName, 1);
-        if (is_file($sqlFileName)) {
-            return $sqlFileName;
-        }
-
-        return false;
-    }
-
-    /**
-     * Search for the file with elastic queries data
-     *
-     * @param $runFileName
-     * @return bool|string
-     */
-    protected function determineElasticFileName($runFileName)
-    {
-        if (is_file($runFileName . '.elastic')) {
-            return $runFileName . '.elastic';
-        }
-
-        $sqlFileName = preg_replace('/\.xhprof$/', '.xhelastic', $runFileName, 1);
-        if (is_file($sqlFileName)) {
-            return $sqlFileName;
-        }
-
-        return false;
-    }
-
-    /**
-     * Gets unserialized data from fileName
-     * @param $fileName
-     * @return mixed
-     */
-    protected function getData($fileName)
-    {
-        return unserialize(file_get_contents($fileName));
     }
 
     protected function displayCallGraph()
@@ -476,28 +216,37 @@ class CustomViewXhProf
             $type = $params['type'][1]; // default image type.
         }
 
-        $xhprof_runs_impl = new XHProfRuns_IBM($this->getLogTo());
-
         if (!empty($run)) {
             // single run call graph image generation
-            xhprof_render_image($xhprof_runs_impl, $run, $type,
+            xhprof_render_image($this->storage, $run, $type,
                 $threshold, $func, $source, $critical);
-        } else {
-            // diff report call graph image generation
-            xhprof_render_diff_image($xhprof_runs_impl, $run1, $run2,
-                $type, $threshold, $source);
         }
     }
 
     protected function displayTypeAhead()
     {
-        $xhprof_runs_impl = new XHProfRuns_IBM($this->getLogTo());
-        include_once $GLOBALS['XHPProfLibRoot'] . '/display/typeahead_common.php';
+        $params = array(
+            'q'          => array(XHPROF_STRING_PARAM, ''),
+            'run'        => array(XHPROF_STRING_PARAM, ''),
+            'run1'       => array(XHPROF_STRING_PARAM, ''),
+            'run2'       => array(XHPROF_STRING_PARAM, ''),
+            'source'     => array(XHPROF_STRING_PARAM, 'xhprof'),
+        );
+
+        // pull values of these params, and create named globals for each param
+        xhprof_param_init($params);
+
+        global $q, $run;
+
+        header('Content-Type: application/json');
+        echo json_encode($this->storage->getRunXHprofMatchingFunctions($run, $q));
     }
 
     public function display()
     {
-        $this->prepareSubdirs();
+        if (!empty($_REQUEST['dir'])) {
+            $this->storage->setCurrentDirectory($_REQUEST['dir']);
+        }
 
         if (isset($_GET['q'])) {
             $this->displayTypeAhead();
@@ -510,7 +259,7 @@ class CustomViewXhProf
         }
     }
 
-    function toTimePcs($s, $getmin = 1, $usekey = 'float')
+    protected function toTimePcs($s, $getmin = 1, $usekey = 'float')
     {
         $os = $s = intval($s);
         $l = array('seconds', 'minutes', 'hours', 'days');
@@ -530,7 +279,7 @@ class CustomViewXhProf
         return $getmin ? round(reset($r[$usekey]), $rnd) . ' ' . reset($units) : $r;
     }
 
-    function toBytes($v)
+    protected function toBytes($v)
     {
         $v = intval($v);
         $e = array(' bytes', 'KB', 'MB', 'GB', 'TB');
@@ -540,44 +289,5 @@ class CustomViewXhProf
             $level++;
         }
         return ($level > 0 ? round($v, 2) : $v) . $e[$level];
-    }
-
-    protected function prepareSubdirs()
-    {
-        $root = $GLOBALS['profile_files_dir'];
-
-        $dirs = array_map(function($item) {
-            return basename($item);
-        }, glob($root . '/*', GLOB_ONLYDIR));
-
-        array_unshift($dirs, "");
-
-        $this->availableSubDirs = $dirs;
-
-        if (!empty($_REQUEST['dir']) && in_array($_REQUEST['dir'], $dirs)) {
-            $this->currentSubDir = $_REQUEST['dir'];
-        }
-    }
-
-    protected function handleSalesConnectElasticDataFormat($data)
-    {
-        if (isset($data['queries']) && $data['queries'][0] instanceof IBMXHProfElastic\Query)  {
-            $data['queries'] = array_map(function($query) {
-                return array(
-                    '',
-                    json_decode($query->getQuery(), true),
-                    $query->getTime() / 1E3,
-                    $this->handleSalesConnectStackTrace($query->getBacktrace())
-                );
-            }, $data['queries']);
-            $data['summary_time'] = $data['summary_time'] / 1E3;
-        }
-
-        return $data;
-    }
-
-    protected function handleSalesConnectStackTrace($stacktrace)
-    {
-        return preg_replace('/^\s+(#\d+)/m', '$1', $stacktrace);
     }
 }
