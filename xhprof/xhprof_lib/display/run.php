@@ -1,6 +1,7 @@
 <html>
     <head>
         <title>XHProf: Hierarchical Profiler Report</title>
+        <meta charset="utf-8">
         <link rel="shortcut icon" type="image/png" href="xhprof/images/guitarist-309806_640.png"/>
 
         <link href='xhprof/css/xhprof.css' rel='stylesheet' type='text/css' />

@@ -244,6 +244,8 @@ class CustomViewXhProf
 
     public function display()
     {
+        header('Content-type: text/html; charset=utf-8');
+
         if (!empty($_REQUEST['dir'])) {
             $this->storage->setCurrentDirectory($_REQUEST['dir']);
         }

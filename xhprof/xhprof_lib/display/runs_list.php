@@ -1,5 +1,6 @@
 <?php /** @var CustomViewXhProf $this  */?><html>
 <head>
+    <meta charset="utf-8">
     <title>XHProf: Hierarchical Profiler Report</title>
     <link rel="shortcut icon" type="image/png" href="xhprof/images/guitarist-309806_640.png"/>
     <link href='xhprof/css/xhprof.css' rel='stylesheet' type='text/css' />
