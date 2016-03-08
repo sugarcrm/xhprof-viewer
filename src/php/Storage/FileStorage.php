@@ -161,7 +161,7 @@ class FileStorage extends AbstractStorage
                 'modify' => '/^\w*(insert|update)/i'
             );
 
-            foreach ($data['sql'] as $row) {
+            foreach ($data['sql'] as $rowIndex => $row) {
 
                 $sqlType = 'other';
                 foreach ($sqlTypeRegexMap as $type => $regex) {
@@ -190,7 +190,7 @@ class FileStorage extends AbstractStorage
                     }
                 }
 
-                $sqlKey = md5($row[0]);
+                $sqlKey = $params['sort_by'] == 'exec_order' ? $rowIndex : md5($row[0]);
                 $traceKey = md5($row[2]);
                 if (!isset($result['queries'][$sqlKey])) {
                     $result['queries'][$sqlKey] = array(
@@ -222,13 +222,15 @@ class FileStorage extends AbstractStorage
                     = htmlspecialchars($this->shortenStackTrace($row[2]));
             }
 
-            $sortCallback = function($a, $b) use ($params) {
-                return $a[$params['sort_by']] < $b[$params['sort_by']];
-            };
+            if ($params['sort_by'] != 'exec_order') {
+                $sortCallback = function ($a, $b) use ($params) {
+                    return $a[$params['sort_by']] < $b[$params['sort_by']];
+                };
 
-            usort($result['queries'], $sortCallback);
-            foreach ($result['queries'] as $sqlKey => &$sqlData) {
-                usort($sqlData['traces'], $sortCallback);
+                usort($result['queries'], $sortCallback);
+                foreach ($result['queries'] as $sqlKey => &$sqlData) {
+                    usort($sqlData['traces'], $sortCallback);
+                }
             }
         }
 

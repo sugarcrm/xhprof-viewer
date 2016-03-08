@@ -28,6 +28,9 @@
            href="<?php echo xhp_run_url(array('sql_sort_by' => 'time')) ?>">Sort by Time</a>
         <a class="btn btn-primary btn-sm <?php echo $run_page_params['sql_sort_by'] == 'hits' ? 'active' : '' ?>"
            href="<?php echo xhp_run_url(array('sql_sort_by' => 'hits')) ?>">Sort by Hits</a>
+        <a class="btn btn-primary btn-sm <?php echo $run_page_params['sql_sort_by'] == 'exec_order' ? 'active' : '' ?>"
+           data-toggle="tooltip" title="Sort in Execution Order"
+           href="<?php echo xhp_run_url(array('sql_sort_by' => 'exec_order')) ?>">Exec. Order</a>
     </div>
 
     <input type="submit" style="display:none;"/>
