@@ -27,8 +27,8 @@ class FileStorage extends AbstractStorage
      */
     public function __construct()
     {
-        if (isset($GLOBALS['profile_files_dir'])) {
-            $this->root = $GLOBALS['profile_files_dir'];
+        if (isset($GLOBALS['config']['profile_files_dir'])) {
+            $this->root = $GLOBALS['config']['profile_files_dir'];
         } else {
             throw new \RuntimeException('`profile_files_dir` is not set');
         }

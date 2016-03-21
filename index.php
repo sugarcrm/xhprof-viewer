@@ -2,14 +2,14 @@
 
 require 'vendor/autoload.php';
 
-$instanceRoot = __DIR__ . '/';
+$instanceRoot = __DIR__;
 $XHPProfLibRoot = "$instanceRoot/xhprof/xhprof_lib/";
 
-require_once "$instanceRoot/config.php";
+$config = require "$instanceRoot/config.php";
 
 session_start();
 
-require_once "{$XHPProfLibRoot}display/xhprof.php";
+require_once "{$XHPProfLibRoot}/display/xhprof.php";
 require_once "{$XHPProfLibRoot}/utils/xhprof_runs.php";
 require_once "CustomViewXhProf.php";
 
