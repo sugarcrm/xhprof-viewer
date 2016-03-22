@@ -3,10 +3,6 @@
 namespace Sugarcrm\XHProf\Viewer\Controllers;
 
 use \Sugarcrm\XHProf\Viewer\Storage\FileStorage;
-use \Sugarcrm\XHProf\Viewer\Controllers\TypeAheadController;
-use \Sugarcrm\XHProf\Viewer\Controllers\CallGraphController;
-use \Sugarcrm\XHProf\Viewer\Controllers\RunController;
-use \Sugarcrm\XHProf\Viewer\Controllers\RunsListController;
 
 
 class FrontController
