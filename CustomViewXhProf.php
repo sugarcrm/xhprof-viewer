@@ -223,25 +223,6 @@ class CustomViewXhProf
         }
     }
 
-    protected function displayTypeAhead()
-    {
-        $params = array(
-            'q'          => array(XHPROF_STRING_PARAM, ''),
-            'run'        => array(XHPROF_STRING_PARAM, ''),
-            'run1'       => array(XHPROF_STRING_PARAM, ''),
-            'run2'       => array(XHPROF_STRING_PARAM, ''),
-            'source'     => array(XHPROF_STRING_PARAM, 'xhprof'),
-        );
-
-        // pull values of these params, and create named globals for each param
-        xhprof_param_init($params);
-
-        global $q, $run;
-
-        header('Content-Type: application/json');
-        echo json_encode($this->storage->getRunXHprofMatchingFunctions($run, $q));
-    }
-
     public function display()
     {
         header('Content-type: text/html; charset=utf-8');
@@ -251,7 +232,9 @@ class CustomViewXhProf
         }
 
         if (isset($_GET['q'])) {
-            $this->displayTypeAhead();
+            $controller = new \Sugarcrm\XHProf\Viewer\Controllers\TypeAheadController();
+            $controller->setStorage($this->storage);
+            $controller->indexAction($_GET['run'], $_GET['q']);
         } else if (isset($_GET['callgraph'])) {
             $this->displayCallGraph();
         } else if (isset($_GET['run']) || isset($_GET['run1'])) {
