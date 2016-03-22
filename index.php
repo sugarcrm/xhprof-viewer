@@ -2,10 +2,10 @@
 
 require 'vendor/autoload.php';
 
-$config = require 'config.php';
+require_once 'xhprof/xhprof_lib/utils/callgraph_utils.php';
+require_once 'xhprof/xhprof_lib/display/xhprof.php';
 
-$XHPProfLibRoot = __DIR__ . "/xhprof/xhprof_lib/";
-require_once "{$XHPProfLibRoot}/display/xhprof.php";
+$config = require 'config.php';
 
 $fc = new \Sugarcrm\XHProf\Viewer\Controllers\FrontController();
 $fc->dispatch();

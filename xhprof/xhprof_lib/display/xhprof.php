@@ -1,7 +1,5 @@
 <?php
 
-require_once $XHPProfLibRoot.'/utils/callgraph_utils.php';
-
 /**
  * Our coding convention disallows relative paths in hrefs.
  * Get the base URL path from the SCRIPT_NAME.
