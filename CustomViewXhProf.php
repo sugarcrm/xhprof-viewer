@@ -7,11 +7,6 @@ class CustomViewXhProf
      */
     protected $storage;
 
-    /**
-     * @var \Sugarcrm\XHProf\Viewer\Helpers\VersionHelper
-     */
-    protected $versionHelper;
-
     protected $pagination = array(
         'offset' => 0,
         'limit' => 100,
@@ -29,7 +24,6 @@ class CustomViewXhProf
     public function __construct()
     {
         $this->storage = new \Sugarcrm\XHProf\Viewer\Storage\FileStorage();
-        $this->versionHelper = new \Sugarcrm\XHProf\Viewer\Helpers\VersionHelper();
 
         $this->filters = array(
             'f_text' => '',
