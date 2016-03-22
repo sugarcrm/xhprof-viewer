@@ -184,9 +184,8 @@
                     <?php  } ?>
                 </select>
             </p>
-            <!--VIEWER_VERSION-->
+            <?php require 'xhprof/xhprof_lib/display/runs_list/version.php' ?>
         </div>
-
     </form>
 
     <script src='bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js'></script>
