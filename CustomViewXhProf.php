@@ -8,7 +8,7 @@ class CustomViewXhProf
     protected $storage;
 
     /**
-     * @var \Sugarcrm\XHProf\Viewer\Helpers\Version
+     * @var \Sugarcrm\XHProf\Viewer\Helpers\VersionHelper
      */
     protected $versionHelper;
 
@@ -29,7 +29,7 @@ class CustomViewXhProf
     public function __construct()
     {
         $this->storage = new \Sugarcrm\XHProf\Viewer\Storage\FileStorage();
-        $this->versionHelper = new \Sugarcrm\XHProf\Viewer\Helpers\Version();
+        $this->versionHelper = new \Sugarcrm\XHProf\Viewer\Helpers\VersionHelper();
 
         $this->filters = array(
             'f_text' => '',

@@ -5,7 +5,7 @@ namespace Sugarcrm\XHProf\Viewer\Helpers;
 /**
  * Version Helper
  */
-class Version
+class VersionHelper
 {
     /**
      * Returns array of current version type and version

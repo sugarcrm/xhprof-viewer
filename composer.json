@@ -9,7 +9,10 @@
     ],
     "require": {},
     "autoload": {
-        "psr-4": {"Sugarcrm\\XHProf\\Viewer\\": "src/php/"},
+        "psr-4": {
+            "Sugarcrm\\XHProf\\Viewer\\": "src/php/",
+            "Sugarcrm\\XHProf\\Viewer\\Templates\\": "templates/"
+        },
         "files": [
             "xhprof/xhprof_lib/utils/ibm_elastic_query.php",
             "xhprof/xhprof_lib/utils/xhprof_lib.php"

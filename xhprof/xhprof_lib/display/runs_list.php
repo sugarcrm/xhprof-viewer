@@ -184,7 +184,7 @@
                     <?php  } ?>
                 </select>
             </p>
-            <?php require 'xhprof/xhprof_lib/display/runs_list/version.php' ?>
+            <?php \Sugarcrm\XHProf\Viewer\Templates\RunsList\Version::render($this->versionHelper); ?>
         </div>
     </form>
 
