@@ -24,7 +24,7 @@ rsync -Rr --exclude=.DS_Store \
  vendor \
  xhprof \
  config.php \
- CustomViewXhProf.php \
+ templates \
  index.php \
  README.md \
  bower_components/jquery/dist/jquery.min.js \

@@ -8,7 +8,6 @@ $XHPProfLibRoot = "$instanceRoot/xhprof/xhprof_lib/";
 $config = require "$instanceRoot/config.php";
 
 require_once "{$XHPProfLibRoot}/display/xhprof.php";
-require_once "CustomViewXhProf.php";
 
-$x = new CustomViewXhProf();
-$x->display();
+$fc = new \Sugarcrm\XHProf\Viewer\Controllers\FrontController();
+$fc->dispatch();
