@@ -1,9 +1,6 @@
 <?php
 
-
 require_once $XHPProfLibRoot.'/utils/callgraph_utils.php';
-require_once $XHPProfLibRoot.'/utils/xhprof_runs.php';
-
 
 /**
  * Our coding convention disallows relative paths in hrefs.

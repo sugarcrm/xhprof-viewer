@@ -189,7 +189,6 @@
     </form>
 
     <script src='bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js'></script>
-    <script src='xhprof/js/xhprof_report.js'></script>
     <script src='xhprof/js/list.js'></script>
     <script type="application/javascript">
         $(function () {

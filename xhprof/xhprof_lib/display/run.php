@@ -13,7 +13,6 @@
         <script src='bower_components/highlightjs/highlight.pack.min.js'></script>
         <script src='bower_components/algolia-autocomplete.js/dist/autocomplete.jquery.min.js'></script>
         <script src='bower_components/bootstrap/dist/js/bootstrap.min.js'></script>
-        <script src='xhprof/js/xhprof_report.js'></script>
     </head>
     <body class="container-fluid">
         <div>
