@@ -1,19 +1,21 @@
 <html>
-    <head>
-        <title>XHProf: Hierarchical Profiler Report</title>
-        <meta charset="utf-8">
-        <link rel="shortcut icon" type="image/png" href="xhprof/images/guitarist-309806_640.png"/>
-
-        <link href='xhprof/css/xhprof.css' rel='stylesheet' type='text/css' />
-        <link href='bower_components/bootstrap/dist/css/bootstrap.min.css' rel='stylesheet' type='text/css' />
-        <link href='bower_components/highlightjs/styles/default.css' rel='stylesheet' type='text/css' />
-        <link href='bower_components/font-awesome/css/font-awesome.min.css' rel='stylesheet' type='text/css' />
-
-        <script src='bower_components/jquery/dist/jquery.min.js'></script>
-        <script src='bower_components/highlightjs/highlight.pack.min.js'></script>
-        <script src='bower_components/algolia-autocomplete.js/dist/autocomplete.jquery.min.js'></script>
-        <script src='bower_components/bootstrap/dist/js/bootstrap.min.js'></script>
-    </head>
+    <?php \Sugarcrm\XHProf\Viewer\Templates\Common\Html\Head::render(
+        $runData['namespace'] . ' - SugarCRM XHProf Viewer',
+        array(
+            'xhprof/css/xhprof.css',
+            'bower_components/bootstrap/dist/css/bootstrap.min.css',
+            'bower_components/highlightjs/styles/default.css',
+            'bower_components/font-awesome/css/font-awesome.min.css',
+        ),
+        array(
+            'bower_components/jquery/dist/jquery.min.js',
+            'bower_components/bootstrap/dist/js/bootstrap.min.js',
+            'bower_components/highlightjs/highlight.pack.min.js',
+            'bower_components/algolia-autocomplete.js/dist/autocomplete.jquery.min.js',
+            'xhprof/js/queries.js',
+            'xhprof/js/symbol-typeahead.js',
+        ));
+    ?>
     <body class="container-fluid">
         <div>
             <div class="page-header form-inline" style="margin-top: 20px;">
@@ -29,8 +31,6 @@
 
         <?php displaySingleXHProfReport($xhprofData, $params, $run, $symbol, $sort) ?>
 
-        <script src='xhprof/js/queries.js'></script>
-        <script src='xhprof/js/symbol-typeahead.js'></script>
         <script type="text/javascript">
             window.TYPEAHEAD_URL = '<?php echo xhp_typeahead_url() ?>';
             window.SYMBOL_URL = '<?php echo xhp_run_url() ?>';

@@ -1,15 +1,19 @@
-<?php /** @var CustomViewXhProf $this  */?><html>
-<head>
-    <meta charset="utf-8">
-    <title>XHProf: Hierarchical Profiler Report</title>
-    <link rel="shortcut icon" type="image/png" href="xhprof/images/guitarist-309806_640.png"/>
-    <link href='xhprof/css/xhprof.css' rel='stylesheet' type='text/css' />
-    <link href='bower_components/bootstrap/dist/css/bootstrap.min.css' rel='stylesheet' type='text/css' />
-    <link href='bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css' rel='stylesheet' type='text/css' />
-    <link href='bower_components/font-awesome/css/font-awesome.min.css' rel='stylesheet' type='text/css' />
-    <script src='bower_components/jquery/dist/jquery.min.js'></script>
-    <script src='bower_components/bootstrap/dist/js/bootstrap.min.js'></script>
-</head>
+<?php /** @var \Sugarcrm\XHProf\Viewer\Controllers\RunsListController $this  */?><html>
+<?php \Sugarcrm\XHProf\Viewer\Templates\Common\Html\Head::render(
+    'List of profiler files - SugarCRM XHProf Viewer',
+    array(
+        'xhprof/css/xhprof.css',
+        'bower_components/bootstrap/dist/css/bootstrap.min.css',
+        'bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css',
+        'bower_components/font-awesome/css/font-awesome.min.css',
+    ),
+    array(
+        'bower_components/jquery/dist/jquery.min.js',
+        'bower_components/bootstrap/dist/js/bootstrap.min.js',
+        'bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js',
+        'xhprof/js/list.js',
+    ));
+?>
 <body class="container-fluid">
     <form id="list-form" method="get" action="">
         <input type="hidden" id="offset_hidden" name="offset" value="<?php echo $this->pagination['offset'] ?>" />
@@ -187,9 +191,6 @@
             <?php \Sugarcrm\XHProf\Viewer\Templates\RunsList\Version::render(); ?>
         </div>
     </form>
-
-    <script src='bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js'></script>
-    <script src='xhprof/js/list.js'></script>
     <script type="application/javascript">
         $(function () {
             $('[data-toggle="tooltip"]').tooltip({html: true})
