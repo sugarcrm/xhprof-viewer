@@ -183,7 +183,7 @@
             <p>
                 Results per page:
                 <select class="form-control" id="limit" name="limit">
-                    <?php  foreach ([10, 50, 100, 500, 1000, 10000, 100000] as $val) { ?>
+                    <?php  foreach (array(10, 50, 100, 500, 1000, 10000, 100000) as $val) { ?>
                         <option value="<?php echo $val?>"<?php echo $val == $limit ? ' selected' : ''?>><?php echo $val?></option>
                     <?php  } ?>
                 </select>
