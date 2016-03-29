@@ -33,11 +33,13 @@ class Version
 
     public static function render() {
         if ($version = static::getVersionHelper()->getCurrentVersion()) {
+            echo '<p>';
             if ($version['type'] == 'hash') {
                 echo substr($version['version'], 0, 7);
             } else {
                 echo 'v', $version['version'];
             }
+            echo '</p>';
         }
     }
 }

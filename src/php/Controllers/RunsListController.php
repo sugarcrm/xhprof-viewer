@@ -3,14 +3,30 @@
 namespace Sugarcrm\XHProf\Viewer\Controllers;
 
 
+use Sugarcrm\XHProf\Viewer\Templates\RunsList;
+
 class RunsListController extends AbstractController
 {
-    protected $pagination = array(
-        'offset' => 0,
-        'limit' => 100,
+    protected $paramsList = array(
+        'dir',
+        'offset',
+        'limit',
+        'f_text',
+        'f_date_from',
+        'f_date_to',
+        'f_sort_by',
+        'f_sort_dir',
+        'f_wt_min',
     );
 
-    protected $filters;
+    protected $paramDefaults = array(
+        'offset' => 0,
+        'limit' => 100,
+        'f_text' => '',
+        'f_sort_by' => 'ts',
+        'f_sort_dir' => 'desc',
+        'f_wt_min' => 300,
+    );
 
     protected $sortByMap = array(
         'ts' => 'timestamp',
@@ -21,50 +37,30 @@ class RunsListController extends AbstractController
 
     public function __construct()
     {
-        $this->filters = array(
-            'f_text' => '',
-            'f_date_from' => date('m/d/Y', strtotime("-1 year")),
-            'f_date_to' => date('m/d/Y'),
-            'f_sort_by' => 'ts',
-            'f_sort_dir' => 'desc',
-            'f_wt_min' => 300,
-        );
+        $this->paramDefaults['f_date_from'] = date('m/d/Y', strtotime("-1 year"));
+        $this->paramDefaults['f_date_to'] = date('m/d/Y');
     }
 
     public function indexAction()
     {
-        foreach ($this->pagination as $k => $v) {
-            if (isset($_REQUEST[$k])) {
-                $this->pagination[$k] = $_REQUEST[$k];
-            }
+        if ($this->getParam('f_wt_min') == 120) {
+            header('Location: ?dir=sugar');exit;
         }
-        foreach ($this->filters as $k => $v) {
-            if (isset($_REQUEST[$k])) {
-                $this->filters[$k] = $_REQUEST[$k];
-            }
-        }
-
-        $dFrom = date('Y-m-d', strtotime($this->filters['f_date_from']));
-        $dTo = date('Y-m-d', strtotime($this->filters['f_date_to']));
-        $searchText = trim($this->filters['f_text']);
-        $minWT = (int) trim($this->filters['f_wt_min']);
-        $sortBy = $this->sortByMap[$this->filters['f_sort_by']];
-        $sortAsc = $this->filters['f_sort_dir'] != 'desc';
-        $limit = $this->pagination['limit'];
-        $page = $this->pagination['offset'];
+        $limit = $this->getParam('limit');
+        $page = $this->getParam('offset');
 
         // apply pagination
         $start = $page * $limit;
 
         $runs = $this->storage->getRunsList(array(
-            'date_from' => $dFrom,
-            'date_to' => $dTo,
-            'text' => $searchText,
-            'wall_time_min' => $minWT,
-            'sort_by' => $sortBy,
-            'sort_dir' => $sortAsc,
-            'limit' => $limit,
-            'offset' => $start
+            'timestamp_from' => strtotime($this->getParam('f_date_from')),
+            'timestamp_to' => strtotime($this->getParam('f_date_to')) + (60 * 60 * 24 - 1),
+            'text' => $this->getParam('f_text'),
+            'wall_time_min' => $this->getParam('f_wt_min'),
+            'sort_by' => $this->sortByMap[$this->getParam('f_sort_by')],
+            'sort_dir' => $this->getParam('f_sort_dir'),
+            'limit' => $this->getParam('limit'),
+            'offset' => $this->getParam('offset') * $limit
         ));
 
         if ($start > $runs['total']) {
@@ -72,7 +68,7 @@ class RunsListController extends AbstractController
             $page = ceil($runs['total'] / $limit);
         }
 
-        require 'xhprof/xhprof_lib/display/runs_list.php';
+        RunsList::render($this, $limit, $runs, $start, $page);
     }
 
     protected function url($params) {
@@ -101,37 +97,5 @@ class RunsListController extends AbstractController
             'f_sort_by' => $sortBy,
             'f_sort_dir' => $dir,
         ));
-    }
-
-    protected function toTimePcs($s, $getmin = 1, $usekey = 'float')
-    {
-        $os = $s = intval($s);
-        $l = array('seconds', 'minutes', 'hours', 'days');
-        $fl = array(1, 60, 60 * 60, 60 * 60 * 24);
-        $r = array('float' => array(), 'int' => array());
-        for ($i = sizeof($l) - 1; $i >= 0; $i--) {
-            $r['int'][$l[$i]] = floor($s / $fl[$i]);
-            $s -= $r['int'][$l[$i]] * $fl[$i];
-        }
-        for ($i = sizeof($fl) - 1; $i >= 0; $i--) {
-            if (($os / $fl[$i]) >= 1) {
-                $r['float'][$l[$i]] = $os / $fl[$i];
-            }
-        }
-        $rnd = (reset($r[$usekey]) / 10) >= 1 ? 0 : (reset($r[$usekey]) < 3 ? 2 : 1);
-        $units = array_keys($r[$usekey]);
-        return $getmin ? round(reset($r[$usekey]), $rnd) . ' ' . reset($units) : $r;
-    }
-
-    protected function toBytes($v)
-    {
-        $v = intval($v);
-        $e = array(' bytes', 'KB', 'MB', 'GB', 'TB');
-        $level = 0;
-        while ($level < sizeof($e) && $v >= 1024) {
-            $v = $v / 1024;
-            $level++;
-        }
-        return ($level > 0 ? round($v, 2) : $v) . $e[$level];
     }
 }

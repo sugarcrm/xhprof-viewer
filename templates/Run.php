@@ -2,13 +2,14 @@
 
 namespace Sugarcrm\XHProf\Viewer\Templates;
 
+use \Sugarcrm\XHProf\Viewer\Templates\Common\Html\Head as HtmlHead;
 
 class Run
 {
     public static function render($runData, $params, $xhprofData, $run, $symbol, $sort)
     {
-        ?><html>
-        <?php \Sugarcrm\XHProf\Viewer\Templates\Common\Html\Head::render(
+        ?><!DOCTYPE HTML><html>
+        <?php HtmlHead::render(
             $runData['namespace'] . ' - SugarCRM XHProf Viewer',
             array(
                 'xhprof/css/xhprof.css',

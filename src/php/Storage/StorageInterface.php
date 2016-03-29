@@ -49,8 +49,8 @@ interface StorageInterface
      * </pre>
      *
      * @param array $params List of params: <br/>
-     * date_from - date in format Y-m-d <br/>
-     * date_to - date in format Y-m-d <br/>
+     * timestamp_from - timestamp value to filter from <br/>
+     * timestamp_to - timestamp value to filter to  <br/>
      * text - text that a run must include in it's name <br/>
      * wall_time_min - minimal wall time of a run (in milliseconds) <br/>
      * sort_by - on of (ts, wt, fs, sql) <br/>

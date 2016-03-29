@@ -79,8 +79,7 @@ class FileStorage extends AbstractStorage
 
         // apply filters
         foreach ($bufFiles as $index => $file) {
-            $fDate = date('Y-m-d', $file['timestamp']);
-            if (!($fDate >= $params['date_from'] && $fDate <= $params['date_to'])) {
+            if (!($file['timestamp'] >= $params['timestamp_from'] && $file['timestamp'] <= $params['timestamp_to'])) {
                 unset($bufFiles[$index]);
             }
         }
@@ -102,7 +101,7 @@ class FileStorage extends AbstractStorage
         }
 
         usort($bufFiles, function ($a, $b) use ($params) {
-            return $params['sort_dir']
+            return $params['sort_dir'] != 'desc'
                 ? ($a[$params['sort_by']] > $b[$params['sort_by']])
                 : ($a[$params['sort_by']] < $b[$params['sort_by']]);
         });
