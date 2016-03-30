@@ -926,7 +926,7 @@ function full_report($url_params, $symbol_tab, $sort, $run1, $run2) {
         $callgraph_report_title = '<i class="fa fa-pie-chart"></i> View Full Callgraph';
     }
 
-    $sqlButtons = 'xhprof/xhprof_lib/display/queries_table/sql_buttons.php';
+    $sqlButtons = array('\Sugarcrm\XHProf\Viewer\Templates\Run\QueriesTable\SqlButtons', 'render');
     \Sugarcrm\XHProf\Viewer\Templates\Run\QueriesTable::render('SQL Queries', $sqlData, 'sql', $sqlButtons);
     \Sugarcrm\XHProf\Viewer\Templates\Run\QueriesTable::render('Elastic Queries', $elasticData, 'bash');
 
@@ -973,12 +973,6 @@ function full_report($url_params, $symbol_tab, $sort, $run1, $run2) {
         }
     }
     print_flat_data($url_params, $title, $flat_data, $sort, $run1, $run2, $limit, $callGraphButton);
-}
-
-function display_queries($queries, $options) {
-    global $run_page_params;
-    global $unitSymbols;
-    include 'queries_table.php';
 }
 
 function display_symbol_search_input() {

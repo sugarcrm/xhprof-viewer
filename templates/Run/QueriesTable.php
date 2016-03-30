@@ -17,7 +17,7 @@ class QueriesTable
                     <span class="badge"><?php echo count($queries['queries']) ?></span>
                 </h3>
                 &nbsp;&nbsp;
-                <?php if (!empty($buttons)) require $buttons; ?>
+                <?php if ($buttons) { call_user_func($buttons); } ?>
             </div>
             <div class="panel-body">
                 <?php if (count($queries['queries']) == 0) { ?>
