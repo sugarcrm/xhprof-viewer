@@ -697,7 +697,7 @@ function print_function_info($url_params, $info, $sort, $run1, $run2) {
     $href = xhp_run_url(array('symbol' => $info["fn"]));
 
     print('<td>');
-    print(xhprof_render_link($info["fn"], $href).getBacktraceCallsForFunction($info["fn"]));
+    print(xhprof_render_link($info["fn"], $href).getBacktraceCallsForFunction($info["bcc"]));
     print("</td>\n");
 
     if ($display_calls) {
@@ -1095,7 +1095,7 @@ function print_pc_array($url_params, $results, $base_ct, $base_info, $parent,
             print('<tr bgcolor="#e5e5e5">');
         }
 
-        print("<td>" . xhprof_render_link($info["fn"], $href) . getBacktraceCallsForFunction($info["fn"]). "</td>");
+        print("<td>" . xhprof_render_link($info["fn"], $href) . getBacktraceCallsForFunction($info["bcc"]). "</td>");
         pc_info($info, $base_ct, $base_info, $parent);
         print("</tr>");
     }
@@ -1267,7 +1267,7 @@ function symbol_report($url_params,
 
     print("<tr>");
     // make this a self-reference to facilitate copy-pasting snippets to e-mails
-    print("<td><a href=''>$rep_symbol</a>".getBacktraceCallsForFunction($rep_symbol)."</td>");
+    print("<td><a href=''>$rep_symbol</a>".getBacktraceCallsForFunction($symbol_info['bcc'])."</td>");
 
     if ($display_calls) {
         // Call Count
@@ -1439,8 +1439,7 @@ function profiler_diff_report($url_params,
 
 function getBacktraceCallsForFunction($name)
 {
-    global $additional_data;
-    return '<td align="right">'.(isset($additional_data['backtrace_calls_prepared'][$name]) ? $additional_data['backtrace_calls_prepared'][$name] : '').'</td>';
+    return '<td align="right">' . $name . '</td>';
 }
 
 
