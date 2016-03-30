@@ -7,6 +7,30 @@ use Sugarcrm\XHProf\Viewer\Templates\Run;
 
 class RunController extends AbstractController
 {
+    protected $paramsList = array(
+        'dir',
+        'run',
+        'symbol',
+        'sort',
+        'all',
+        'list_url',
+        'sql_sort_by',
+        'sql_type',
+        'sql_regex_text',
+        'sql_regex_mod',
+    );
+
+    protected $paramDefaults = array(
+        'symbol' => '',
+        'sort' => 'wt',
+        'all' => 0,
+        'sql_sort_by' => 'time',
+        'sql_type' => 'all',
+        'sql_regex_text' => '',
+        'sql_regex_mod' => 'i',
+        'list_url' => '',
+    );
+
     public function indexAction()
     {
         // param name, its type, and default value
@@ -41,11 +65,11 @@ class RunController extends AbstractController
         }
 
         $params['dir'] = $this->storage->getCurrentDirectory();
-        $params['list_url'] = !empty($_REQUEST['list_url']) ? $_REQUEST['list_url'] : '';
-        $params['sql_sort_by'] = !empty($_REQUEST['sql_sort_by']) ? $_REQUEST['sql_sort_by'] : 'time';
-        $params['sql_type'] = !empty($_REQUEST['sql_type']) ? $_REQUEST['sql_type'] : 'all';
-        $params['sql_regex_text'] = !empty($_REQUEST['sql_regex_text']) ? $_REQUEST['sql_regex_text'] : '';
-        $params['sql_regex_mod'] = !empty($_REQUEST['sql_regex_mod']) ? $_REQUEST['sql_regex_mod'] : '';
+        $params['list_url'] = $this->getParam('list_url');
+        $params['sql_sort_by'] = $this->getParam('sql_sort_by');
+        $params['sql_type'] = $this->getParam('sql_type');
+        $params['sql_regex_text'] = $this->getParam('sql_regex_text');
+        $params['sql_regex_mod'] = $this->getParam('sql_regex_mod');
 
         $GLOBALS['run_page_params'] = $params;
 

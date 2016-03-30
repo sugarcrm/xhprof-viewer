@@ -4,6 +4,7 @@ namespace Sugarcrm\XHProf\Viewer\Templates;
 
 use \Sugarcrm\XHProf\Viewer\Controllers\RunsListController;
 use \Sugarcrm\XHProf\Viewer\Templates\Common\Html\Head as HtmlHead;
+use Sugarcrm\XHProf\Viewer\Templates\Helpers\CurrentPage;
 use \Sugarcrm\XHProf\Viewer\Templates\Helpers\Url;
 
 class RunsList
@@ -42,7 +43,7 @@ class RunsList
             <input type="hidden" id="f_sort_by" name="f_sort_by" value="<?php echo $c->getParam('f_sort_by') ?>" />
             <input type="hidden" id="f_sort_dir" name="f_sort_dir" value="<?php echo $c->getParam('f_sort_dir') ?>" />
             <div class="page-header form-inline" style="margin-top: 20px;">
-                <a class="btn btn-primary pull-right" href="<?php echo Url::thisPageUrl($c) ?>"><i class="fa fa-refresh"></i> Refresh</a>
+                <a class="btn btn-primary pull-right" href="<?php echo CurrentPage::url($c) ?>"><i class="fa fa-refresh"></i> Refresh</a>
                 <h1>SugarCRM XHProf Viewer <small>List of profiler files in
                         <select id="dir" name="dir" class="form-control">
                             <?php foreach ($c->getStorage()->listDirectories() as $dir => $dirName) { ?>
@@ -141,7 +142,7 @@ class RunsList
                                    'dir' => $c->getStorage()->getCurrentDirectory(),
                                    'run' => $run['run'],
                                    'source' => 'xhprof',
-                                   'list_url' => Url::thisPageUrl()
+                                   'list_url' => CurrentPage::url()
                                )) ?>">
                                 <?php  $name = substr($run['namespace'], 0, 100) . '' . (strlen($run['namespace']) > 100 ? ' ...' : '') ?>
                                 <?php echo $name ? preg_replace("/" . preg_quote($c->getParam('f_text')) . "/i", "<b style='color:black;background-color:yellow;'>$0</b>", $name) : '-no-name-'?>
@@ -176,22 +177,22 @@ class RunsList
 
                     <ul class="pagination pagination-sm">
                         <?php  $liClass = ($startPage > 1) ? '' : ' class="disabled"' ?>
-                        <li<?php echo $liClass?>><a href="<?php echo Url::thisPageUrl(array('offset' => 0))?>">&lt;&lt;&lt; </a></li>
-                        <li<?php echo $liClass?>><a href="<?php echo Url::thisPageUrl(array('offset' => $page-1))?>">&lt; </a></li>
+                        <li<?php echo $liClass?>><a href="<?php echo CurrentPage::url(array('offset' => 0))?>">&lt;&lt;&lt; </a></li>
+                        <li<?php echo $liClass?>><a href="<?php echo CurrentPage::url(array('offset' => $page-1))?>">&lt; </a></li>
 
                         <?php  for($i = 1; $i <= $pagesBefore; $i ++) { ?>
-                            <li><a href="<?php echo Url::thisPageUrl(array('offset' => $startPage - ($pagesBefore - $i + 1) - 1))?>"><?php echo $startPage - ($pagesBefore - $i + 1)?></a></li>
+                            <li><a href="<?php echo CurrentPage::url(array('offset' => $startPage - ($pagesBefore - $i + 1) - 1))?>"><?php echo $startPage - ($pagesBefore - $i + 1)?></a></li>
                         <?php  } ?>
 
-                        <li class="active"><a href="<?php echo Url::thisPageUrl(array('offset' => $startPage - 1))?>"><?php echo $startPage?></a></li>
+                        <li class="active"><a href="<?php echo CurrentPage::url(array('offset' => $startPage - 1))?>"><?php echo $startPage?></a></li>
 
                         <?php  for($i = 1; $i <= $pagesAfter; $i ++) { ?>
-                            <li><a href="<?php echo Url::thisPageUrl(array('offset' => $i + $startPage - 1))?>"><?php echo $i + $startPage?></a></li>
+                            <li><a href="<?php echo CurrentPage::url(array('offset' => $i + $startPage - 1))?>"><?php echo $i + $startPage?></a></li>
                         <?php  } ?>
 
                         <?php  $liClass = ($pagesAfter > 0) ? '' : ' class="disabled"' ?>
-                        <li<?php echo $liClass?>><a href="<?php echo Url::thisPageUrl(array('offset' => $page+1))?>"> &gt;</a></li>
-                        <li<?php echo $liClass?>><a href="<?php echo Url::thisPageUrl(array('offset' => $pages-1))?>"> &gt;&gt;&gt;</a></li>
+                        <li<?php echo $liClass?>><a href="<?php echo CurrentPage::url(array('offset' => $page+1))?>"> &gt;</a></li>
+                        <li<?php echo $liClass?>><a href="<?php echo CurrentPage::url(array('offset' => $pages-1))?>"> &gt;&gt;&gt;</a></li>
                     </ul>
                     <p>Filtered: <?php echo $runs['total']?> / Total: <?php echo $runs['grand_total'] ?> / <?php echo $pages?> pages</p>
                     <?php
@@ -223,13 +224,13 @@ class RunsList
 
     protected static function thisPageFilterUrl($sortBy)
     {
-        $controller = Url::getCurrentController();
+        $controller = CurrentPage::getCurrentController();
 
         $dir = $controller->getParam('f_sort_by') == $sortBy ?
             ($controller->getParam('f_sort_dir') == 'desc' ? 'asc' : 'desc')
             : 'desc';
 
-        return Url::thisPageUrl(array(
+        return CurrentPage::url(array(
             'f_sort_by' => $sortBy,
             'f_sort_dir' => $dir,
         ));

@@ -3,8 +3,7 @@
 namespace Sugarcrm\XHProf\Viewer\Controllers;
 
 use \Sugarcrm\XHProf\Viewer\Storage\FileStorage;
-use Sugarcrm\XHProf\Viewer\Templates\Helpers\Url;
-
+use Sugarcrm\XHProf\Viewer\Templates\Helpers\CurrentPage;
 
 class FrontController
 {
@@ -35,7 +34,7 @@ class FrontController
         }
 
         $controller->setStorage($storage);
-        Url::setCurrentController($controller);
+        CurrentPage::setCurrentController($controller);
         $controller->indexAction();
     }
 }

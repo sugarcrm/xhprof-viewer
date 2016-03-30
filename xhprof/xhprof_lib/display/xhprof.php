@@ -926,31 +926,9 @@ function full_report($url_params, $symbol_tab, $sort, $run1, $run2) {
         $callgraph_report_title = '<i class="fa fa-pie-chart"></i> View Full Callgraph';
     }
 
-    $sqlButtons = array();
-    if ($run_page_params['sql_sort_by'] == 'time') {
-        $sqlButtons[] = array(
-            'href' => xhp_run_url(array('sql_sort_by' => 'hits')),
-            'title' => 'Sort by Hits'
-        );
-    } else {
-        $sqlButtons[] = array(
-            'href' => xhp_run_url(array('sql_sort_by' => 'time')),
-            'title' => 'Sort by Time'
-        );
-    }
-
-    display_queries($sqlData, array(
-        'more_queries_after' => 5,
-        'hightlight_language' => 'sql',
-        'title' => 'SQL Queries',
-        'buttons' => 'xhprof/xhprof_lib/display/queries_table/sql_buttons.php'
-    ));
-
-    display_queries($elasticData, array(
-        'more_queries_after' => 5,
-        'hightlight_language' => 'bash',
-        'title' => 'Elastic Queries',
-    ));
+    $sqlButtons = 'xhprof/xhprof_lib/display/queries_table/sql_buttons.php';
+    \Sugarcrm\XHProf\Viewer\Templates\Run\QueriesTable::render('SQL Queries', $sqlData, 'sql', $sqlButtons);
+    \Sugarcrm\XHProf\Viewer\Templates\Run\QueriesTable::render('Elastic Queries', $elasticData, 'bash');
 
     $callGraphButton = '<a class="btn btn-primary btn-sm" target="_blank" href="' . xhp_callgraph_url() . '">'
         . $callgraph_report_title . '</a>';
