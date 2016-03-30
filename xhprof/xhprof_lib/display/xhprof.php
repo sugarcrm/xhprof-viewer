@@ -1233,7 +1233,7 @@ function symbol_report($url_params,
 
     ?>
     <div class="panel-heading form-inline">
-        <h3 class="panel-title" style="display: inline-block;">Parent/Child <?php echo $regr_impr; ?> report for <b><?php echo display_shorten_name($rep_symbol, 45); ?></b></h3>
+        <h3 class="panel-title" style="display: inline-block;">Parent/Child <?php echo $regr_impr; ?> report for <b><?php \Sugarcrm\XHProf\Viewer\Templates\Helpers\ShortenName::render($rep_symbol, 45); ?></b></h3>
         <?php display_symbol_search_input() ?>
         <a class="btn btn-primary btn-sm" target="_blank" href="<?php echo xhp_callgraph_url(array('func' => $rep_symbol)) ?>"><i class="fa fa-pie-chart"></i> View Callgraph <?php echo $diff_text ?></a>
     </div>
@@ -1604,15 +1604,4 @@ function xhp_typeahead_url($params = array())
         ),
         $params
     ));
-}
-
-function display_shorten_name($symbolName, $limit = 50)
-{
-    $shortSymbolName = false;
-    if (strlen($symbolName) > $limit) {
-        $shortSymbolName = substr($symbolName, 0, 10) . '...' . substr($symbolName, - $limit + 10);
-    }
-    ob_start();
-    require 'xhprof/xhprof_lib/display/shorten_name.php';
-    return ob_get_clean();
 }
