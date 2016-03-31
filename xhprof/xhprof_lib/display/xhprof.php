@@ -926,7 +926,7 @@ function full_report($url_params, $symbol_tab, $sort, $run1, $run2) {
         $callgraph_report_title = '<i class="fa fa-pie-chart"></i> View Full Callgraph';
     }
 
-    $sqlButtons = array('\Sugarcrm\XHProf\Viewer\Templates\Run\QueriesTable\SqlButtons', 'render');
+    $sqlButtons = array('\Sugarcrm\XHProf\Viewer\Templates\Run\QueriesTable\SqlButtonsTemplate', 'render');
     \Sugarcrm\XHProf\Viewer\Templates\Run\QueriesTableTemplate::render('SQL Queries', $sqlData, 'sql', $sqlButtons);
     \Sugarcrm\XHProf\Viewer\Templates\Run\QueriesTableTemplate::render('Elastic Queries', $elasticData, 'bash');
 
@@ -1511,8 +1511,6 @@ function displayXHProfReport($xhprof_runs_impl, $url_params, $source,
 
 function displaySingleXHProfReport($xhprof_data, $url_params, $run, $symbol, $sort)
 {
-    $xhprof_data = xhp_prepare_xhp_data($xhprof_data);
-
     profiler_single_run_report(
         $url_params,
         $xhprof_data,
@@ -1521,30 +1519,6 @@ function displaySingleXHProfReport($xhprof_data, $url_params, $run, $symbol, $so
         $sort,
         $run
     );
-}
-
-function xhp_prepare_xhp_data($xhprof_data, $diff=false)
-{
-    // include additional column
-    global $sqlData;
-    if (isset($sqlData['backtrace_calls'])) {
-        foreach($xhprof_data as $k=>$v) {
-            $xhprof_data[$k]['bcc']='';
-            if ($diff) {
-                if (isset($sqlData['backtrace_calls'][$k])) {
-                    $xhprof_data[$k]['bcc']=$sqlData['backtrace_calls'][$k];
-                }
-            } else {
-                $kparts=explode('==>',$k);
-                if (sizeof($kparts) == 2) {
-                    if (isset($sqlData['backtrace_calls'][$kparts[1]])) {
-                        $xhprof_data[$k]['bcc']=$sqlData['backtrace_calls'][$kparts[1]];
-                    }
-                }
-            }
-        }
-    }
-    return $xhprof_data;
 }
 
 function xhp_run_url($params = array())

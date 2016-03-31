@@ -499,6 +499,7 @@ function xhprof_compute_inclusive_times($raw_data) {
             foreach ($metrics as $metric) {
                 $symbol_tab[$child][$metric] = $info[$metric];
             }
+            $symbol_tab[$child]['bcc'] = $info['bcc'];
         } else {
             if ($display_calls) {
                 /* increment call count for this child */
@@ -512,7 +513,7 @@ function xhprof_compute_inclusive_times($raw_data) {
         }
     }
 
-    return xhp_prepare_xhp_data($symbol_tab,1);
+    return $symbol_tab;
 }
 
 

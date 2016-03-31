@@ -125,7 +125,27 @@ class FileStorage extends AbstractStorage
      */
     public function getRunXHProfData($run)
     {
-        return $this->fileGetData($this->getRunFullPath($run));
+        $xhprofData = $this->fileGetData($this->getRunFullPath($run));
+
+        $sqlData = $this->getRunSqlData($run);
+        if (!empty($sqlData['backtrace_calls'])) {
+            $this->updateXHProfDataWithBacktraceCalls($xhprofData, $sqlData['backtrace_calls']);
+        }
+
+        return $xhprofData;
+    }
+
+    protected function updateXHProfDataWithBacktraceCalls(&$xhprofData, $backtraceCalls)
+    {
+        foreach($xhprofData as $k => $v) {
+            $xhprofData[$k]['bcc'] = '';
+            $kparts = explode('==>', $k);
+            if (sizeof($kparts) == 2) {
+                if (isset($backtraceCalls[$kparts[1]])) {
+                    $xhprofData[$k]['bcc'] = $backtraceCalls[$kparts[1]];
+                }
+            }
+        }
     }
 
     /**
@@ -137,6 +157,12 @@ class FileStorage extends AbstractStorage
             'count' => 0,
             'queries' => array(),
         );
+
+        $params = $params + array(
+                'type' => 'all',
+                'regex_text' => '',
+                'sort_by' => 'time',
+            );
 
         $runFullPath = $this->getRunFullPath($run);
         if ($sqlFileName = $this->determineSQLFileName($runFullPath)) {
