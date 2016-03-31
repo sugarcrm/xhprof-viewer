@@ -1,11 +1,5 @@
 <?php
 
-/**
- * Our coding convention disallows relative paths in hrefs.
- * Get the base URL path from the SCRIPT_NAME.
- */
-$base_path = rtrim(dirname($_SERVER['SCRIPT_NAME']), "/");
-
 /*
  * Formats call counts for XHProf reports.
  *
