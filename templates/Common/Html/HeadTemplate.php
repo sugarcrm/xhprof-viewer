@@ -3,7 +3,7 @@
 namespace Sugarcrm\XHProf\Viewer\Templates\Common\Html;
 
 
-class Head
+class HeadTemplate
 {
     public static function render($title, $csss, $jss)
     {

@@ -3,7 +3,7 @@
 namespace Sugarcrm\XHProf\Viewer\Templates\Helpers;
 
 
-class ShortenName
+class ShortenNameHelper
 {
     public static function render($symbolName, $limit = 50)
     {

@@ -3,7 +3,7 @@
 namespace Sugarcrm\XHProf\Viewer\Templates\Helpers;
 
 
-class Format
+class FormatHelper
 {
     public static function microsec($m)
     {

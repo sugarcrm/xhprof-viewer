@@ -2,9 +2,9 @@
 
 namespace Sugarcrm\XHProf\Viewer\Templates;
 
-use \Sugarcrm\XHProf\Viewer\Templates\Common\Html\Head as HtmlHead;
+use \Sugarcrm\XHProf\Viewer\Templates\Common\Html\HeadTemplate as HtmlHead;
 
-class Run
+class RunTemplate
 {
     public static function render($runData, $params, $xhprofData, $run, $symbol, $sort)
     {

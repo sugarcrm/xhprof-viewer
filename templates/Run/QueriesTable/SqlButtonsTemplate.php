@@ -2,9 +2,9 @@
 
 namespace Sugarcrm\XHProf\Viewer\Templates\Run\QueriesTable;
 
-use \Sugarcrm\XHProf\Viewer\Templates\Helpers\CurrentPage;
+use \Sugarcrm\XHProf\Viewer\Templates\Helpers\CurrentPageHelper as CurrentPage;
 
-class SqlButtons
+class SqlButtonsTemplate
 {
     public static function render()
     {

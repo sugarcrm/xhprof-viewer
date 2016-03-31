@@ -3,11 +3,11 @@
 namespace Sugarcrm\XHProf\Viewer\Templates;
 
 use Sugarcrm\XHProf\Viewer\Storage\StorageInterface;
-use \Sugarcrm\XHProf\Viewer\Templates\Common\Html\Head as HtmlHead;
-use Sugarcrm\XHProf\Viewer\Templates\Helpers\CurrentPage;
-use \Sugarcrm\XHProf\Viewer\Templates\Helpers\Url;
+use \Sugarcrm\XHProf\Viewer\Templates\Common\Html\HeadTemplate as HtmlHead;
+use Sugarcrm\XHProf\Viewer\Templates\Helpers\CurrentPageHelper as CurrentPage;
+use \Sugarcrm\XHProf\Viewer\Templates\Helpers\UrlHelper;
 
-class RunsList
+class RunsListTemplate
 {
     protected static $controller;
 
@@ -138,7 +138,7 @@ class RunsList
                     <tr class="run">
                         <td class="align-right"><?php echo $index+1?></td>
                         <td><a title="<?php echo strlen($run['namespace']) > 100 ? $run['namespace'] : '' ?>"
-                               href="<?php echo Url::url(array(
+                               href="<?php echo UrlHelper::url(array(
                                    'dir' => $storage->getCurrentDirectory(),
                                    'run' => $run['run'],
                                    'source' => 'xhprof',
@@ -208,7 +208,7 @@ class RunsList
                         <?php  } ?>
                     </select>
                 </p>
-                <?php \Sugarcrm\XHProf\Viewer\Templates\RunsList\Version::render(); ?>
+                <?php \Sugarcrm\XHProf\Viewer\Templates\RunsList\VersionTemplate::render(); ?>
             </div>
         </form>
         <script type="application/javascript">

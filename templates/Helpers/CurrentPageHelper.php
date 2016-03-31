@@ -5,7 +5,7 @@ namespace Sugarcrm\XHProf\Viewer\Templates\Helpers;
 
 use Sugarcrm\XHProf\Viewer\Controllers\AbstractController;
 
-class CurrentPage
+class CurrentPageHelper
 {
     /**
      * @var AbstractController
@@ -30,7 +30,7 @@ class CurrentPage
 
     public static function url($override = array(), $drop = array())
     {
-        return Url::url(static::getParams($override, $drop));
+        return UrlHelper::url(static::getParams($override, $drop));
     }
 
     public static function getParams($override = array(), $drop = array())

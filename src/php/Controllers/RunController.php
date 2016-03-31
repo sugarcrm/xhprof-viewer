@@ -3,7 +3,7 @@
 namespace Sugarcrm\XHProf\Viewer\Controllers;
 
 
-use Sugarcrm\XHProf\Viewer\Templates\Run;
+use Sugarcrm\XHProf\Viewer\Templates\RunTemplate;
 
 class RunController extends AbstractController
 {
@@ -90,6 +90,6 @@ class RunController extends AbstractController
         ));
         $elasticData = $this->storage->getRunElasticData($run);
 
-        Run::render($runData, $params, $xhprofData, $run, $symbol, $sort);
+        RunTemplate::render($runData, $params, $xhprofData, $run, $symbol, $sort);
     }
 }

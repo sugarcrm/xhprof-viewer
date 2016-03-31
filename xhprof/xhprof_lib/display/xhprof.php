@@ -927,8 +927,8 @@ function full_report($url_params, $symbol_tab, $sort, $run1, $run2) {
     }
 
     $sqlButtons = array('\Sugarcrm\XHProf\Viewer\Templates\Run\QueriesTable\SqlButtons', 'render');
-    \Sugarcrm\XHProf\Viewer\Templates\Run\QueriesTable::render('SQL Queries', $sqlData, 'sql', $sqlButtons);
-    \Sugarcrm\XHProf\Viewer\Templates\Run\QueriesTable::render('Elastic Queries', $elasticData, 'bash');
+    \Sugarcrm\XHProf\Viewer\Templates\Run\QueriesTableTemplate::render('SQL Queries', $sqlData, 'sql', $sqlButtons);
+    \Sugarcrm\XHProf\Viewer\Templates\Run\QueriesTableTemplate::render('Elastic Queries', $elasticData, 'bash');
 
     $callGraphButton = '<a class="btn btn-primary btn-sm" target="_blank" href="' . xhp_callgraph_url() . '">'
         . $callgraph_report_title . '</a>';
@@ -1205,7 +1205,7 @@ function symbol_report($url_params,
 
     ?>
     <div class="panel-heading form-inline">
-        <h3 class="panel-title" style="display: inline-block;">Parent/Child <?php echo $regr_impr; ?> report for <b><?php \Sugarcrm\XHProf\Viewer\Templates\Helpers\ShortenName::render($rep_symbol, 45); ?></b></h3>
+        <h3 class="panel-title" style="display: inline-block;">Parent/Child <?php echo $regr_impr; ?> report for <b><?php \Sugarcrm\XHProf\Viewer\Templates\Helpers\ShortenNameHelper::render($rep_symbol, 45); ?></b></h3>
         <?php display_symbol_search_input() ?>
         <a class="btn btn-primary btn-sm" target="_blank" href="<?php echo xhp_callgraph_url(array('func' => $rep_symbol)) ?>"><i class="fa fa-pie-chart"></i> View Callgraph <?php echo $diff_text ?></a>
     </div>

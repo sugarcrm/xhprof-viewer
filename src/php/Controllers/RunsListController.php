@@ -3,7 +3,7 @@
 namespace Sugarcrm\XHProf\Viewer\Controllers;
 
 
-use Sugarcrm\XHProf\Viewer\Templates\RunsList;
+use Sugarcrm\XHProf\Viewer\Templates\RunsListTemplate;
 
 class RunsListController extends AbstractController
 {
@@ -68,7 +68,7 @@ class RunsListController extends AbstractController
             $page = ceil($runs['total'] / $limit);
         }
 
-        RunsList::render($this->getStorage(), $limit, $runs, $start, $page);
+        RunsListTemplate::render($this->getStorage(), $limit, $runs, $start, $page);
     }
 
     protected function url($params) {

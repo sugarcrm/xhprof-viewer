@@ -5,7 +5,7 @@ namespace Sugarcrm\XHProf\Viewer\Templates\RunsList;
 use \Sugarcrm\XHProf\Viewer\Helpers\VersionHelper;
 
 
-class Version
+class VersionTemplate
 {
     /**
      * @var VersionHelper

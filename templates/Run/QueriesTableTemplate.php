@@ -3,9 +3,9 @@
 namespace Sugarcrm\XHProf\Viewer\Templates\Run;
 
 
-use Sugarcrm\XHProf\Viewer\Templates\Helpers\Format;
+use Sugarcrm\XHProf\Viewer\Templates\Helpers\FormatHelper;
 
-class QueriesTable
+class QueriesTableTemplate
 {
     public static function render($title, $queries, $highlightLanguage, $buttons = false, $moreQueriesAfter = 5)
     {
@@ -33,12 +33,12 @@ class QueriesTable
                     <div class="query">
                         <p>
                             Hits: <span class="badge"><?php echo $query['hits'] ?></span>,
-                            Time: <span class="badge"><?php echo Format::microsec($query['time'] * 1E6) ?></span>,
+                            Time: <span class="badge"><?php echo FormatHelper::microsec($query['time'] * 1E6) ?></span>,
                             <?php if (!empty($query['fetch_count'])) { ?>
-                                Fetch Count: <span class="badge"><?php echo Format::number($query['fetch_count']) ?></span>,
+                                Fetch Count: <span class="badge"><?php echo FormatHelper::number($query['fetch_count']) ?></span>,
                             <?php } ?>
                             <?php if (!empty($query['fetch_time'])) { ?>
-                                Fetch Time: <span class="badge"><?php echo Format::microsec($query['fetch_time'] * 1E6)  ?></span>,
+                                Fetch Time: <span class="badge"><?php echo FormatHelper::microsec($query['fetch_time'] * 1E6)  ?></span>,
                             <?php } ?>
                             Query:
                         </p>
@@ -69,7 +69,7 @@ class QueriesTable
                                             <hr>
                                         <?php } ?>
                                         <p>Hits: <span class="badge"><?php echo $trace['hits'] ?></span>,
-                                            Time: <span class="badge"><?php echo Format::microsec($trace['time'] * 1E6) ?></span>,
+                                            Time: <span class="badge"><?php echo FormatHelper::microsec($trace['time'] * 1E6) ?></span>,
                                             Trace <button type="button" class="btn btn-default btn-xs btn-trace-with-filenames">with filenames</button>:</p>
                                         <pre class="trace-short"><code class="stylus"><?php echo $trace['content_short'] ?></code></pre>
                                         <pre class="trace-long" style="display:none;"><code class="stylus"><?php echo $trace['content'] ?></code></pre>

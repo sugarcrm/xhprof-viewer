@@ -3,7 +3,7 @@
 namespace Sugarcrm\XHProf\Viewer\Templates\Helpers;
 
 
-class Url
+class UrlHelper
 {
     public static function url($params)
     {
