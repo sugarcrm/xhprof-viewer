@@ -2,7 +2,7 @@
 
 namespace Sugarcrm\XHProf\Viewer\Templates;
 
-use \Sugarcrm\XHProf\Viewer\Controllers\RunsListController;
+use Sugarcrm\XHProf\Viewer\Storage\StorageInterface;
 use \Sugarcrm\XHProf\Viewer\Templates\Common\Html\Head as HtmlHead;
 use Sugarcrm\XHProf\Viewer\Templates\Helpers\CurrentPage;
 use \Sugarcrm\XHProf\Viewer\Templates\Helpers\Url;
@@ -19,7 +19,7 @@ class RunsList
         self::$controller = $controller;
     }
 
-    public static function render(RunsListController $c, $limit, $runs, $start, $page)
+    public static function render(StorageInterface $storage, $limit, $runs, $start, $page)
     {
         ?><!DOCTYPE HTML><html>
         <?php HtmlHead::render(
@@ -39,16 +39,16 @@ class RunsList
         ?>
         <body class="container-fluid">
         <form id="list-form" method="get" action="">
-            <input type="hidden" id="offset_hidden" name="offset" value="<?php echo $c->getParam('offset') ?>" />
-            <input type="hidden" id="f_sort_by" name="f_sort_by" value="<?php echo $c->getParam('f_sort_by') ?>" />
-            <input type="hidden" id="f_sort_dir" name="f_sort_dir" value="<?php echo $c->getParam('f_sort_dir') ?>" />
+            <input type="hidden" id="offset_hidden" name="offset" value="<?php echo CurrentPage::getParam('offset') ?>" />
+            <input type="hidden" id="f_sort_by" name="f_sort_by" value="<?php echo CurrentPage::getParam('f_sort_by') ?>" />
+            <input type="hidden" id="f_sort_dir" name="f_sort_dir" value="<?php echo CurrentPage::getParam('f_sort_dir') ?>" />
             <div class="page-header form-inline" style="margin-top: 20px;">
-                <a class="btn btn-primary pull-right" href="<?php echo CurrentPage::url($c) ?>"><i class="fa fa-refresh"></i> Refresh</a>
+                <a class="btn btn-primary pull-right" href="<?php echo CurrentPage::url() ?>"><i class="fa fa-refresh"></i> Refresh</a>
                 <h1>SugarCRM XHProf Viewer <small>List of profiler files in
                         <select id="dir" name="dir" class="form-control">
-                            <?php foreach ($c->getStorage()->listDirectories() as $dir => $dirName) { ?>
-                                <option <?php if ($dir == $c->getStorage()->getCurrentDirectory()) { ?>selected<?php } ?>
-                                        value="<?php echo htmlentities($dir) ?>"><?php echo htmlentities($dirName) ?></option>
+                            <?php foreach ($storage->listDirectories() as $dir => $dirName) { ?>
+                                <option <?php if ($dir == $storage->getCurrentDirectory()) { ?>selected<?php } ?>
+                                        value="<?php echo htmlspecialchars($dir) ?>"><?php echo htmlspecialchars($dirName) ?></option>
                             <?php } ?>
                         </select>
                     </small></h1>
@@ -59,15 +59,15 @@ class RunsList
                 <div class="navbar-form navbar-right">
                     <label for="f_wt_min" style="padding-left:5px;">Min Wall Time</label>
                     <input style="width:104px" type="text" class="form-control" autocomplete="off"
-                           placeholder="0" name="f_wt_min" id="f_wt_min" value="<?php echo htmlentities($c->getParam('f_wt_min')) ?>" />
+                           placeholder="0" name="f_wt_min" id="f_wt_min" value="<?php echo htmlspecialchars(CurrentPage::getParam('f_wt_min')) ?>" />
 
                     <label for="date_1" style="padding-left:20px;">Date from</label>
                     <input style="width:104px" type="text" class="form-control datepicker-dropdown" data-provide="datepicker"
-                           placeholder="Date From" name="f_date_from" id="date_1" value="<?php echo $c->getParam('f_date_from')?>" />
+                           placeholder="Date From" name="f_date_from" id="date_1" value="<?php echo CurrentPage::getParam('f_date_from')?>" />
 
                     <label for="date_2">to</label>
                     <input style="width:104px" type="text" class="form-control datepicker-dropdown" data-provide="datepicker"
-                           placeholder="Date To" name="f_date_to" id="date_2" value="<?php echo $c->getParam('f_date_to')?>" />
+                           placeholder="Date To" name="f_date_to" id="date_2" value="<?php echo CurrentPage::getParam('f_date_to')?>" />
 
                     <button class="btn btn-default" style="margin-left:20px;" type="submit"><b>APPLY</b></button>
                 </div>
@@ -77,7 +77,7 @@ class RunsList
                         <div class="input-group" style="display:table;">
                             <span class="input-group-addon" style="width:1%;"><span class="glyphicon glyphicon-search"></span></span>
                             <input class="form-control" name="f_text" placeholder="Search Here" autocomplete="off" autofocus="autofocus" type="text"
-                                   value="<?php echo htmlentities($c->getParam('f_text')) ?>">
+                                   value="<?php echo htmlspecialchars(CurrentPage::getParam('f_text')) ?>">
                         </div>
                     </div>
                 </div>
@@ -85,14 +85,14 @@ class RunsList
             <?php
 
             $filterValues = array(
-                "f_date_from={$c->getParam('f_date_from')}",
-                "f_date_to={$c->getParam('f_date_to')}",
-                "f_text={$c->getParam('f_text')}",
+                "f_date_from={CurrentPage::getParam('f_date_from')}",
+                "f_date_to={CurrentPage::getParam('f_date_to')}",
+                "f_text={CurrentPage::getParam('f_text')}",
             );
             $url = "?" . implode('&', $filterValues) . "&limit=$limit";
 
 
-            $sortMarker = $c->getParam('f_sort_dir') == 'desc'
+            $sortMarker = CurrentPage::getParam('f_sort_dir') == 'desc'
                 ? '<span class="caret"></span>'
                 : '<span class="dropup"><span class="caret"></span></span>';
             $url .= "&offset=0";
@@ -106,15 +106,15 @@ class RunsList
                     <th>Profile</th>
                     <th class="align-right sortable"
                     ><a href="<?php echo static::thisPageFilterUrl('wt') ?>"
-                        >Wall Time<?php echo $c->getParam('f_sort_by') == 'wt' ? $sortMarker : '' ?></a>
+                        >Wall Time<?php echo CurrentPage::getParam('f_sort_by') == 'wt' ? $sortMarker : '' ?></a>
                     </th>
                     <th class="align-right sortable">
                         <a href="<?php echo static::thisPageFilterUrl('sql') ?>"
-                        >SQL<?php echo $c->getParam('f_sort_by') == 'sql' ? $sortMarker : '' ?></a>
+                        >SQL<?php echo CurrentPage::getParam('f_sort_by') == 'sql' ? $sortMarker : '' ?></a>
                     </th>
                     <th class="align-right sortable">
                         <a href="<?php echo static::thisPageFilterUrl('ts') ?>"
-                        >Timestamp<?php echo $c->getParam('f_sort_by') == 'ts' ? $sortMarker : '' ?></a>
+                        >Timestamp<?php echo CurrentPage::getParam('f_sort_by') == 'ts' ? $sortMarker : '' ?></a>
                     </th>
                     <th class="align-right">File Size</th>
                 </tr>
@@ -125,7 +125,7 @@ class RunsList
                 $lastTestTime = 0;
                 $microtime = microtime(1);
                 foreach ($runs['runs'] as $index => $run) {
-                    if ($c->getParam('f_sort_by') == 'ts' && (!$lastTestTime || abs($run['timestamp'] - $lastTestTime) > 5)) { ?>
+                    if (CurrentPage::getParam('f_sort_by') == 'ts' && (!$lastTestTime || abs($run['timestamp'] - $lastTestTime) > 5)) { ?>
                         <tr>
                             <td colspan="7" class="align-center age-bar">
                                 <?php echo static::toTimePcs($microtime - $run['timestamp']); ?> ago
@@ -139,13 +139,13 @@ class RunsList
                         <td class="align-right"><?php echo $index+1?></td>
                         <td><a title="<?php echo strlen($run['namespace']) > 100 ? $run['namespace'] : '' ?>"
                                href="<?php echo Url::url(array(
-                                   'dir' => $c->getStorage()->getCurrentDirectory(),
+                                   'dir' => $storage->getCurrentDirectory(),
                                    'run' => $run['run'],
                                    'source' => 'xhprof',
                                    'list_url' => CurrentPage::url()
                                )) ?>">
                                 <?php  $name = substr($run['namespace'], 0, 100) . '' . (strlen($run['namespace']) > 100 ? ' ...' : '') ?>
-                                <?php echo $name ? preg_replace("/" . preg_quote($c->getParam('f_text')) . "/i", "<b style='color:black;background-color:yellow;'>$0</b>", $name) : '-no-name-'?>
+                                <?php echo $name ? preg_replace("/" . preg_quote(CurrentPage::getParam('f_text')) . "/i", "<b style='color:black;background-color:yellow;'>$0</b>", $name) : '-no-name-'?>
                             </a>
                         </td>
                         <td class="align-right"><?php echo number_format($run['wall_time'], 0, ' ', ' ')?></td>

@@ -68,7 +68,7 @@ class RunsListController extends AbstractController
             $page = ceil($runs['total'] / $limit);
         }
 
-        RunsList::render($this, $limit, $runs, $start, $page);
+        RunsList::render($this->getStorage(), $limit, $runs, $start, $page);
     }
 
     protected function url($params) {
