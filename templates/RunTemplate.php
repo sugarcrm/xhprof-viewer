@@ -38,8 +38,7 @@ class RunTemplate
                 <h1><p>SugarCRM XHProf Viewer </p><small><?php echo htmlentities($runData['namespace']) ?></small></h1>
             </div>
         </div>
-
-        <?php displaySingleXHProfReport($xhprofData, $params, $run, $symbol, $sort) ?>
+        <?php profiler_single_run_report($params, $xhprofData, '', $symbol, $sort, $run); ?>
 
         <script type="text/javascript">
             window.TYPEAHEAD_URL = '<?php echo xhp_typeahead_url() ?>';

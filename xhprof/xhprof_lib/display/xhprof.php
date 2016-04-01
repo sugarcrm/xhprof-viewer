@@ -1119,18 +1119,6 @@ function getBacktraceCallsForFunction($name)
     return '<td align="right">' . $name . '</td>';
 }
 
-function displaySingleXHProfReport($xhprof_data, $url_params, $run, $symbol, $sort)
-{
-    profiler_single_run_report(
-        $url_params,
-        $xhprof_data,
-        '',
-        $symbol,
-        $sort,
-        $run
-    );
-}
-
 function xhp_run_url($params = array())
 {
     global $run_page_params;
