@@ -16,6 +16,8 @@
  *   4000.0001 ==> 4,000
  *
  */
+use Sugarcrm\XHProf\Viewer\Templates\Run\SymbolSearchInputTemplate;
+
 function xhprof_count_format($num) {
     $num = round($num, 3);
     if (round($num) == $num) {
@@ -736,7 +738,7 @@ function print_flat_data($url_params, $title, $flat_data, $sort, $run1, $run2, $
     print('<div class="panel panel-default panel-functions">');
 
     print("<div class=\"panel-heading form-inline \"><h3 class=\"panel-title\" style='display:inline-block;'>$title</h3> ");
-    display_symbol_search_input();
+    SymbolSearchInputTemplate::render();
     echo "$display_link $callGraphButton";
     print("</div>");
 //    print('<div class="panel-body">');
@@ -959,20 +961,6 @@ function full_report($url_params, $symbol_tab, $sort, $run1, $run2) {
         }
     }
     print_flat_data($url_params, $title, $flat_data, $sort, $run1, $run2, $limit, $callGraphButton);
-}
-
-function display_symbol_search_input() {
-    global $run_page_params;
-    ?>
-    <div class="input-group input-group-sm input-group-symbol">
-        <span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
-        <input class="form-control twitter-typeahead input-group-sm" style="width:20vw;" name="search" placeholder="Search Functions Here" autocomplete="off" type="text">
-    </div>
-    <?php if (!empty($run_page_params['symbol'])) { ?>
-    <a class="btn btn-primary btn-sm" href="<?php echo xhp_run_url(array('symbol' => '')) ?>">
-        <span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
-        View Top Level Run Report</a>
-    <?php }
 }
 
 /**

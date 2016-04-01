@@ -24,7 +24,7 @@ class SymbolTemplate
                 <h3 class="panel-title" style="display: inline-block;">Parent/Child report for
                     <strong><?php ShortenNameHelper::render($rep_symbol, 45); ?></strong>
                 </h3>
-                <?php display_symbol_search_input() ?>
+                <?php SymbolSearchInputTemplate::render() ?>
                 <a class="btn btn-primary btn-sm" target="_blank" href="<?php echo static::callgraphUrl($rep_symbol) ?>">
                     <i class="fa fa-pie-chart"></i> View Callgraph
                 </a>
