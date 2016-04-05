@@ -430,7 +430,7 @@ class FileStorage extends AbstractStorage
      */
     protected function handleSalesConnectElasticDataFormat($data)
     {
-        if (isset($data['queries']) && $data['queries'][0] instanceof IBMXHProfElastic\Query)  {
+        if (isset($data['queries']) && $data['queries'][0] instanceof \IBMXHProfElastic\Query)  {
             $data['queries'] = array_map(function($query) {
                 return array(
                     '',
