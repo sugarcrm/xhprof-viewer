@@ -24,7 +24,9 @@ $(function() {
     function initContainer($container) {
         var $queryContainer = $container.find('.query-container'),
             $showTracesButton = $container.find('.btn-show-traces'),
+            $copyToClipboardButton = $container.find('.btn-query-copy-to-clipboard'),
             $tracesList = $container.find('.traces-list');
+
         if ($queryContainer.height() == 200) {
             var $showMoreButtonContainer = $container.find('.show-more-button'),
                 $showMoreButton = $showMoreButtonContainer.find('button');
@@ -87,6 +89,15 @@ $(function() {
             if (highlightPositions && highlightPositions.length > 0) {
                 highlightMatches(block, highlightPositions)
             }
+        });
+
+        $copyToClipboardButton.click(function() {
+            window.getSelection().removeAllRanges();
+            var $query = $container.find('.query-container pre code');
+            var range = document.createRange();
+            range.selectNode($query[0]);
+            window.getSelection().addRange(range);
+            document.execCommand('copy');
         });
     }
 

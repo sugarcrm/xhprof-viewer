@@ -41,7 +41,13 @@ class QueriesTableTemplate
                                 Fetch Time: <span class="badge"><?php echo FormatHelper::microsec($query['fetch_time'] * 1E6)  ?></span>,
                             <?php } ?>
                             Query:
+                            <span style="float:right;">
+                                <button class="btn btn-default btn-xs btn-query-copy-to-clipboard" type="button">
+                                    <i class="fa fa-clipboard" ></i>
+                                </button>
+                            </span>
                         </p>
+
                         <div class="query-container">
                     <pre><code class="<?php echo $highlightLanguage ?>"
                             <?php if (!empty($query['highlight_positions'])) { ?>
