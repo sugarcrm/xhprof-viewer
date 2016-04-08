@@ -6,7 +6,12 @@ that shows some additional information like sql and elastic queries, their timin
 ## Installation
 * Download the latest .tgz package here: https://github.com/sugarcrm/xhprof-viewer/releases/latest
 * Extract it to the web root of your web server
-* In `config.php` specify the directory where profile files are located
+* By default viewer is looking to /tmp/profile_files for xhprof data files. In order to change it create
+a file `config_override.php` with the following content:
+```php
+<?php
+$config['profile_files_dir'] = '<PROFILE FILES LOCATION>';
+```
 
 ## Development
 If you want to hack on this tool just clone the repo and run `npm install && bower install && composer install`.
