@@ -39,6 +39,7 @@ rsync -Rr --exclude=.DS_Store \
  bower_components/highlightjs/highlight.pack.min.js \
  bower_components/highlightjs/highlight.pack.min.js \
  bower_components/algolia-autocomplete.js/dist/autocomplete.jquery.min.js \
+ bower_components/lexer/lexer.js \
  \
  dist/$package_name
 
