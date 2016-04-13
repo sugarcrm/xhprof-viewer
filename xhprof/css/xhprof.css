@@ -106,7 +106,7 @@ ul.xhprof_actions li a:hover {
 .query-container {max-height:200px; overflow:hidden; position: relative; display:none;}
 .query-container.active {display: inherit;}
 .query-container.query-container-expanded {max-height:inherit; margin-bottom: 30px; overflow:visible;}
-.query-container.query-container-expanded .show-more-button {background: transparent;bottom: -28px;}
+.query-container.query-container-expanded .show-more-button {background: transparent; bottom: -28px; height: 28px;}
 .query-container .show-more-button {
     position:absolute;
     bottom: 0;
