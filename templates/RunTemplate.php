@@ -24,6 +24,8 @@ class RunTemplate
                 'bower_components/algolia-autocomplete.js/dist/autocomplete.jquery.min.js',
                 'xhprof/js/queries.js',
                 'xhprof/js/symbol-typeahead.js',
+                'bower_components/lexer/lexer.js',
+                'xhprof/js/sql-formatter.js',
             ));
         ?>
         <body class="container-fluid">

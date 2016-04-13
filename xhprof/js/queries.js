@@ -22,32 +22,47 @@ $(function() {
     }
 
     function initContainer($container) {
-        var $queryContainer = $container.find('.query-container'),
+        var $queryContainerUgly = $container.find('.query-container.ugly'),
+            $queryContainerPretty = false,
             $showTracesButton = $container.find('.btn-show-traces'),
             $copyToClipboardButton = $container.find('.btn-query-copy-to-clipboard'),
+            $formatSqlButton = $container.find('.btn-format-sql'),
             $tracesList = $container.find('.traces-list');
 
-        if ($queryContainer.height() == 200) {
-            var $showMoreButtonContainer = $container.find('.show-more-button'),
-                $showMoreButton = $showMoreButtonContainer.find('button');
 
-            $showMoreButtonContainer.show();
-            function containerToggle(ev) {
-                $queryContainer.toggleClass('query-container-expanded');
-                $showMoreButton.html($queryContainer.hasClass('query-container-expanded') ? 'Show Less' : 'Show More');
-                if (!$queryContainer.hasClass('query-container-expanded')) {
-                    window.scrollTo(0, $container.offset().top - 10);
-                }
+        var initQueryContainer = function($queryContainer) {
+            if ($queryContainer.height() == 200) {
+                var $showMoreButtonContainer = $queryContainer.find('.show-more-button'),
+                    $showMoreButton = $showMoreButtonContainer.find('button');
+
+                $showMoreButtonContainer.show();
+                var containerToggle = function (ev) {
+                    $queryContainer.toggleClass('query-container-expanded');
+                    $showMoreButton.html($queryContainer.hasClass('query-container-expanded') ? 'Show Less' : 'Show More');
+                    if (!$queryContainer.hasClass('query-container-expanded')) {
+                        window.scrollTo(0, $container.offset().top - 10);
+                    }
+                };
+
+                $showMoreButton.click(containerToggle);
+                $queryContainer.click(function(ev) {
+                    if (ev.metaKey) {
+                        containerToggle(ev);
+                        ev.stopPropagation();
+                    }
+                });
             }
 
-            $showMoreButton.click(containerToggle);
-            $queryContainer.click(function(ev) {
-                if (ev.metaKey) {
-                    containerToggle(ev);
-                    ev.stopPropagation();
+            $queryContainer.find('pre code').each(function(i, block) {
+                hljs.highlightBlock(block);
+                var highlightPositions = $(block).data('highlight-positions');
+                if (highlightPositions && highlightPositions.length > 0) {
+                    highlightMatches(block, highlightPositions)
                 }
             });
-        }
+        };
+
+        initQueryContainer($queryContainerUgly);
 
         $showTracesButton.click(function() {
             $tracesList.toggle();
@@ -83,21 +98,32 @@ $(function() {
             }
         });
 
-        $container.find('.query-container pre code').each(function(i, block) {
-            hljs.highlightBlock(block);
-            var highlightPositions = $(block).data('highlight-positions');
-            if (highlightPositions && highlightPositions.length > 0) {
-                highlightMatches(block, highlightPositions)
-            }
-        });
-
         $copyToClipboardButton.click(function() {
             window.getSelection().removeAllRanges();
-            var $query = $container.find('.query-container pre code');
+            var $query = $container.find('.query-container.active pre code');
             var range = document.createRange();
             range.selectNode($query[0]);
             window.getSelection().addRange(range);
             document.execCommand('copy');
+        });
+
+        $formatSqlButton.click(function() {
+            if (!$queryContainerPretty) {
+                var $query = $queryContainerUgly.find('pre code'),
+                    sqlFormatter = new SqlFormatter($query[0].innerText);
+
+                $queryContainerPretty = $($queryContainerUgly[0].cloneNode(true));
+                $queryContainerPretty.removeClass('ugly').removeClass('active').addClass('pretty');
+                $queryContainerPretty.insertAfter($queryContainerUgly);
+                $queryContainerPretty.find('pre code')[0].removeAttribute('data-highlight-positions');
+                $queryContainerPretty.find('pre code').text(sqlFormatter.format());
+
+                initQueryContainer($queryContainerPretty);
+            }
+
+            $queryContainerPretty.toggleClass('active');
+            $queryContainerUgly.toggleClass('active');
+            $formatSqlButton.toggleClass('active');
         });
     }
 

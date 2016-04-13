@@ -914,8 +914,7 @@ function full_report($url_params, $symbol_tab, $sort, $run1, $run2) {
         $callgraph_report_title = '<i class="fa fa-pie-chart"></i> View Full Callgraph';
     }
 
-    $sqlButtons = array('\Sugarcrm\XHProf\Viewer\Templates\Run\QueriesTable\SqlButtonsTemplate', 'render');
-    \Sugarcrm\XHProf\Viewer\Templates\Run\QueriesTableTemplate::render('SQL Queries', $sqlData, 'sql', $sqlButtons);
+    \Sugarcrm\XHProf\Viewer\Templates\Run\SqlQueriesTableTemplate::render('SQL Queries', $sqlData, 'sql');
     \Sugarcrm\XHProf\Viewer\Templates\Run\QueriesTableTemplate::render('Elastic Queries', $elasticData, 'bash');
 
     $callGraphButton = '<a class="btn btn-primary btn-sm" target="_blank" href="' . xhp_callgraph_url() . '">'

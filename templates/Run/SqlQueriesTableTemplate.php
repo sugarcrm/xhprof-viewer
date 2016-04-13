@@ -1,12 +1,12 @@
 <?php
 
-namespace Sugarcrm\XHProf\Viewer\Templates\Run\QueriesTable;
+namespace Sugarcrm\XHProf\Viewer\Templates\Run;
 
 use \Sugarcrm\XHProf\Viewer\Templates\Helpers\CurrentPageHelper as CurrentPage;
 
-class SqlButtonsTemplate
+class SqlQueriesTableTemplate extends QueriesTableTemplate
 {
-    public static function render()
+    public static function renderTopButtons()
     {
         ?>
         <form method="get" class="form-inline" style="display:inline-block; margin:0">
@@ -49,4 +49,16 @@ class SqlButtonsTemplate
 
         <?php
     }
+
+    public static function renderQueryButtons()
+    {
+        ?>
+        <button class="btn btn-default btn-xs btn-format-sql" type="button" data-toggle="tooltip" title="Pretty print">
+            { }
+        </button>
+        <?php
+
+        parent::renderQueryButtons();
+    }
+
 }

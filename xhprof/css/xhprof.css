@@ -103,7 +103,8 @@ ul.xhprof_actions li a:hover {
 #tbl .btn-compare {padding: 5px; font-weight: bolder;}
 #tbl .age-bar {border-bottom:1px solid #DDD; color:gray;}
 
-.query-container {max-height:200px; overflow:hidden; position: relative;}
+.query-container {max-height:200px; overflow:hidden; position: relative; display:none;}
+.query-container.active {display: inherit;}
 .query-container.query-container-expanded {max-height:inherit; margin-bottom: 30px; overflow:visible;}
 .query-container.query-container-expanded .show-more-button {background: transparent;bottom: -28px;}
 .query-container .show-more-button {

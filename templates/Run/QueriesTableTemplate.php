@@ -7,7 +7,7 @@ use Sugarcrm\XHProf\Viewer\Templates\Helpers\FormatHelper;
 
 class QueriesTableTemplate
 {
-    public static function render($title, $queries, $highlightLanguage, $buttons = false, $moreQueriesAfter = 5)
+    public static function render($title, $queries, $highlightLanguage, $moreQueriesAfter = 5)
     {
         ?>
         <div class="panel panel-default panel-queries">
@@ -17,7 +17,7 @@ class QueriesTableTemplate
                     <span class="badge"><?php echo count($queries['queries']) ?></span>
                 </h3>
                 &nbsp;&nbsp;
-                <?php if ($buttons) { call_user_func($buttons); } ?>
+                <?php static::renderTopButtons() ?>
             </div>
             <div class="panel-body">
                 <?php if (count($queries['queries']) == 0) { ?>
@@ -42,13 +42,11 @@ class QueriesTableTemplate
                             <?php } ?>
                             Query:
                             <span style="float:right;">
-                                <button class="btn btn-default btn-xs btn-query-copy-to-clipboard" type="button">
-                                    <i class="fa fa-clipboard" ></i>
-                                </button>
+                                <?php static::renderQueryButtons(); ?>
                             </span>
                         </p>
 
-                        <div class="query-container">
+                        <div class="query-container ugly active">
                     <pre><code class="<?php echo $highlightLanguage ?>"
                             <?php if (!empty($query['highlight_positions'])) { ?>
                                 data-highlight-positions="<?php echo json_encode($query['highlight_positions']) ?>"
@@ -98,5 +96,19 @@ class QueriesTableTemplate
         </div>
 
         <?php
+    }
+
+    public static function renderQueryButtons()
+    {
+        ?>
+            <button class="btn btn-default btn-xs btn-query-copy-to-clipboard" type="button" data-toggle="tooltip" title="Copy to clipboard">
+                <i class="fa fa-clipboard" ></i>
+            </button>
+        <?php
+    }
+
+    public static function renderTopButtons()
+    {
+
     }
 }

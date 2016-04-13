@@ -128,9 +128,8 @@ class FileStorage extends AbstractStorage
         $xhprofData = $this->fileGetData($this->getRunFullPath($run));
 
         $sqlData = $this->getRunSqlData($run);
-        if (!empty($sqlData['backtrace_calls'])) {
-            $this->updateXHProfDataWithBacktraceCalls($xhprofData, $sqlData['backtrace_calls']);
-        }
+        $backtraceCalls = !empty($sqlData['backtrace_calls']) ? $sqlData['backtrace_calls'] : array();
+        $this->updateXHProfDataWithBacktraceCalls($xhprofData, $backtraceCalls);
 
         return $xhprofData;
     }
@@ -430,7 +429,7 @@ class FileStorage extends AbstractStorage
      */
     protected function handleSalesConnectElasticDataFormat($data)
     {
-        if (isset($data['queries']) && $data['queries'][0] instanceof \IBMXHProfElastic\Query)  {
+        if (!empty($data['queries']) && $data['queries'][0] instanceof \IBMXHProfElastic\Query)  {
             $data['queries'] = array_map(function($query) {
                 return array(
                     '',
