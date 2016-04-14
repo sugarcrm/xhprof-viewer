@@ -16,9 +16,8 @@ class SymbolTemplate
         global $metrics;
         global $format_cbk;
         global $sort_col;
-        global $display_calls;
 
-        $columnsCount = count($metrics) * 2 + 1 + ($display_calls ? 2 : 0);
+        $columnsCount = count($metrics) * 2 + 1 + 2;
         ?>
         <div class="panel panel-default panel-functions">
             <div class="panel-heading form-inline">
@@ -40,11 +39,10 @@ class SymbolTemplate
                     <td><a href=""><?php echo htmlspecialchars($rep_symbol) ?></a></td>
                     <td><?php echo $symbol_info['bcc'] ?></td>
 
-                    <?php if ($display_calls) {
-                        // Call Count
-                        print_td_num($symbol_info["ct"], $format_cbk["ct"]);
-                        print_td_pct($symbol_info["ct"], $totals["ct"]);
-                    }
+                    <?php
+
+                    print_td_num($symbol_info["ct"], $format_cbk["ct"]);
+                    print_td_pct($symbol_info["ct"], $totals["ct"]);
 
                     // Inclusive Metrics for current function
                     foreach ($metrics as $metric) {
@@ -55,11 +53,8 @@ class SymbolTemplate
                 <tr>
                     <td style='text-align:right;'>Exclusive Metrics for Current Function</td>
                     <td></td>
-
-                    <?php if ($display_calls) { ?>
-                        <td></td>
-                        <td></td>
-                    <?php }
+                    <td></td>
+                    <td></td>
 
                     // Exclusive Metrics for current function
                     foreach ($metrics as $metric) {
@@ -80,11 +75,7 @@ class SymbolTemplate
                 </tr>
                 <?php // list of callers/parent functions
                 $results = array();
-                if ($display_calls) {
-                    $base_ct = $symbol_info["ct"];
-                } else {
-                    $base_ct = 0;
-                }
+                $base_ct = $symbol_info["ct"];
                 $base_info = array();
                 foreach ($metrics as $metric) {
                     $base_info[$metric] = $symbol_info[$metric];
@@ -112,9 +103,7 @@ class SymbolTemplate
                         $info_tmp = $info;
                         $info_tmp["fn"] = $child;
                         $results[] = $info_tmp;
-                        if ($display_calls) {
-                            $base_ct += $info["ct"];
-                        }
+                        $base_ct += $info["ct"];
                     }
                 }
                 usort($results, 'sort_cbk');

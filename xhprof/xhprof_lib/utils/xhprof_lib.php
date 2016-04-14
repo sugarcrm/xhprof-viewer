@@ -351,9 +351,6 @@ function xhprof_aggregate_runs($xhprof_runs_impl, $runs,
  * @author Kannan Muthukkaruppan
  */
 function xhprof_compute_flat_info($raw_data, &$overall_totals) {
-
-    global $display_calls;
-
     $metrics = xhprof_get_metrics($raw_data);
 
     $overall_totals = array( "ct" => 0,
@@ -383,10 +380,8 @@ function xhprof_compute_flat_info($raw_data, &$overall_totals) {
         foreach ($metrics as $metric) {
             $symbol_tab[$symbol]["excl_" . $metric] = $symbol_tab[$symbol][$metric];
         }
-        if ($display_calls) {
-            /* keep track of total number of calls */
-            $overall_totals["ct"] += $info["ct"];
-        }
+        /* keep track of total number of calls */
+        $overall_totals["ct"] += $info["ct"];
     }
 
     /* adjust exclusive times by deducting inclusive time of children */
@@ -413,8 +408,6 @@ function xhprof_compute_flat_info($raw_data, &$overall_totals) {
  * @author Kannan
  */
 function xhprof_compute_diff($xhprof_data1, $xhprof_data2) {
-    global $display_calls;
-
     // use the second run to decide what metrics we will do the diff on
     $metrics = xhprof_get_metrics($xhprof_data2);
 
@@ -426,19 +419,13 @@ function xhprof_compute_diff($xhprof_data1, $xhprof_data2) {
 
             // this pc combination was not present in run1;
             // initialize all values to zero.
-            if ($display_calls) {
-                $xhprof_delta[$parent_child] = array("ct" => 0);
-            } else {
-                $xhprof_delta[$parent_child] = array();
-            }
+            $xhprof_delta[$parent_child] = array("ct" => 0);
             foreach ($metrics as $metric) {
                 $xhprof_delta[$parent_child][$metric] = 0;
             }
         }
 
-        if ($display_calls) {
-            $xhprof_delta[$parent_child]["ct"] -= $info["ct"];
-        }
+        $xhprof_delta[$parent_child]["ct"] -= $info["ct"];
 
         foreach ($metrics as $metric) {
             $xhprof_delta[$parent_child][$metric] -= $info[$metric];
@@ -464,10 +451,7 @@ function xhprof_compute_diff($xhprof_data1, $xhprof_data2) {
  * @author Kannan
  */
 function xhprof_compute_inclusive_times($raw_data) {
-    global $display_calls;
-
     $metrics = xhprof_get_metrics($raw_data);
-
     $symbol_tab = array();
 
     /*
@@ -491,20 +475,14 @@ function xhprof_compute_inclusive_times($raw_data) {
 
         if (!isset($symbol_tab[$child])) {
 
-            if ($display_calls) {
-                $symbol_tab[$child] = array("ct" => $info["ct"]);
-            } else {
-                $symbol_tab[$child] = array();
-            }
+            $symbol_tab[$child] = array("ct" => $info["ct"]);
             foreach ($metrics as $metric) {
                 $symbol_tab[$child][$metric] = $info[$metric];
             }
             $symbol_tab[$child]['bcc'] = $info['bcc'];
         } else {
-            if ($display_calls) {
-                /* increment call count for this child */
-                $symbol_tab[$child]["ct"] += $info["ct"];
-            }
+            /* increment call count for this child */
+            $symbol_tab[$child]["ct"] += $info["ct"];
 
             /* update inclusive times/metric for this child  */
             foreach ($metrics as $metric) {

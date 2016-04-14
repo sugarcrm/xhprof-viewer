@@ -108,9 +108,6 @@ function xhprof_render_link($content, $href, $class='', $id='', $title='',
 // default column to sort on -- wall time
 $sort_col = "wt";
 
-// call count data present?
-$display_calls = true;
-
 // The following column headers are sortable
 $sortable_columns = array("fn" => 1,
     "bcc" => 1,
@@ -337,8 +334,6 @@ function init_metrics($xhprof_data, $rep_symbol, $sort) {
     global $metrics;
     global $sortable_columns;
     global $sort_col;
-    global $display_calls;
-
 
     if (!empty($sort)) {
         if (array_key_exists($sort, $sortable_columns)) {
@@ -351,19 +346,9 @@ function init_metrics($xhprof_data, $rep_symbol, $sort) {
     // For C++ profiler runs, walltime attribute isn't present.
     // In that case, use "samples" as the default sort column.
     if (!isset($xhprof_data["main()"]["wt"])) {
-
         if ($sort_col == "wt") {
             $sort_col = "samples";
         }
-
-        // C++ profiler data doesn't have call counts.
-        // ideally we should check to see if "ct" metric
-        // is present for "main()". But currently "ct"
-        // metric is artificially set to 1. So, relying
-        // on absence of "wt" metric instead.
-        $display_calls = false;
-    } else {
-        $display_calls = true;
     }
 
     // parent/child report doesn't support exclusive times yet.
@@ -372,15 +357,10 @@ function init_metrics($xhprof_data, $rep_symbol, $sort) {
         $sort_col = str_replace("excl_", "", $sort_col);
     }
 
-    if ($display_calls) {
-        $stats = array("fn", "bcc", "ct", "Calls%");
-    } else {
-        $stats = array("fn", "bcc");
-    }
-
+    $stats = array("fn", "bcc", "ct", "Calls%");
     $pc_stats = $stats;
 
-    $possible_metrics = xhprof_get_possible_metrics($xhprof_data);
+    $possible_metrics = xhprof_get_possible_metrics();
     foreach ($possible_metrics as $metric => $desc) {
         if (isset($xhprof_data["main()"][$metric])) {
             $metrics[] = $metric;
@@ -508,12 +488,10 @@ function print_td_pct($numer, $denom, $bold=false, $attributes=null) {
  */
 function print_function_info($info) {
     static $odd_even = 0;
-
     global $totals;
     global $sort_col;
     global $metrics;
     global $format_cbk;
-    global $display_calls;
 
     // Toggle $odd_or_even
     $odd_even = 1 - $odd_even;
@@ -531,11 +509,8 @@ function print_function_info($info) {
     print(xhprof_render_link($info["fn"], $href).getBacktraceCallsForFunction($info["bcc"]));
     print("</td>\n");
 
-    if ($display_calls) {
-        // Call Count..
-        print_td_num($info["ct"], $format_cbk["ct"], ($sort_col == "ct"));
-        print_td_pct($info["ct"], $totals["ct"], ($sort_col == "ct"));
-    }
+    print_td_num($info["ct"], $format_cbk["ct"], ($sort_col == "ct"));
+    print_td_pct($info["ct"], $totals["ct"], ($sort_col == "ct"));
 
     // Other metrics..
     foreach ($metrics as $metric) {
@@ -618,7 +593,6 @@ function full_report($url_params, $symbol_tab) {
     global $metrics;
     global $descriptions;
     global $sort_col;
-    global $display_calls;
     global $sqlData;
     global $elasticData;
     global $unitSymbols;
@@ -665,12 +639,10 @@ function full_report($url_params, $symbol_tab) {
         echo "</tr>";
     }
 
-    if ($display_calls) {
-        echo "<tr>";
-        echo "<td style='text-align:right; font-weight:bold'>Number of Function Calls:</td>";
-        echo "<td>" . number_format($totals['ct']) . "</td>";
-        echo "</tr>";
-    }
+    echo "<tr>";
+    echo "<td style='text-align:right; font-weight:bold'>Number of Function Calls:</td>";
+    echo "<td>" . number_format($totals['ct']) . "</td>";
+    echo "</tr>";
 
     echo "</table>";
     print("</center></p>\n");
@@ -732,19 +704,15 @@ function pc_info($info, $base_ct, $base_info, $parent) {
     global $sort_col;
     global $metrics;
     global $format_cbk;
-    global $display_calls;
 
     if ($parent)
         $type = "Parent";
     else
         $type = "Child";
 
-    if ($display_calls) {
-        $mouseoverct = get_tooltip_attributes($type, "ct");
-        /* call count */
-        print_td_num($info["ct"], $format_cbk["ct"], ($sort_col == "ct"), $mouseoverct);
-        print_td_pct($info["ct"], $base_ct, ($sort_col == "ct"), $mouseoverct);
-    }
+    $mouseoverct = get_tooltip_attributes($type, "ct");
+    print_td_num($info["ct"], $format_cbk["ct"], ($sort_col == "ct"), $mouseoverct);
+    print_td_pct($info["ct"], $base_ct, ($sort_col == "ct"), $mouseoverct);
 
     /* Inclusive metric values  */
     foreach ($metrics as $metric) {
@@ -758,7 +726,6 @@ function pc_info($info, $base_ct, $base_info, $parent) {
 
 function print_pc_array($url_params, $results, $base_ct, $base_info, $parent) {
     global $metrics;
-    global $display_calls;
 
     // Construct section title
     if ($parent) {
@@ -771,7 +738,7 @@ function print_pc_array($url_params, $results, $base_ct, $base_info, $parent) {
         $title .= 's';
     }
 
-    $columnsCount = count($metrics) * 2 + 1 + ($display_calls ? 2 : 0);
+    $columnsCount = count($metrics) * 2 + 1 + 2;
 
     print("<tr><td>");
     print("<b><i><center>" . $title . "</center></i></b>");
