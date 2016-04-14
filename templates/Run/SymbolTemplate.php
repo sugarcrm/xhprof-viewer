@@ -46,8 +46,8 @@ class SymbolTemplate
 
                     // Inclusive Metrics for current function
                     foreach ($metrics as $metric) {
-                        print_td_num($symbol_info[$metric], $format_cbk[$metric], ($sort_col == $metric));
-                        print_td_pct($symbol_info[$metric], $totals[$metric], ($sort_col == $metric));
+                        print_td_num($symbol_info[$metric], $format_cbk[$metric]);
+                        print_td_pct($symbol_info[$metric], $totals[$metric]);
                     } ?>
                 </tr>
                 <tr>
@@ -55,21 +55,18 @@ class SymbolTemplate
                     <td></td>
                     <td></td>
                     <td></td>
-
+                    <?php
                     // Exclusive Metrics for current function
                     foreach ($metrics as $metric) {
                         print_td_num(
                             $symbol_info["excl_" . $metric],
-                            $format_cbk["excl_" . $metric],
-                            ($sort_col == $metric),
-                            get_tooltip_attributes("Child", $metric)
+                            $format_cbk["excl_" . $metric]
                         );
 
                         print_td_pct(
                             $symbol_info["excl_" . $metric],
                             $symbol_info[$metric],
-                            ($sort_col == $metric),
-                            get_tooltip_attributes("Child", $metric)
+                            ($sort_col == $metric)
                         );
                     } ?>
                 </tr>

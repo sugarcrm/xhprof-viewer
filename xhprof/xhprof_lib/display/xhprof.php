@@ -509,8 +509,8 @@ function print_function_info($info) {
     print(xhprof_render_link($info["fn"], $href).getBacktraceCallsForFunction($info["bcc"]));
     print("</td>\n");
 
-    print_td_num($info["ct"], $format_cbk["ct"], ($sort_col == "ct"));
-    print_td_pct($info["ct"], $totals["ct"], ($sort_col == "ct"));
+    print_td_num($info["ct"], $format_cbk["ct"]);
+    print_td_pct($info["ct"], $totals["ct"]);
 
     // Other metrics..
     foreach ($metrics as $metric) {
@@ -688,39 +688,22 @@ function full_report($url_params, $symbol_tab) {
 }
 
 /**
- * Return attribute names and values to be used by javascript tooltip.
- */
-function get_tooltip_attributes($type, $metric) {
-    return "type='$type' metric='$metric'";
-}
-
-/**
  * Print info for a parent or child function in the
  * parent & children report.
  *
  * @author Kannan
  */
-function pc_info($info, $base_ct, $base_info, $parent) {
-    global $sort_col;
+function pc_info($info, $base_ct, $base_info) {
     global $metrics;
     global $format_cbk;
 
-    if ($parent)
-        $type = "Parent";
-    else
-        $type = "Child";
-
-    $mouseoverct = get_tooltip_attributes($type, "ct");
-    print_td_num($info["ct"], $format_cbk["ct"], ($sort_col == "ct"), $mouseoverct);
-    print_td_pct($info["ct"], $base_ct, ($sort_col == "ct"), $mouseoverct);
+    print_td_num($info["ct"], $format_cbk["ct"]);
+    print_td_pct($info["ct"], $base_ct);
 
     /* Inclusive metric values  */
     foreach ($metrics as $metric) {
-        print_td_num($info[$metric], $format_cbk[$metric],
-            ($sort_col == $metric),
-            get_tooltip_attributes($type, $metric));
-        print_td_pct($info[$metric], $base_info[$metric], ($sort_col == $metric),
-            get_tooltip_attributes($type, $metric));
+        print_td_num($info[$metric], $format_cbk[$metric]);
+        print_td_pct($info[$metric], $base_info[$metric]);
     }
 }
 
@@ -756,7 +739,7 @@ function print_pc_array($url_params, $results, $base_ct, $base_info, $parent) {
         }
 
         print("<td>" . xhprof_render_link($info["fn"], $href) . getBacktraceCallsForFunction($info["bcc"]). "</td>");
-        pc_info($info, $base_ct, $base_info, $parent);
+        pc_info($info, $base_ct, $base_info);
         print("</tr>");
     }
 }
