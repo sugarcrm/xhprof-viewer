@@ -2,7 +2,7 @@
 
 namespace Sugarcrm\XHProf\Viewer\Templates;
 
-use \Sugarcrm\XHProf\Viewer\Templates\Common\Html\HeadTemplate as HtmlHead;
+use \Sugarcrm\XHProf\Viewer\Templates\Common\Html\HeadTemplate as HtmlHead;use Sugarcrm\XHProf\Viewer\Templates\Helpers\CurrentPageHelper;use Sugarcrm\XHProf\Viewer\Templates\Helpers\UrlHelper;
 
 class RunTemplate
 {
@@ -43,7 +43,7 @@ class RunTemplate
         <?php profiler_single_run_report($params, $xhprofData, '', $symbol, $sort, $run); ?>
 
         <script type="text/javascript">
-            window.TYPEAHEAD_URL = '<?php echo xhp_typeahead_url() ?>';
+            window.TYPEAHEAD_URL = '<?php echo static::typeAheadUrl() ?>';
             window.SYMBOL_URL = '<?php echo xhp_run_url() ?>';
 
             $(function () {
@@ -54,5 +54,13 @@ class RunTemplate
         </html>
 
         <?php
+    }
+
+    protected static function typeAheadUrl()
+    {
+        return UrlHelper::url(array(
+            'dir' => CurrentPageHelper::getParam('dir'),
+            'run' => CurrentPageHelper::getParam('run'),
+        ));
     }
 }

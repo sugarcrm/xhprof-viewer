@@ -1136,15 +1136,3 @@ function xhp_callgraph_url($params = array())
         $params
     ));
 }
-
-function xhp_typeahead_url($params = array())
-{
-    global $run_page_params;
-    return '?' . http_build_query(array_merge(
-        array(
-            'dir' => $run_page_params['dir'],
-            'run' => $run_page_params['run'],
-        ),
-        $params
-    ));
-}
