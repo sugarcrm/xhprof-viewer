@@ -73,13 +73,6 @@ class RunController extends AbstractController
 
         $GLOBALS['run_page_params'] = $params;
 
-        $GLOBALS['vbar'] = ' class="vbar"';
-        $GLOBALS['vwbar'] = ' class="vwbar"';
-        $GLOBALS['vwlbar'] = ' class="vwlbar"';
-        $GLOBALS['vbbar'] = ' class="vbbar"';
-        $GLOBALS['vrbar'] = ' class="vrbar"';
-        $GLOBALS['vgbar'] = ' class="vgbar"';
-
         $runData = $this->storage->getRunMetaData($run);
         $xhprofData = $this->storage->getRunXHProfData($run);
         $sqlData = $this->storage->getRunSqlData($run, array(

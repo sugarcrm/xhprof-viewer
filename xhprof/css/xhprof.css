@@ -21,42 +21,6 @@ th.sortable {
   text-decoration: underline;
 }
 
-td.vbar, th.vbar {
-  text-align: right;
-  border-left:
-  solid 1px #bdc7d8;
-}
-
-td.vbbar, th.vbar {
-  text-align: right;
-  border-left: solid 1px #bdc7d8;
-  color: #337ab7;;
-}
-
-/* diff reports: display regressions in red */
-td.vrbar {
-  text-align: right;
-  border-left:solid 1px #bdc7d8;
-  color:red;
-}
-
-/* diff reports: display improvements in green */
-td.vgbar {
-  text-align: right;
-  border-left: solid 1px #bdc7d8;
-  color:green;
-}
-
-td.vwbar, th.vwbar {
-  text-align: right;
-  border-left: solid 1px white;
-}
-
-td.vwlbar, th.vwlbar {
-  text-align: left;
-  border-left: solid 1px white;
-}
-
 p.blue  {
   color:blue
 }
@@ -127,7 +91,8 @@ ul.xhprof_actions li a:hover {
 .btn.btn-format-sql {font-weight: bold;}
 .query .btn-show-traces {padding-left: 0; border: 0;}
 .query .btn-show-traces .glyphicon {color:#777;}
-.table.table-functions td {padding: 1px; font-size: 12px;}
+.table.table-functions td {padding: 1px; font-size: 12px; text-align: right;}
+.table.table-functions td:first-child {text-align: left;}
 .table.table-functions th {padding: 3px; font-size: 14px;}
 
 .panel-functions {display: inline-block; min-width: 100%;}

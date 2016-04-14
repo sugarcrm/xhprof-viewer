@@ -431,11 +431,7 @@ function profiler_report ($url_params, $rep_symbol, $run1, $run1_data) {
     }
 
     $symbol_tab = xhprof_compute_flat_info($run1_data, $totals);
-
-    $base_url_params = xhprof_array_unset(xhprof_array_unset($url_params,
-            'symbol'),
-        'all');
-
+    $base_url_params = xhprof_array_unset(xhprof_array_unset($url_params, 'symbol'), 'all');
     $top_link_query_string = "?" . http_build_query($base_url_params);
 
     $diff_text = "Run";
@@ -444,7 +440,6 @@ function profiler_report ($url_params, $rep_symbol, $run1, $run1_data) {
     $links = array();
     $links []=  xhprof_render_link("View Top Level $diff_text Report",
         $top_link_query_string);
-
 
     // lookup function typeahead form
     $links [] = '<input class="function_typeahead" ' .
@@ -483,54 +478,27 @@ function pct($a, $b) {
 }
 
 /**
- * Given a number, returns the td class to use for display.
- *
- * For instance, negative numbers in diff reports comparing two runs (run1 & run2)
- * represent improvement from run1 to run2. We use green to display those deltas,
- * and red for regression deltas.
- */
-function get_print_class($num, $bold) {
-    global $vbar;
-    global $vbbar;
-
-    if ($bold) {
-        $class = $vbbar; // blue
-    }
-    else {
-        $class = $vbar;  // default (black)
-    }
-
-    return $class;
-}
-
-/**
  * Prints a <td> element with a numeric value.
  */
 function print_td_num($num, $fmt_func, $bold=false, $attributes=null) {
-
-    $class = get_print_class($num, $bold);
-
     if (!empty($fmt_func)) {
         $num = call_user_func($fmt_func, $num);
     }
 
-    print("<td $attributes $class>$num</td>\n");
+    print("<td $attributes>$num</td>\n");
 }
 
 /**
  * Prints a <td> element with a pecentage.
  */
 function print_td_pct($numer, $denom, $bold=false, $attributes=null) {
-
-    $class = get_print_class($numer, $bold);
-
     if ($denom == 0) {
         $pct = "N/A%";
     } else {
         $pct = xhprof_percent_format($numer / abs($denom));
     }
 
-    print("<td $attributes $class>$pct</td>\n");
+    print("<td $attributes>$pct</td>\n");
 }
 
 /**
@@ -598,15 +566,13 @@ function print_flat_data($title, $flat_data, $limit, $callGraphButton) {
 
     global $stats;
     global $sortable_columns;
-    global $vwbar;
 
     $size  = count($flat_data);
-    if (!$limit) {              // no limit
+    if (!$limit) {
         $limit = $size;
         $display_link = "";
     } else {
-        $display_link = "<a href='"
-            . xhp_run_url(array('all' => 1))
+        $display_link = "<a href='" . xhp_run_url(array('all' => 1))
             . "' class='btn btn-sm btn-primary'>Display All</a>";
     }
 
@@ -616,26 +582,8 @@ function print_flat_data($title, $flat_data, $limit, $callGraphButton) {
     SymbolSearchInputTemplate::render();
     echo "$display_link $callGraphButton";
     print("</div>");
-//    print('<div class="panel-body">');
-
-    print('<table class="table table-functions table-condensed table-bordered table-striped">');
-    print('<tr align=right>');
-
-    foreach ($stats as $stat) {
-        $desc = stat_description($stat);
-        if (array_key_exists($stat, $sortable_columns)) {
-            $href = xhp_run_url(array('sort' => $stat));
-            $header = xhprof_render_link($desc, $href);
-        } else {
-            $header = $desc;
-        }
-
-        if ($stat == "fn")
-            print("<th align=left><nobr>$header</th>");
-        else
-            print("<th " . $vwbar . "><nobr>$header</th>");
-    }
-    print("</tr>\n");
+    print('<table class="table table-functions table-condensed table-bordered">');
+    \Sugarcrm\XHProf\Viewer\Templates\Run\SymbolsTable\HeaderTemplate::render($stats, $sortable_columns);
 
     if ($limit >= 0) {
         $limit = min($size, $limit);
@@ -650,9 +598,6 @@ function print_flat_data($title, $flat_data, $limit, $callGraphButton) {
         }
     }
     print("</table>");
-
-//    print('</div>');
-
 
     // let's print the display all link at the bottom as well...
     if ($display_link) {
@@ -692,8 +637,7 @@ function full_report($url_params, $symbol_tab) {
         echo "<tr>";
         echo "<td style='text-align:right; font-weight:bold'>Total "
             . str_replace("<br>", " ", stat_description($metric)) . ":</td>";
-        echo "<td>" . number_format($totals[$metric])
-            . $possible_metrics[$metric][1] . "</td>";
+        echo "<td>" . number_format($totals[$metric]) . $possible_metrics[$metric][1] . "</td>";
         echo "</tr>";
     }
 
@@ -732,7 +676,6 @@ function full_report($url_params, $symbol_tab) {
     print("</center></p>\n");
 
     $callgraph_report_title = '<i class="fa fa-pie-chart"></i> View Full Callgraph';
-
 
     \Sugarcrm\XHProf\Viewer\Templates\Run\SqlQueriesTableTemplate::render('SQL Queries', $sqlData, 'sql');
     \Sugarcrm\XHProf\Viewer\Templates\Run\QueriesTableTemplate::render('Elastic Queries', $elasticData, 'bash');
@@ -842,7 +785,7 @@ function print_pc_array($url_params, $results, $base_ct, $base_info, $parent) {
         if ($odd_even) {
             print('<tr>');
         } else {
-            print('<tr bgcolor="#e5e5e5">');
+            print('<tr>');
         }
 
         print("<td>" . xhprof_render_link($info["fn"], $href) . getBacktraceCallsForFunction($info["bcc"]). "</td>");
@@ -877,7 +820,7 @@ function profiler_single_run_report ($url_params, $xhprof_data, $rep_symbol, $so
 
 function getBacktraceCallsForFunction($name)
 {
-    return '<td align="right">' . $name . '</td>';
+    return "<td>$name</td>";
 }
 
 function xhp_run_url($params = array())

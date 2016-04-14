@@ -5,6 +5,7 @@ namespace Sugarcrm\XHProf\Viewer\Templates\Run;
 use Sugarcrm\XHProf\Viewer\Templates\Helpers\CurrentPageHelper;
 use \Sugarcrm\XHProf\Viewer\Templates\Helpers\ShortenNameHelper;
 use Sugarcrm\XHProf\Viewer\Templates\Helpers\UrlHelper;
+use Sugarcrm\XHProf\Viewer\Templates\Run\SymbolsTable\HeaderTemplate;
 
 class SymbolTemplate
 {
@@ -29,28 +30,15 @@ class SymbolTemplate
                     <i class="fa fa-pie-chart"></i> View Callgraph
                 </a>
             </div>
-            <table class="table table-functions table-condensed table-bordered table-striped">
-                <tr  align=right>
-                <?php foreach ($pc_stats as $stat) { ?>
-                    <th <?php if ($stat == "fn") { ?> align=left <?php } else { ?> class="vwbar" <?php } ?>>
-                        <nobr>
-                        <?php if (array_key_exists($stat, $sortable_columns)) { ?>
-                            <a href="<?php echo CurrentPageHelper::url(array('sort' => $stat)); ?>">
-                                <?php echo stat_description($stat); ?>
-                            </a>
-                        <?php } else { ?>
-                            <?php echo stat_description($stat); ?>
-                        <?php } ?>
-                    </th>
-                <?php } ?>
-                </tr>
+            <table class="table table-functions table-condensed table-bordered">
+                <?php HeaderTemplate::render($pc_stats, $sortable_columns) ?>
                 <tr>
                     <td><b><i><center>Current Function</center></i></b></td>
                     <td colspan="<?php echo $columnsCount ?>"></td>
                 </tr>
                 <tr>
                     <td><a href=""><?php echo htmlspecialchars($rep_symbol) ?></a></td>
-                    <td align="right"><?php echo $symbol_info['bcc'] ?></td>
+                    <td><?php echo $symbol_info['bcc'] ?></td>
 
                     <?php if ($display_calls) {
                         // Call Count
@@ -64,13 +52,13 @@ class SymbolTemplate
                         print_td_pct($symbol_info[$metric], $totals[$metric], ($sort_col == $metric));
                     } ?>
                 </tr>
-                <tr bgcolor='#ffffff'>
+                <tr>
                     <td style='text-align:right;'>Exclusive Metrics for Current Function</td>
                     <td></td>
 
                     <?php if ($display_calls) { ?>
-                        <td class="vbar"></td>
-                        <td class="vbar"></td>
+                        <td></td>
+                        <td></td>
                     <?php }
 
                     // Exclusive Metrics for current function
