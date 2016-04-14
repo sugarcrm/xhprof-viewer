@@ -32,25 +32,6 @@ function xhprof_percent_format($s, $precision = 1) {
 }
 
 /**
- * Implodes the text for a bunch of actions (such as links, forms,
- * into a HTML list and returns the text.
- */
-function xhprof_render_actions($actions) {
-    $out = array( );
-
-    if (count($actions)) {
-        $out[] = '<ul class="xhprof_actions">';
-        foreach ($actions as $action) {
-            $out[] = '<li>'.$action.'</li>';
-        }
-        $out[] = '</ul>';
-    }
-
-    return implode('', $out);
-}
-
-
-/**
  * @param html-str $content  the text/image/innerhtml/whatever for the link
  * @param raw-str  $href
  * @param raw-str  $class
