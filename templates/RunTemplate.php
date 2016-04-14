@@ -2,7 +2,9 @@
 
 namespace Sugarcrm\XHProf\Viewer\Templates;
 
-use \Sugarcrm\XHProf\Viewer\Templates\Common\Html\HeadTemplate as HtmlHead;use Sugarcrm\XHProf\Viewer\Templates\Helpers\CurrentPageHelper;use Sugarcrm\XHProf\Viewer\Templates\Helpers\UrlHelper;
+use \Sugarcrm\XHProf\Viewer\Templates\Common\Html\HeadTemplate as HtmlHead;
+use \Sugarcrm\XHProf\Viewer\Templates\Helpers\CurrentPageHelper;
+use \Sugarcrm\XHProf\Viewer\Templates\Helpers\UrlHelper;
 
 class RunTemplate
 {
@@ -40,7 +42,7 @@ class RunTemplate
                 <h1><p>SugarCRM XHProf Viewer </p><small><?php echo htmlentities($runData['namespace']) ?></small></h1>
             </div>
         </div>
-        <?php profiler_single_run_report($params, $xhprofData, '', $symbol, $sort, $run); ?>
+        <?php profiler_single_run_report($params, $xhprofData, $symbol, $sort, $run); ?>
 
         <script type="text/javascript">
             window.TYPEAHEAD_URL = '<?php echo static::typeAheadUrl() ?>';

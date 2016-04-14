@@ -108,9 +108,6 @@ function xhprof_render_link($content, $href, $class='', $id='', $title='',
 // default column to sort on -- wall time
 $sort_col = "wt";
 
-// default is "single run" report
-$diff_mode = false;
-
 // call count data present?
 $display_calls = true;
 
@@ -305,7 +302,6 @@ $metrics = null;
 function sort_cbk($a, $b)
 {
     global $sort_col;
-    global $diff_mode;
 
     if ($sort_col == "fn") {
 
@@ -323,12 +319,6 @@ function sort_cbk($a, $b)
         $left = $a[$sort_col];
         $right = $b[$sort_col];
 
-        // if diff mode, sort by absolute value of regression/improvement
-        if ($diff_mode) {
-            $left = abs($left);
-            $right = abs($right);
-        }
-
         if ($left == $right)
             return 0;
         return ($left > $right) ? -1 : 1;
@@ -341,16 +331,14 @@ function sort_cbk($a, $b)
  *
  * @author Kannan
  */
-function init_metrics($xhprof_data, $rep_symbol, $sort, $diff_report = false) {
+function init_metrics($xhprof_data, $rep_symbol, $sort) {
     global $stats;
     global $pc_stats;
     global $metrics;
-    global $diff_mode;
     global $sortable_columns;
     global $sort_col;
     global $display_calls;
 
-    $diff_mode = $diff_report;
 
     if (!empty($sort)) {
         if (array_key_exists($sort, $sortable_columns)) {
@@ -420,14 +408,8 @@ function init_metrics($xhprof_data, $rep_symbol, $sort, $diff_report = false) {
  */
 function stat_description($stat) {
     global $descriptions;
-    global $diff_descriptions;
-    global $diff_mode;
 
-    if ($diff_mode) {
-        return $diff_descriptions[$stat];
-    } else {
-        return $descriptions[$stat];
-    }
+    return $descriptions[$stat];
 }
 
 
@@ -437,21 +419,8 @@ function stat_description($stat) {
  *
  * @author: Kannan
  */
-function profiler_report ($url_params,
-                          $rep_symbol,
-                          $sort,
-                          $run1,
-                          $run1_desc,
-                          $run1_data,
-                          $run2 = 0,
-                          $run2_desc = "",
-                          $run2_data = array()) {
+function profiler_report ($url_params, $rep_symbol, $run1, $run1_data) {
     global $totals;
-    global $totals_1;
-    global $totals_2;
-    global $stats;
-    global $pc_stats;
-    global $diff_mode;
 
     // if we are reporting on a specific function, we can trim down
     // the report(s) to just stuff that is relevant to this function.
@@ -459,22 +428,9 @@ function profiler_report ($url_params,
     // to needlessly work hard on churning irrelevant data.
     if (!empty($rep_symbol)) {
         $run1_data = xhprof_trim_run($run1_data, array($rep_symbol));
-        if ($diff_mode) {
-            $run2_data = xhprof_trim_run($run2_data, array($rep_symbol));
-        }
     }
 
-    if ($diff_mode) {
-        $run_delta = xhprof_compute_diff($run1_data, $run2_data);
-        $symbol_tab  = xhprof_compute_flat_info($run_delta, $totals);
-        $symbol_tab1 = xhprof_compute_flat_info($run1_data, $totals_1);
-        $symbol_tab2 = xhprof_compute_flat_info($run2_data, $totals_2);
-    } else {
-        $symbol_tab = xhprof_compute_flat_info($run1_data, $totals);
-    }
-
-    $run1_txt = sprintf("<b>Run #%s:</b> %s",
-        $run1, $run1_desc);
+    $symbol_tab = xhprof_compute_flat_info($run1_data, $totals);
 
     $base_url_params = xhprof_array_unset(xhprof_array_unset($url_params,
             'symbol'),
@@ -482,65 +438,17 @@ function profiler_report ($url_params,
 
     $top_link_query_string = "?" . http_build_query($base_url_params);
 
-    if ($diff_mode) {
-        $diff_text = "Diff";
-        $base_url_params = xhprof_array_unset($base_url_params, 'run1');
-        $base_url_params = xhprof_array_unset($base_url_params, 'run2');
-        $run1_link = xhprof_render_link('View Run #' . $run1,
-            "?" .
-                http_build_query(xhprof_array_set($base_url_params,
-                    'run',
-                    $run1)));
-        $run2_txt = sprintf("<b>Run #%s:</b> %s",
-            $run2, $run2_desc);
-
-        $run2_link = xhprof_render_link('View Run #' . $run2,
-            "?" .
-                http_build_query(xhprof_array_set($base_url_params,
-                    'run',
-                    $run2)));
-    } else {
-        $diff_text = "Run";
-    }
+    $diff_text = "Run";
 
     // set up the action links for operations that can be done on this report
     $links = array();
     $links []=  xhprof_render_link("View Top Level $diff_text Report",
         $top_link_query_string);
 
-    if ($diff_mode) {
-        $inverted_params = $url_params;
-        $inverted_params['run1'] = $url_params['run2'];
-        $inverted_params['run2'] = $url_params['run1'];
-        $inverted_params['source'] = $url_params['source2'];
-        $inverted_params['source2'] = $url_params['source'];
-
-        // view the different runs or invert the current diff
-        $links []= $run1_link;
-        $links []= $run2_link;
-        $links []= xhprof_render_link('Invert ' . $diff_text . ' Report',
-            "?".
-                http_build_query($inverted_params));
-    }
 
     // lookup function typeahead form
     $links [] = '<input class="function_typeahead" ' .
         ' type="input" size="40" maxlength="100" />';
-
-//    echo xhprof_render_actions($links);
-
-
-//    echo
-//        '<dl class=phprof_report_info>' .
-//        '  <dt>' . $diff_text . ' Report</dt>' .
-//        '  <dd>' . ($diff_mode ?
-//            $run1_txt . '<br><b>vs.</b><br>' . $run2_txt :
-//            $run1_txt) .
-//        '  </dd>' .
-//        '  <dt>Tip</dt>' .
-//        '  <dd>Click a function name below to drill down.</dd>' .
-//        '</dl>' .
-//        '<div style="clear: both; margin: 3em 0em;"></div>';
 
     // data tables
     if (!empty($rep_symbol)) {
@@ -557,7 +465,7 @@ function profiler_report ($url_params,
             $run1);
     } else {
         /* flat top-level report of all functions */
-        full_report($url_params, $symbol_tab, $sort, $run1, $run2);
+        full_report($url_params, $symbol_tab);
     }
 }
 
@@ -584,20 +492,9 @@ function pct($a, $b) {
 function get_print_class($num, $bold) {
     global $vbar;
     global $vbbar;
-    global $vrbar;
-    global $vgbar;
-    global $diff_mode;
 
     if ($bold) {
-        if ($diff_mode) {
-            if ($num <= 0) {
-                $class = $vgbar; // green (improvement)
-            } else {
-                $class = $vrbar; // red (regression)
-            }
-        } else {
-            $class = $vbbar; // blue
-        }
+        $class = $vbbar; // blue
     }
     else {
         $class = $vbar;  // default (black)
@@ -624,9 +521,6 @@ function print_td_num($num, $fmt_func, $bold=false, $attributes=null) {
  * Prints a <td> element with a pecentage.
  */
 function print_td_pct($numer, $denom, $bold=false, $attributes=null) {
-    global $vbar;
-    global $vbbar;
-    global $diff_mode;
 
     $class = get_print_class($numer, $bold);
 
@@ -644,7 +538,7 @@ function print_td_pct($numer, $denom, $bold=false, $attributes=null) {
  *
  * @author Kannan
  */
-function print_function_info($url_params, $info, $sort, $run1, $run2) {
+function print_function_info($info) {
     static $odd_even = 0;
 
     global $totals;
@@ -700,7 +594,7 @@ function print_function_info($url_params, $info, $sort, $run1, $run2) {
  *
  * @author Kannan
  */
-function print_flat_data($url_params, $title, $flat_data, $sort, $run1, $run2, $limit, $callGraphButton) {
+function print_flat_data($title, $flat_data, $limit, $callGraphButton) {
 
     global $stats;
     global $sortable_columns;
@@ -746,13 +640,13 @@ function print_flat_data($url_params, $title, $flat_data, $sort, $run1, $run2, $
     if ($limit >= 0) {
         $limit = min($size, $limit);
         for($i=0; $i < $limit; $i++) {
-            print_function_info($url_params, $flat_data[$i], $sort, $run1, $run2);
+            print_function_info($flat_data[$i]);
         }
     } else {
         // if $limit is negative, print abs($limit) items starting from the end
         $limit = min($size, abs($limit));
         for($i=0; $i < $limit; $i++) {
-            print_function_info($url_params, $flat_data[$size - $i - 1], $sort, $run1, $run2);
+            print_function_info($flat_data[$size - $i - 1]);
         }
     }
     print("</table>");
@@ -774,126 +668,71 @@ function print_flat_data($url_params, $title, $flat_data, $sort, $run1, $run2, $
  *
  * @author Kannan
  */
-function full_report($url_params, $symbol_tab, $sort, $run1, $run2) {
-    global $vwbar;
-    global $vbar;
+function full_report($url_params, $symbol_tab) {
     global $totals;
-    global $totals_1;
-    global $totals_2;
     global $metrics;
-    global $diff_mode;
     global $descriptions;
     global $sort_col;
-    global $format_cbk;
     global $display_calls;
     global $sqlData;
     global $elasticData;
-    global $run_page_params;
     global $unitSymbols;
 
     $possible_metrics = xhprof_get_possible_metrics();
 
-    if ($diff_mode) {
+    print("<p><center>\n");
 
-        $base_url_params = xhprof_array_unset(xhprof_array_unset($url_params,
-                'run1'),
-            'run2');
-        $href1 = "?" .
-            http_build_query(xhprof_array_set($base_url_params,
-                'run', $run1));
-        $href2 = "?" .
-            http_build_query(xhprof_array_set($base_url_params,
-                'run', $run2));
+    print('<table class="table table-bordered table-striped" style="width:auto;">' . "\n");
+    echo "<tr>";
+    echo "<th colspan='2' class='text-center'>Overall Summary</th>";
+    echo "<th'></th>";
+    echo "</tr>";
 
-        print("<h3><center>Overall Diff Summary</center></h3>");
-        print('<table border=1 cellpadding=2 cellspacing=1 width="30%" '
-            .'rules=rows bordercolor="#bdc7d8" align=center>' . "\n");
-        print('<tr bgcolor="#bdc7d8" align=right>');
-        print("<th></th>");
-        print("<th $vwbar>" . xhprof_render_link("Run #$run1", $href1) . "</th>");
-        print("<th $vwbar>" . xhprof_render_link("Run #$run2", $href2) . "</th>");
-        print("<th $vwbar>Diff</th>");
-        print("<th $vwbar>Diff%</th>");
-        print('</tr>');
-
-        if ($display_calls) {
-            print('<tr>');
-            print("<td>Number of Function Calls</td>");
-            print_td_num($totals_1["ct"], $format_cbk["ct"]);
-            print_td_num($totals_2["ct"], $format_cbk["ct"]);
-            print_td_num($totals_2["ct"] - $totals_1["ct"], $format_cbk["ct"], true);
-            print_td_pct($totals_2["ct"] - $totals_1["ct"], $totals_1["ct"], true);
-            print('</tr>');
-        }
-
-        foreach ($metrics as $metric) {
-            $m = $metric;
-            print('<tr>');
-            print("<td>" . str_replace("<br>", " ", $descriptions[$m]) . "</td>");
-            print_td_num($totals_1[$m], $format_cbk[$m]);
-            print_td_num($totals_2[$m], $format_cbk[$m]);
-            print_td_num($totals_2[$m] - $totals_1[$m], $format_cbk[$m], true);
-            print_td_pct($totals_2[$m] - $totals_1[$m], $totals_1[$m], true);
-            print('<tr>');
-        }
-        print('</table>');
-
-        $callgraph_report_title = 'View Regressions/Improvements using Callgraph Diff';
-
-    } else {
-        print("<p><center>\n");
-
-        print('<table class="table table-bordered table-striped" style="width:auto;">' . "\n");
+    foreach ($metrics as $metric) {
         echo "<tr>";
-        echo "<th colspan='2' class='text-center'>Overall Summary</th>";
-        echo "<th'></th>";
+        echo "<td style='text-align:right; font-weight:bold'>Total "
+            . str_replace("<br>", " ", stat_description($metric)) . ":</td>";
+        echo "<td>" . number_format($totals[$metric])
+            . $possible_metrics[$metric][1] . "</td>";
+        echo "</tr>";
+    }
+
+    if ($sqlData['count'] > 0) {
+        echo "<tr>";
+        echo "<td style='text-align:right; font-weight:bold'>Total SQL Queries Count:</td>";
+        echo "<td>" . number_format($sqlData['count']) . "</td>";
         echo "</tr>";
 
-        foreach ($metrics as $metric) {
-            echo "<tr>";
-            echo "<td style='text-align:right; font-weight:bold'>Total "
-                . str_replace("<br>", " ", stat_description($metric)) . ":</td>";
-            echo "<td>" . number_format($totals[$metric])
-                . $possible_metrics[$metric][1] . "</td>";
-            echo "</tr>";
-        }
-
-        if ($sqlData['count'] > 0) {
-            echo "<tr>";
-            echo "<td style='text-align:right; font-weight:bold'>Total SQL Queries Count:</td>";
-            echo "<td>" . number_format($sqlData['count']) . "</td>";
-            echo "</tr>";
-
-            echo "<tr>";
-            echo "<td style='text-align:right; font-weight:bold'>SQL Summary Time (". $unitSymbols['microsec'] ."):</td>";
-            echo "<td>" . number_format($sqlData['time'] * 1E6) . $unitSymbols['microsec'] . "</td>";
-            echo "</tr>";
-        }
-
-        if ($elasticData['count'] > 0) {
-            echo "<tr>";
-            echo "<td style='text-align:right; font-weight:bold'>Total Elastic Queries Count:</td>";
-            echo "<td>" . number_format($elasticData['count']) . "</td>";
-            echo "</tr>";
-
-            echo "<tr>";
-            echo "<td style='text-align:right; font-weight:bold'>Elastic Summary Time (". $unitSymbols['microsec'] ."):</td>";
-            echo "<td>" . number_format($elasticData['time'] * 1E6) . $unitSymbols['microsec'] . "</td>";
-            echo "</tr>";
-        }
-
-        if ($display_calls) {
-            echo "<tr>";
-            echo "<td style='text-align:right; font-weight:bold'>Number of Function Calls:</td>";
-            echo "<td>" . number_format($totals['ct']) . "</td>";
-            echo "</tr>";
-        }
-
-        echo "</table>";
-        print("</center></p>\n");
-
-        $callgraph_report_title = '<i class="fa fa-pie-chart"></i> View Full Callgraph';
+        echo "<tr>";
+        echo "<td style='text-align:right; font-weight:bold'>SQL Summary Time (". $unitSymbols['microsec'] ."):</td>";
+        echo "<td>" . number_format($sqlData['time'] * 1E6) . $unitSymbols['microsec'] . "</td>";
+        echo "</tr>";
     }
+
+    if ($elasticData['count'] > 0) {
+        echo "<tr>";
+        echo "<td style='text-align:right; font-weight:bold'>Total Elastic Queries Count:</td>";
+        echo "<td>" . number_format($elasticData['count']) . "</td>";
+        echo "</tr>";
+
+        echo "<tr>";
+        echo "<td style='text-align:right; font-weight:bold'>Elastic Summary Time (". $unitSymbols['microsec'] ."):</td>";
+        echo "<td>" . number_format($elasticData['time'] * 1E6) . $unitSymbols['microsec'] . "</td>";
+        echo "</tr>";
+    }
+
+    if ($display_calls) {
+        echo "<tr>";
+        echo "<td style='text-align:right; font-weight:bold'>Number of Function Calls:</td>";
+        echo "<td>" . number_format($totals['ct']) . "</td>";
+        echo "</tr>";
+    }
+
+    echo "</table>";
+    print("</center></p>\n");
+
+    $callgraph_report_title = '<i class="fa fa-pie-chart"></i> View Full Callgraph';
+
 
     \Sugarcrm\XHProf\Viewer\Templates\Run\SqlQueriesTableTemplate::render('SQL Queries', $sqlData, 'sql');
     \Sugarcrm\XHProf\Viewer\Templates\Run\QueriesTableTemplate::render('Elastic Queries', $elasticData, 'bash');
@@ -924,23 +763,13 @@ function full_report($url_params, $symbol_tab, $sort, $run1, $run2) {
 
     $desc = str_replace("<br>", " ", $descriptions[$sort_col]);
 
-    if ($diff_mode) {
-        if ($all) {
-            $title = "Total Diff Report: '
-               .'Sorted by absolute value of regression/improvement in $desc";
-        } else {
-            $title = "Top 100 <i style='color:red'>Regressions</i>/"
-                . "<i style='color:green'>Improvements</i>: "
-                . "Sorted by $desc Diff";
-        }
+    if ($all) {
+        $title = "Sorted by $desc";
     } else {
-        if ($all) {
-            $title = "Sorted by $desc";
-        } else {
-            $title = "Displaying top $limit functions: Sorted by $desc";
-        }
+        $title = "Displaying top $limit functions: Sorted by $desc";
     }
-    print_flat_data($url_params, $title, $flat_data, $sort, $run1, $run2, $limit, $callGraphButton);
+
+    print_flat_data($title, $flat_data, $limit, $callGraphButton);
 }
 
 /**
@@ -984,19 +813,17 @@ function pc_info($info, $base_ct, $base_info, $parent) {
     }
 }
 
-function print_pc_array($url_params, $results, $base_ct, $base_info, $parent,
-                        $run1, $run2) {
-
+function print_pc_array($url_params, $results, $base_ct, $base_info, $parent) {
     global $metrics;
     global $display_calls;
 
     // Construct section title
     if ($parent) {
         $title = 'Parent function';
-    }
-    else {
+    } else {
         $title = 'Child function';
     }
+
     if (count($results) > 1) {
         $title .= 's';
     }
@@ -1009,15 +836,12 @@ function print_pc_array($url_params, $results, $base_ct, $base_info, $parent,
 
     $odd_even = 0;
     foreach ($results as $info) {
-        $href = "?" .
-            http_build_query(xhprof_array_set($url_params,
-                'symbol', $info["fn"]));
+        $href = "?" . http_build_query(xhprof_array_set($url_params, 'symbol', $info["fn"]));
         $odd_even = 1 - $odd_even;
 
         if ($odd_even) {
             print('<tr>');
-        }
-        else {
+        } else {
             print('<tr bgcolor="#e5e5e5">');
         }
 
@@ -1027,9 +851,7 @@ function print_pc_array($url_params, $results, $base_ct, $base_info, $parent,
     }
 }
 
-
 function print_symbol_summary($symbol_info, $stat, $base) {
-
     $val = $symbol_info[$stat];
     $desc = str_replace("<br>", " ", stat_description($stat));
 
@@ -1048,51 +870,10 @@ function print_symbol_summary($symbol_info, $stat, $base) {
  *
  * @author Kannan
  */
-function profiler_single_run_report ($url_params,
-                                     $xhprof_data,
-                                     $run_desc,
-                                     $rep_symbol,
-                                     $sort,
-                                     $run) {
-
-    init_metrics($xhprof_data, $rep_symbol, $sort, false);
-
-    profiler_report($url_params, $rep_symbol, $sort, $run, $run_desc,
-        $xhprof_data);
+function profiler_single_run_report ($url_params, $xhprof_data, $rep_symbol, $sort, $run) {
+    init_metrics($xhprof_data, $rep_symbol, $sort);
+    profiler_report($url_params, $rep_symbol, $run, $xhprof_data);
 }
-
-
-
-/**
- * Generate the profiler report for diff mode (delta between two runs).
- *
- * @author Kannan
- */
-function profiler_diff_report($url_params,
-                              $xhprof_data1,
-                              $run1_desc,
-                              $xhprof_data2,
-                              $run2_desc,
-                              $rep_symbol,
-                              $sort,
-                              $run1,
-                              $run2) {
-
-
-    // Initialize what metrics we'll display based on data in Run2
-    init_metrics($xhprof_data2, $rep_symbol, $sort, true);
-
-    profiler_report($url_params,
-        $rep_symbol,
-        $sort,
-        $run1,
-        $run1_desc,
-        $xhprof_data1,
-        $run2,
-        $run2_desc,
-        $xhprof_data2);
-}
-
 
 function getBacktraceCallsForFunction($name)
 {

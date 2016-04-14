@@ -565,7 +565,7 @@ function xhprof_prune_run($raw_data, $prune_percent) {
 
     $prune_threshold = (($main_info[$prune_metric] * $prune_percent) / 100.0);
 
-    init_metrics($raw_data, null, null, false);
+    init_metrics($raw_data, null, null);
     $flat_info = xhprof_compute_inclusive_times($raw_data);
 
     foreach ($raw_data as $parent_child => $info) {

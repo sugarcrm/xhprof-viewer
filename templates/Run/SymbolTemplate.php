@@ -112,8 +112,7 @@ class SymbolTemplate
                 usort($results, 'sort_cbk');
 
                 if (count($results) > 0) {
-                    print_pc_array($url_params, $results, $base_ct, $base_info, true,
-                        $run1, 0);
+                    print_pc_array($url_params, $results, $base_ct, $base_info, true);
                 }
 
                 // list of callees/child functions
@@ -133,7 +132,7 @@ class SymbolTemplate
                 usort($results, 'sort_cbk');
 
                 if (count($results)) {
-                    print_pc_array($url_params, $results, $base_ct, $base_info, false, $run1, 0);
+                    print_pc_array($url_params, $results, $base_ct, $base_info, false);
                 } ?>
             </table>
         </div>
