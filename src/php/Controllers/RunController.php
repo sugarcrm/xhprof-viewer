@@ -83,6 +83,6 @@ class RunController extends AbstractController
         ));
         $elasticData = $this->storage->getRunElasticData($run);
 
-        RunTemplate::render($runData, $params, $xhprofData, $run, $symbol, $sort);
+        RunTemplate::render($runData, $params, $xhprofData, $symbol);
     }
 }

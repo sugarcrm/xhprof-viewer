@@ -8,7 +8,7 @@ use \Sugarcrm\XHProf\Viewer\Templates\Helpers\UrlHelper;
 
 class RunTemplate
 {
-    public static function render($runData, $params, $xhprofData, $run, $symbol, $sort)
+    public static function render($runData, $params, $xhprofData, $symbol)
     {
         ?><!DOCTYPE HTML><html>
         <?php HtmlHead::render(
@@ -42,11 +42,11 @@ class RunTemplate
                 <h1><p>SugarCRM XHProf Viewer </p><small><?php echo htmlentities($runData['namespace']) ?></small></h1>
             </div>
         </div>
-        <?php profiler_single_run_report($params, $xhprofData, $symbol, $sort, $run); ?>
+        <?php profiler_single_run_report($params, $xhprofData, $symbol); ?>
 
         <script type="text/javascript">
             window.TYPEAHEAD_URL = '<?php echo static::typeAheadUrl() ?>';
-            window.SYMBOL_URL = '<?php echo xhp_run_url() ?>';
+            window.SYMBOL_URL = '<?php echo CurrentPageHelper::url() ?>';
 
             $(function () {
                 $('[data-toggle="tooltip"]').tooltip({html: true})

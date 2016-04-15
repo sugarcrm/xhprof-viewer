@@ -9,15 +9,12 @@ use Sugarcrm\XHProf\Viewer\Templates\Run\SymbolsTable\HeaderTemplate;
 
 class SymbolTemplate
 {
-    public static function render($url_params, $run_data, $symbol_info, $rep_symbol, $run1) {
-        global $totals;
-        global $pc_stats;
-        global $sortable_columns;
+    public static function render($run_data, $symbol_info, $rep_symbol) {
         global $metrics;
-        global $format_cbk;
-        global $sort_col;
 
-        $columnsCount = count($metrics) * 2 + 1 + 2;
+        HeaderTemplate::prepareColumns($symbol_info, true);
+        $columnsCount = HeaderTemplate::getColumnsCount();
+
         ?>
         <div class="panel panel-default panel-functions">
             <div class="panel-heading form-inline">
@@ -30,49 +27,31 @@ class SymbolTemplate
                 </a>
             </div>
             <table class="table table-functions table-condensed table-bordered">
-                <?php HeaderTemplate::render($pc_stats, $sortable_columns) ?>
+                <?php HeaderTemplate::render() ?>
                 <tr>
                     <td><b><i><center>Current Function</center></i></b></td>
                     <td colspan="<?php echo $columnsCount ?>"></td>
                 </tr>
+                <?php print_function_info($symbol_info) ?>
                 <tr>
-                    <td><a href=""><?php echo htmlspecialchars($rep_symbol) ?></a></td>
-                    <td><?php echo $symbol_info['bcc'] ?></td>
-
-                    <?php
-
-                    print_td_num($symbol_info["ct"], $format_cbk["ct"]);
-                    print_td_pct($symbol_info["ct"], $totals["ct"]);
-
-                    // Inclusive Metrics for current function
-                    foreach ($metrics as $metric) {
-                        print_td_num($symbol_info[$metric], $format_cbk[$metric]);
-                        print_td_pct($symbol_info[$metric], $totals[$metric]);
-                    } ?>
+                    <?php $exclColumns = HeaderTemplate::getExclColumns();
+                        foreach (HeaderTemplate::getColumns() as $column => $meta) { ?>
+                        <?php if ($column == 'fn') { ?>
+                            <td style='text-align:right;'>Exclusive Metrics for Current Function</td>
+                        <?php } elseif (isset($exclColumns['excl_' . $column])) { ?>
+                            <?php print_column_info($symbol_info, 'excl_' . $column,  $exclColumns['excl_' . $column]) ?>
+                        <?php } else { ?>
+                            <td></td>
+                            <?php if (!empty($meta['percentage'])) { ?>
+                                <td></td>
+                            <?php } ?>
+                        <?php } ?>
+                    <?php } ?>
                 </tr>
-                <tr>
-                    <td style='text-align:right;'>Exclusive Metrics for Current Function</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <?php
-                    // Exclusive Metrics for current function
-                    foreach ($metrics as $metric) {
-                        print_td_num(
-                            $symbol_info["excl_" . $metric],
-                            $format_cbk["excl_" . $metric]
-                        );
 
-                        print_td_pct(
-                            $symbol_info["excl_" . $metric],
-                            $symbol_info[$metric],
-                            ($sort_col == $metric)
-                        );
-                    } ?>
-                </tr>
                 <?php // list of callers/parent functions
                 $results = array();
-                $base_ct = $symbol_info["ct"];
+//                $base_ct = $symbol_info["ct"];
                 $base_info = array();
                 foreach ($metrics as $metric) {
                     $base_info[$metric] = $symbol_info[$metric];
@@ -88,7 +67,18 @@ class SymbolTemplate
                 usort($results, 'sort_cbk');
 
                 if (count($results) > 0) {
-                    print_pc_array($url_params, $results, $base_ct, $base_info, true);
+                    $title = 'Parent functions';
+                    if (count($results) > 1) {
+                        $title .= 's';
+                    }
+
+                    print("<tr><td>");
+                    print("<b><i><center>" . $title . "</center></i></b>");
+                    print("</td><td colspan='$columnsCount'></td></tr>");
+
+                    foreach ($results as $info) {
+                        print_function_info($info);
+                    }
                 }
 
                 // list of callees/child functions
@@ -106,7 +96,18 @@ class SymbolTemplate
                 usort($results, 'sort_cbk');
 
                 if (count($results)) {
-                    print_pc_array($url_params, $results, $base_ct, $base_info, false);
+                    $title = 'Child function';
+                    if (count($results) > 1) {
+                        $title .= 's';
+                    }
+
+                    print("<tr><td>");
+                    print("<b><i><center>" . $title . "</center></i></b>");
+                    print("</td><td colspan='$columnsCount'></td></tr>");
+
+                    foreach ($results as $info) {
+                        print_function_info($info);
+                    }
                 } ?>
             </table>
         </div>
