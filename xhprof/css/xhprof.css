@@ -95,6 +95,9 @@ ul.xhprof_actions li a:hover {
 .table.table-functions td.sorted-by {color: #347AB7;}
 .table.table-functions td:first-child {text-align: left;}
 .table.table-functions th {padding: 3px; font-size: 14px;}
+.table.table-functions thead tr,
+    .table.table-functions tbody tr:hover,
+    .table.table-functions tbody tr.no-hover {background-color: #f5f5f5;}
 
 .panel-functions {display: inline-block; min-width: 100%;}
 

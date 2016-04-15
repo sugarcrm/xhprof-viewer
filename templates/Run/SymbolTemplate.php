@@ -28,7 +28,7 @@ class SymbolTemplate
             </div>
             <table class="table table-functions table-condensed table-bordered">
                 <?php HeaderTemplate::render() ?>
-                <tr>
+                <tr class="no-hover">
                     <td><b><i><center>Current Function</center></i></b></td>
                     <td colspan="<?php echo $columnsCount ?>"></td>
                 </tr>
@@ -72,7 +72,7 @@ class SymbolTemplate
                         $title .= 's';
                     }
 
-                    print("<tr><td>");
+                    print("<tr class=\"no-hover\"><td>");
                     print("<b><i><center>" . $title . "</center></i></b>");
                     print("</td><td colspan='$columnsCount'></td></tr>");
 
@@ -101,7 +101,7 @@ class SymbolTemplate
                         $title .= 's';
                     }
 
-                    print("<tr><td>");
+                    print("<tr class=\"no-hover\"><td>");
                     print("<b><i><center>" . $title . "</center></i></b>");
                     print("</td><td colspan='$columnsCount'></td></tr>");
 
