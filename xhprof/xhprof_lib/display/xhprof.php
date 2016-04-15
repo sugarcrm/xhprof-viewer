@@ -220,13 +220,15 @@ function print_function_info($info) {
 function print_column_info($info, $column, $meta) {
     global $totals;
 
-    print('<td>');
+    $class = CurrentPageHelper::getParam('sort') == $column ? 'class="sorted-by"' : '';
+
+    print("<td $class>");
     $cb = isset($meta['cb']) ? $meta['cb'] : 'number_format';
     echo call_user_func($cb, $info[$column]);
     print('</td>');
 
     if (!empty($meta['percentage'])) {
-        print('<td>');
+        print("<td $class>");
 
         $totalColumn = !empty($meta['total']) ? $meta['total'] : $column;
         if ($totals[$totalColumn] != 0) {
@@ -296,8 +298,6 @@ function print_flat_data($title, $flat_data, $limit, $callGraphButton) {
 function full_report($url_params, $symbol_tab) {
     global $totals;
     global $metrics;
-    global $descriptions;
-    global $sort_col;
     global $sqlData;
     global $elasticData;
     global $unitSymbols;
@@ -378,22 +378,12 @@ function full_report($url_params, $symbol_tab) {
     usort($flat_data, 'sort_cbk');
 
     if (!empty($url_params['all'])) {
-        $all = true;
         $limit = 0;    // display all rows
     } else {
-        $all = false;
         $limit = 100;  // display only limited number of rows
     }
 
-    $desc = str_replace("<br>", " ", $descriptions[$sort_col]);
-
-    if ($all) {
-        $title = "Sorted by $desc";
-    } else {
-        $title = "Displaying top $limit functions: Sorted by $desc";
-    }
-
-    print_flat_data($title, $flat_data, $limit, $callGraphButton);
+    print_flat_data('Top-Level Report &nbsp;', $flat_data, $limit, $callGraphButton);
 }
 
 /**

@@ -92,6 +92,7 @@ ul.xhprof_actions li a:hover {
 .query .btn-show-traces {padding-left: 0; border: 0;}
 .query .btn-show-traces .glyphicon {color:#777;}
 .table.table-functions td {padding: 1px; font-size: 12px; text-align: right; min-width: 40px;}
+.table.table-functions td.sorted-by {color: #347AB7;}
 .table.table-functions td:first-child {text-align: left;}
 .table.table-functions th {padding: 3px; font-size: 14px;}
 

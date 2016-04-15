@@ -99,6 +99,9 @@ class HeaderTemplate
                     <th <?php if (!empty($meta['percentage'])) { ?>colspan="2"<?php } ?>>
                         <a href="<?php echo CurrentPageHelper::url(array('sort' => $column)); ?>">
                             <?php echo stat_description($column); ?>
+                            <?php if (CurrentPageHelper::getParam('sort') == $column) { ?>
+                                <i class="fa fa-sort-amount-desc" aria-hidden="true"></i>
+                            <?php } ?>
                         </a>
                     </th>
                 <?php } ?>

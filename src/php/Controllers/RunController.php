@@ -49,7 +49,7 @@ class RunController extends AbstractController
         // pull values of these params, and create named globals for each param
         xhprof_param_init($params);
 
-        global $run, $wts, $symbol, $sort, $run1, $run2, $source, $all, $source2, $sqlData, $elasticData;
+        global $run, $wts, $symbol, $sort, $run1, $run2, $source, $all, $source2, $sqlData, $elasticData, $sort_col;
         /* reset params to be a array of variable names to values
            by the end of this page, param should only contain values that need
            to be preserved for the next page. unset all unwanted keys in $params.
@@ -64,6 +64,7 @@ class RunController extends AbstractController
             }
         }
 
+        $sort_col = $this->getParam('sort');
         $params['dir'] = $this->storage->getCurrentDirectory();
         $params['list_url'] = $this->getParam('list_url');
         $params['sql_sort_by'] = $this->getParam('sql_sort_by');
