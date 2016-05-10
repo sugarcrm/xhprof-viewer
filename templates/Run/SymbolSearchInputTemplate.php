@@ -12,8 +12,11 @@ class SymbolSearchInputTemplate
         ?>
         <div class="input-group input-group-sm input-group-symbol">
             <span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
-            <input class="form-control twitter-typeahead input-group-sm" style="width:20vw;" name="search"
-                   placeholder="Search Functions Here" autocomplete="off" type="text">
+            <table class="input-suggestions">
+            </table>
+            <input class="form-control input-group-sm" style="width:20vw;" name="search"
+                   placeholder="Search Functions Here" autocomplete="off" type="text" list="symbols">
+
         </div>
 
         <?php if (CurrentPage::getParam('symbol')) { ?>

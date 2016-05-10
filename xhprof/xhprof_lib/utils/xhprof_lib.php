@@ -802,19 +802,23 @@ function xhprof_get_matching_functions($q, $xhprof_data) {
 
     foreach ($xhprof_data as $parent_child => $info) {
         list($parent, $child) = xhprof_parse_parent_child($parent_child);
-        if (stripos($parent, $q) !== false) {
-            $matches[$parent] = 1;
-        }
         if (stripos($child, $q) !== false) {
-            $matches[$child] = 1;
+            if (!isset($matches[$child])) {
+                $matches[$child] = array(
+                    'ct' => $info['ct'],
+                    'wt' => $info['wt'],
+                    'bcc' => (int) $info['bcc'],
+                    'value' => $child,
+                );
+            } else {
+                $matches[$child]['ct'] += $info['ct'];
+                $matches[$child]['wt'] += $info['wt'];
+            }
         }
     }
 
-    $res = array_keys($matches);
-
     // sort it so the answers are in some reliable order...
-    asort($res);
-
-    return ($res);
+    ksort($matches);
+    return $matches;
 }
 

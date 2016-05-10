@@ -40,23 +40,21 @@ abstract class AbstractStorage implements StorageInterface
         $functions = xhprof_get_matching_functions($q, $rawData);
 
         // If exact match is present move it to the front
-        if (in_array($q, $functions)) {
+        if (isset($functions[$q])) {
             $old_functions = $functions;
 
-            $functions = array($q);
-            foreach ($old_functions as $f) {
+            $functions = array(
+                $q => $old_functions[$q]
+            );
+            foreach ($old_functions as $f => $info) {
                 // exact match case has already been added to the front
                 if ($f != $q) {
-                    $functions[] = $f;
+                    $functions[$f] = $info;
                 }
             }
         }
 
         $functions = array_slice($functions, 0, 15);
-        $functions = array_map(function($value) {
-            return array('value' => $value);
-        }, $functions);
-
         return array_values($functions);
     }
 }

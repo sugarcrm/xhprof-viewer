@@ -23,7 +23,6 @@ class RunTemplate
                 'bower_components/jquery/dist/jquery.min.js',
                 'bower_components/bootstrap/dist/js/bootstrap.min.js',
                 'bower_components/highlightjs/highlight.pack.min.js',
-                'bower_components/algolia-autocomplete.js/dist/autocomplete.jquery.min.js',
                 'xhprof/js/queries.js',
                 'xhprof/js/symbol-typeahead.js',
                 'bower_components/lexer/lexer.js',
