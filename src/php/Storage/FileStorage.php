@@ -94,7 +94,7 @@ class FileStorage extends AbstractStorage
 
         if (!empty($params['wall_time_min'])) {
             foreach ($bufFiles as $index => $file) {
-                if ($file['wall_time'] < $params['wall_time_min'] * 1E3) {
+                if (!is_null($file['wall_time']) && $file['wall_time'] < $params['wall_time_min'] * 1E3) {
                     unset($bufFiles[$index]);
                 }
             }
@@ -337,8 +337,8 @@ class FileStorage extends AbstractStorage
         if (preg_match('/^([A-Za-z0-9]+)\.(\d+-\d+)-(.*)$/', $filename, $matches)) {
             return array(
                 'timestamp' => floatval(str_replace('-', '.', $matches[2])),
-                'wall_time' => 0,
-                'sql_queries' => 0,
+                'wall_time' => null,
+                'sql_queries' => null,
                 'namespace' => $matches[3]
             );
         }

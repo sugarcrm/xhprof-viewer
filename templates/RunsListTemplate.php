@@ -148,9 +148,9 @@ class RunsListTemplate
                                 <?php echo $name ? preg_replace("/" . preg_quote(CurrentPage::getParam('f_text')) . "/i", "<b style='color:black;background-color:yellow;'>$0</b>", $name) : '-no-name-'?>
                             </a>
                         </td>
-                        <td class="align-right"><?php echo number_format($run['wall_time'], 0, ' ', ' ')?></td>
+                        <td class="align-right"><?php echo is_null($run['wall_time']) ? '-' : number_format($run['wall_time'], 0, ' ', ' ')?></td>
                         <td class="align-right">
-                            <?php echo $run['sql_queries'] === false ? '-' : $run['sql_queries'] ?>
+                            <?php echo ($run['sql_queries'] === false || is_null($run['sql_queries'])) ? '-' : $run['sql_queries'] ?>
                         </td>
                         <td class="align-right"><?php echo date('Y-m-d H:i:s', $run['timestamp'])?></td>
                         <td class="align-right"><?php echo static::toBytes($run['size'])?></td>
