@@ -170,37 +170,25 @@ function stat_description($stat) {
  *
  * @author: Kannan
  */
-function profiler_report ($url_params, $rep_symbol, $run1_data) {
-    global $totals;
-
-    // if we are reporting on a specific function, we can trim down
-    // the report(s) to just stuff that is relevant to this function.
-    // That way compute_flat_info()/compute_diff() etc. do not have
-    // to needlessly work hard on churning irrelevant data.
-    if (!empty($rep_symbol)) {
-        $run1_data = xhprof_trim_run($run1_data, array($rep_symbol));
-    }
-
-    $symbol_tab = xhprof_compute_flat_info($run1_data, $totals);
-
+function profiler_report ($params, $symbol, $xhprofData, $symbol_tab) {
     // data tables
-    if (!empty($rep_symbol)) {
-        if (!isset($symbol_tab[$rep_symbol])) {
-            echo "<hr>Symbol <b>$rep_symbol</b> not found in XHProf run</b><hr>";
+    if (!empty($symbol)) {
+        if (!isset($symbol_tab[$symbol])) {
+            echo "<hr>Symbol <b>$symbol</b> not found in XHProf run</b><hr>";
             return;
         }
 
-        $data = $symbol_tab[$rep_symbol];
-        $data['fn'] = $rep_symbol;
+        $data = $symbol_tab[$symbol];
+        $data['fn'] = $symbol;
 
         \Sugarcrm\XHProf\Viewer\Templates\Run\SymbolTemplate::render(
-            $run1_data,
+            $xhprofData,
             $data,
-            $rep_symbol
+            $symbol
         );
     } else {
         /* flat top-level report of all functions */
-        full_report($url_params, $symbol_tab);
+        full_report($params, $symbol_tab);
     }
 }
 
@@ -296,61 +284,8 @@ function print_flat_data($title, $flat_data, $limit, $callGraphButton) {
  * @author Kannan
  */
 function full_report($url_params, $symbol_tab) {
-    global $totals;
-    global $metrics;
     global $sqlData;
     global $elasticData;
-    global $unitSymbols;
-
-    $possible_metrics = xhprof_get_possible_metrics();
-
-    print("<p><center>\n");
-
-    print('<table class="table table-bordered table-striped" style="width:auto;">' . "\n");
-    echo "<tr>";
-    echo "<th colspan='2' class='text-center'>Overall Summary</th>";
-    echo "<th'></th>";
-    echo "</tr>";
-
-    foreach ($metrics as $metric) {
-        echo "<tr>";
-        echo "<td style='text-align:right; font-weight:bold'>Total "
-            . str_replace("<br>", " ", stat_description($metric)) . ":</td>";
-        echo "<td>" . number_format($totals[$metric]) . $possible_metrics[$metric][1] . "</td>";
-        echo "</tr>";
-    }
-
-    if ($sqlData['count'] > 0) {
-        echo "<tr>";
-        echo "<td style='text-align:right; font-weight:bold'>Total SQL Queries Count:</td>";
-        echo "<td>" . number_format($sqlData['count']) . "</td>";
-        echo "</tr>";
-
-        echo "<tr>";
-        echo "<td style='text-align:right; font-weight:bold'>SQL Summary Time (". $unitSymbols['microsec'] ."):</td>";
-        echo "<td>" . number_format($sqlData['time'] * 1E6) . $unitSymbols['microsec'] . "</td>";
-        echo "</tr>";
-    }
-
-    if ($elasticData['count'] > 0) {
-        echo "<tr>";
-        echo "<td style='text-align:right; font-weight:bold'>Total Elastic Queries Count:</td>";
-        echo "<td>" . number_format($elasticData['count']) . "</td>";
-        echo "</tr>";
-
-        echo "<tr>";
-        echo "<td style='text-align:right; font-weight:bold'>Elastic Summary Time (". $unitSymbols['microsec'] ."):</td>";
-        echo "<td>" . number_format($elasticData['time'] * 1E6) . $unitSymbols['microsec'] . "</td>";
-        echo "</tr>";
-    }
-
-    echo "<tr>";
-    echo "<td style='text-align:right; font-weight:bold'>Number of Function Calls:</td>";
-    echo "<td>" . number_format($totals['ct']) . "</td>";
-    echo "</tr>";
-
-    echo "</table>";
-    print("</center></p>\n");
 
     $callgraph_report_title = '<i class="fa fa-pie-chart"></i> View Full Callgraph';
 
@@ -384,14 +319,4 @@ function full_report($url_params, $symbol_tab) {
     }
 
     print_flat_data('Top-Level Report &nbsp;', $flat_data, $limit, $callGraphButton);
-}
-
-/**
- * Generate the profiler report for a single run.
- *
- * @author Kannan
- */
-function profiler_single_run_report ($url_params, $xhprof_data, $rep_symbol) {
-    init_metrics($xhprof_data, $rep_symbol);
-    profiler_report($url_params, $rep_symbol, $xhprof_data);
 }

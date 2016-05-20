@@ -111,3 +111,9 @@ ul.xhprof_actions li a:hover {
 .input-suggestions tr.active {background-color: #f5f5f5;}
 .input-suggestions td {padding: 5px 10px; width:1px; text-align: right; white-space: nowrap; color:#aaa;}
 .input-suggestions td:first-child {width:auto; text-align: left; color:inherit; font-size: 12px; }
+
+.btn-overall-summary {position: relative;}
+.btn-overall-summary div {display:none; position:absolute; background-color: white; right: 0; z-index:100;
+    top:calc(100% + 1px); box-shadow: 3px 6px 10px -2px rgba(0,0,0,0.3);}
+.btn-overall-summary:hover div {display:block;}
+.btn-overall-summary div table {margin-bottom: 0;}
