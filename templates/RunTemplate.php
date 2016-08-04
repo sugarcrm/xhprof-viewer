@@ -8,7 +8,7 @@ namespace Sugarcrm\XHProf\Viewer\Templates;
 use \Sugarcrm\XHProf\Viewer\Templates\Common\Html\HeadTemplate as HtmlHead;
 use \Sugarcrm\XHProf\Viewer\Templates\Helpers\CurrentPageHelper;
 use \Sugarcrm\XHProf\Viewer\Templates\Helpers\UrlHelper;
-use Sugarcrm\XHProf\Viewer\Templates\Run\OverallSummaryTemplate;
+use Sugarcrm\XHProf\Viewer\Templates\Run\OverallSummaryTemplate;use Sugarcrm\XHProf\Viewer\Templates\Run\TopTabsTemplate;
 
 class RunTemplate
 {
@@ -33,17 +33,12 @@ class RunTemplate
             array(
                 'xhprof/css/xhprof.css',
                 'bower_components/bootstrap/dist/css/bootstrap.min.css',
-                'bower_components/highlightjs/styles/default.css',
                 'bower_components/font-awesome/css/font-awesome.min.css',
             ),
             array(
                 'bower_components/jquery/dist/jquery.min.js',
                 'bower_components/bootstrap/dist/js/bootstrap.min.js',
-                'bower_components/highlightjs/highlight.pack.min.js',
-                'xhprof/js/queries.js',
                 'xhprof/js/symbol-typeahead.js',
-                'bower_components/lexer/lexer.js',
-                'xhprof/js/sql-formatter.js',
             ));
         ?>
         <body class="container-fluid">
@@ -62,6 +57,8 @@ class RunTemplate
                 <h1><p>SugarCRM XHProf Viewer </p><small><?php echo htmlentities($runData['namespace']) ?></small></h1>
             </div>
         </div>
+
+        <?php if (!$symbol) TopTabsTemplate::render($runData) ?>
         <?php profiler_report($params, $symbol, $xhprofData, $symbol_tab); ?>
 
         <script type="text/javascript">
@@ -82,16 +79,12 @@ class RunTemplate
     {
         global $totals;
         global $metrics;
-        global $sqlData;
-        global $elasticData;
         global $unitSymbols;
 
         OverallSummaryTemplate::render(
             xhprof_get_possible_metrics(),
             $metrics,
             $totals,
-            $sqlData,
-            $elasticData,
             $unitSymbols
         );
     }

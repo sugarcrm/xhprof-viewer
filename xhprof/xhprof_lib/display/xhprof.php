@@ -287,13 +287,7 @@ function print_flat_data($title, $flat_data, $limit, $callGraphButton) {
  * @author Kannan
  */
 function full_report($url_params, $symbol_tab) {
-    global $sqlData;
-    global $elasticData;
-
     $callgraph_report_title = '<i class="fa fa-pie-chart"></i> View Full Callgraph';
-
-    \Sugarcrm\XHProf\Viewer\Templates\Run\SqlQueriesTableTemplate::render('SQL Queries', $sqlData, 'sql');
-    \Sugarcrm\XHProf\Viewer\Templates\Run\QueriesTableTemplate::render('Elastic Queries', $elasticData, 'bash');
 
     $callGraphUrl = \Sugarcrm\XHProf\Viewer\Templates\Helpers\UrlHelper::url(array(
         'callgraph' => 1,

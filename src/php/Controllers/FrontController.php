@@ -28,10 +28,23 @@ class FrontController
 
         if (isset($_GET['q'])) {
             $controller = new TypeAheadController();
-        } else if (isset($_GET['callgraph'])) {
+        } elseif (isset($_GET['callgraph'])) {
             $controller = new CallGraphController();
-        } else if (isset($_GET['run'])) {
-            $controller = new RunController();
+        } elseif (isset($_GET['run'])) {
+            if (isset($_GET['page'])) {
+                switch ($_GET['page']) {
+                    case 'sql':
+                        $controller = new SqlController();
+                        break;
+                    case 'elastic':
+                        $controller = new ElasticController();
+                        break;
+                    default:
+                        throw new \RuntimeException('Unknown page: ' . $_GET['page']);
+                }
+            } else {
+                $controller = new RunController();
+            }
         } else {
             $controller = new RunsListController();
         }

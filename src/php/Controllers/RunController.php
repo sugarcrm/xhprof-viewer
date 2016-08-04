@@ -17,20 +17,12 @@ class RunController extends AbstractController
         'sort',
         'all',
         'list_url',
-        'sql_sort_by',
-        'sql_type',
-        'sql_regex_text',
-        'sql_regex_mod',
     );
 
     protected $paramDefaults = array(
         'symbol' => '',
         'sort' => 'wt',
         'all' => 0,
-        'sql_sort_by' => 'time',
-        'sql_type' => 'all',
-        'sql_regex_text' => '',
-        'sql_regex_mod' => 'i',
         'list_url' => '',
     );
 
@@ -52,7 +44,7 @@ class RunController extends AbstractController
         // pull values of these params, and create named globals for each param
         xhprof_param_init($params);
 
-        global $run, $wts, $symbol, $sort, $run1, $run2, $source, $all, $source2, $sqlData, $elasticData, $sort_col;
+        global $run, $wts, $symbol, $sort, $run1, $run2, $source, $all, $source2, $sort_col;
         /* reset params to be a array of variable names to values
            by the end of this page, param should only contain values that need
            to be preserved for the next page. unset all unwanted keys in $params.
@@ -70,23 +62,11 @@ class RunController extends AbstractController
         $sort_col = $this->getParam('sort');
         $params['dir'] = $this->storage->getCurrentDirectory();
         $params['list_url'] = $this->getParam('list_url');
-        $params['sql_sort_by'] = $this->getParam('sql_sort_by');
-        $params['sql_type'] = $this->getParam('sql_type');
-        $params['sql_regex_text'] = $this->getParam('sql_regex_text');
-        $params['sql_regex_mod'] = $this->getParam('sql_regex_mod');
 
         $GLOBALS['run_page_params'] = $params;
 
         $runData = $this->storage->getRunMetaData($run);
         $xhprofData = $this->storage->getRunXHProfData($run);
-        $sqlData = $this->storage->getRunSqlData($run, array(
-            'sort_by' => $params['sql_sort_by'],
-            'type' => $params['sql_type'],
-            'regex_text' => $params['sql_regex_text'],
-            'regex_mod' => $params['sql_regex_mod'],
-        ));
-        $elasticData = $this->storage->getRunElasticData($run);
-
         RunTemplate::render($runData, $params, $xhprofData, $symbol);
     }
 }
