@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# © 2016 SugarCRM Inc.  Licensed by SugarCRM under the Apache 2.0 license.
+#
 
 if [ "$npm_package_name" != "xhprof-viewer" ]; then
     echo 'Run `npm run build` instead';
