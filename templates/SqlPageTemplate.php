@@ -21,6 +21,7 @@ class SqlPageTemplate
             'bower_components/bootstrap/dist/css/bootstrap.min.css',
             'bower_components/highlightjs/styles/default.css',
             'bower_components/font-awesome/css/font-awesome.min.css',
+            'xhprof/css/run-page.css',
         ),
         array(
             'bower_components/jquery/dist/jquery.min.js',
