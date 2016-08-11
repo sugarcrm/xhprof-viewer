@@ -58,3 +58,8 @@ rm $package_name/config.php.bak
 
 tar -czf "../$archive_name.tar.gz" $package_name
 zip -qr "../$archive_name.zip" $package_name
+
+cd ..
+rm -r dist
+ls $archive_name.tar.gz
+ls $archive_name.zip
