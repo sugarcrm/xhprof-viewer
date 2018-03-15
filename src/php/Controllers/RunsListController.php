@@ -23,6 +23,7 @@ class RunsListController extends AbstractController
     );
 
     protected $paramDefaults = array(
+        'dir' => '',
         'offset' => 0,
         'limit' => 100,
         'f_text' => '',

@@ -47,7 +47,7 @@ abstract class AbstractController
     {
         $value = null;
         if (in_array($name, $this->paramsList)) {
-            if (isset($_REQUEST[$name])) {
+            if (isset($_REQUEST[$name]) && $_REQUEST[$name] !== '') {
                 $value = $_REQUEST[$name];
             } elseif (isset($this->paramDefaults[$name])) {
                 $value = $this->paramDefaults[$name];

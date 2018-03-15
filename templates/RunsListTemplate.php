@@ -259,7 +259,7 @@ class RunsListTemplate
         return $getmin ? round(reset($r[$usekey]), $rnd) . ' ' . reset($units) : $r;
     }
 
-    protected function toBytes($v)
+    protected static function toBytes($v)
     {
         $v = intval($v);
         $e = array(' bytes', 'KB', 'MB', 'GB', 'TB');
