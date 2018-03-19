@@ -32,13 +32,13 @@ class RunTemplate
             $runData['namespace'] . ' - SugarCRM XHProf Viewer',
             array(
                 'xhprof/css/xhprof.css',
-                'bower_components/bootstrap/dist/css/bootstrap.min.css',
-                'bower_components/font-awesome/css/font-awesome.min.css',
+                'node_modules/bootstrap/dist/css/bootstrap.min.css',
+                'node_modules/font-awesome/css/font-awesome.min.css',
                 'xhprof/css/run-page.css',
             ),
             array(
-                'bower_components/jquery/dist/jquery.min.js',
-                'bower_components/bootstrap/dist/js/bootstrap.min.js',
+                'node_modules/jquery/dist/jquery.min.js',
+                'node_modules/bootstrap/dist/js/bootstrap.min.js',
                 'xhprof/js/symbol-typeahead.js',
             ));
         ?>

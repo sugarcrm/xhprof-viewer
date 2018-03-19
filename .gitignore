@@ -1,5 +1,4 @@
 .idea/
-node_modules/
 bower_components/
 /dist/
 /config_override.php
