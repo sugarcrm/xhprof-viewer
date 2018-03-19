@@ -1,6 +1,4 @@
 .idea/
-bower_components/
-/dist/
 /config_override.php
 
 .DS_Store

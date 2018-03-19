@@ -4,7 +4,7 @@
  */
 
 $config = array(
-    'version' => 'VIEWER_VERSION',
+    'version' => '1.1.0',
     'profile_files_dir' => '/tmp/profile_files',
 );
 
