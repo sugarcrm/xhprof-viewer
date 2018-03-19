@@ -29,14 +29,14 @@ class RunsListTemplate
         'List of profiler files - SugarCRM XHProf Viewer',
         array(
             'xhprof/css/xhprof.css',
-            'bower_components/bootstrap/dist/css/bootstrap.min.css',
-            'bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css',
-            'bower_components/font-awesome/css/font-awesome.min.css',
+            'node_modules/bootstrap/dist/css/bootstrap.min.css',
+            'node_modules/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css',
+            'node_modules/font-awesome/css/font-awesome.min.css',
         ),
         array(
-            'bower_components/jquery/dist/jquery.min.js',
-            'bower_components/bootstrap/dist/js/bootstrap.min.js',
-            'bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js',
+            'node_modules/jquery/dist/jquery.min.js',
+            'node_modules/bootstrap/dist/js/bootstrap.min.js',
+            'node_modules/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js',
             'xhprof/js/list.js',
         ));
         ?>
