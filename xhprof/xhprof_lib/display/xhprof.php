@@ -56,7 +56,7 @@ $possible_metrics = array(
 // Textual descriptions for column headers in "single run" mode
 $descriptions = array(
     "fn" => "Function Name",
-    "bcc" => "SQL",
+    "bcc" => "SQL (total / per func.)",
     "ct" =>  "Calls",
 
     "wt" => "Incl. Wall Time (" . $unitSymbols['microsec'] . ")",
@@ -221,11 +221,15 @@ function print_column_info($info, $column, $meta) {
     if (!empty($meta['percentage'])) {
         print("<td $class>");
 
-        $totalColumn = !empty($meta['total']) ? $meta['total'] : $column;
-        if ($totals[$totalColumn] != 0) {
-            echo xhprof_percent_format($info[$column] / abs($totals[$totalColumn]));
+        if (is_callable($meta['percentage'])) {
+            echo $meta['percentage']($info);
         } else {
-            echo 'N/A%';
+            $totalColumn = !empty($meta['total']) ? $meta['total'] : $column;
+            if ($totals[$totalColumn] != 0) {
+                echo xhprof_percent_format($info[$column] / abs($totals[$totalColumn]));
+            } else {
+                echo 'N/A%';
+            }
         }
 
         print('</td>');
