@@ -120,6 +120,7 @@ class SymbolTemplate
     protected static function callgraphUrl($symbol)
     {
         return UrlHelper::url(array(
+            'callgraph' => 1,
             'dir' => CurrentPageHelper::getParam('dir'),
             'run' => CurrentPageHelper::getParam('run'),
             'func' => $symbol,
