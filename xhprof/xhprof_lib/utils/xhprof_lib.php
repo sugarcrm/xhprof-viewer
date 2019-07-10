@@ -482,6 +482,7 @@ function xhprof_compute_inclusive_times($raw_data) {
                 $symbol_tab[$child][$metric] = $info[$metric];
             }
             $symbol_tab[$child]['bcc'] = $info['bcc'];
+            $symbol_tab[$child]['queries'] = $info['queries'];
         } else {
             /* increment call count for this child */
             $symbol_tab[$child]["ct"] += $info["ct"];
@@ -810,6 +811,7 @@ function xhprof_get_matching_functions($q, $xhprof_data) {
                     'ct' => $info['ct'],
                     'wt' => $info['wt'],
                     'bcc' => (int) $info['bcc'],
+                    'queries' => (int) $info['queries'],
                     'value' => $child,
                 );
             } else {

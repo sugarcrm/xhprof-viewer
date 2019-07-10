@@ -35,7 +35,9 @@ class HeaderTemplate
                 'percentage' => false,
             ),
             'bcc' => array(
-                'percentage' => false,
+                'percentage' => function($info) {
+                    return $info['queries'] ?? 0;
+                },
                 'cb' => 'xhprof_count_format',
             ),
             'ct' => array(

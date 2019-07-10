@@ -130,21 +130,29 @@ class FileStorage extends AbstractStorage
     {
         $xhprofData = $this->fileGetData($this->getRunFullPath($run));
 
-        $sqlData = $this->getRunSqlData($run);
-        $backtraceCalls = !empty($sqlData['backtrace_calls']) ? $sqlData['backtrace_calls'] : array();
-        $this->updateXHProfDataWithBacktraceCalls($xhprofData, $backtraceCalls);
+        $sqlData = $this->getRunSqlData($run, ['xhprof_data' => (array) $xhprofData]);
+        $this->updateXHProfDataWithSqlData($xhprofData, $sqlData);
 
         return $xhprofData;
     }
 
-    protected function updateXHProfDataWithBacktraceCalls(&$xhprofData, $backtraceCalls)
+    protected function updateXHProfDataWithSqlData(&$xhprofData, $sqlData)
     {
+        foreach ($sqlData['queries'] as $query) {
+            foreach ($query['traces'] as $trace) {
+                foreach ($trace['rst'] as $key) {
+                    $xhprofData[$key]['queries'] = $xhprofData[$key]['queries'] ?? 0;
+                    $xhprofData[$key]['queries']++;
+                }
+            }
+        }
         foreach($xhprofData as $k => $v) {
             $xhprofData[$k]['bcc'] = '';
+            $xhprofData[$k]['queries'] = $v['queries'] ?? 0;
             $kparts = explode('==>', $k);
             if (sizeof($kparts) == 2) {
-                if (isset($backtraceCalls[$kparts[1]])) {
-                    $xhprofData[$k]['bcc'] = $backtraceCalls[$kparts[1]];
+                if (isset($sqlData['backtrace_calls'][$kparts[1]])) {
+                    $xhprofData[$k]['bcc'] = $sqlData['backtrace_calls'][$kparts[1]];
                 }
             }
         }
@@ -247,6 +255,8 @@ class FileStorage extends AbstractStorage
                 $result['queries'][$sqlKey]['traces'][$traceKey]['content'] = htmlspecialchars($row[2]);
                 $result['queries'][$sqlKey]['traces'][$traceKey]['content_short']
                     = htmlspecialchars($this->shortenStackTrace($row[2]));
+                $result['queries'][$sqlKey]['traces'][$traceKey]['rst']
+                    = $this->representativeStackTrace($row[2], $params['xhprof_data'] ?? []);
             }
 
             if ($params['sort_by'] != 'exec_order') {
@@ -382,6 +392,83 @@ class FileStorage extends AbstractStorage
     protected function shortenStackTrace($trace)
     {
         return preg_replace('/^(#\d+).*\[Line: (\d+|n\/a)\]/m', '$1' ,$trace);
+    }
+
+    /**
+     * Return stack trace in a structure similar to xhprof data
+     *
+     * @param string $trace
+     * @return array
+     */
+    protected function representativeStackTrace(string $trace, array $xhpData): array
+    {
+        static $xhpStartCalls = null;
+        if (is_null($xhpStartCalls)) {
+            foreach ($xhpData as $name => $foo) {
+                if (substr($name, 0, 9) === 'main()==>') {
+                    $xhpStartCalls[$name] = true;
+                }
+            }
+        }
+
+        $lines = array_filter(preg_split('/^#(\d+|n\/a)\s/m', $trace));
+        $lines = array_reverse($lines);
+        $lastCall = 'main()';
+        $delim = '==>';
+        $called = [];
+        $out = [];
+        $starts = [];
+        foreach ($lines as $index => $line) {
+            $line = preg_replace('/.+\[Line: (\d+|n\/a)\]/', '', $line);
+            $line = trim($line);
+            $line = preg_replace('/\(.*\)$/s', '', $line);
+            $line = str_replace('->', '::', $line);
+
+            $calledKey = $line;
+            if (($called[$line] ?? 0) > 0) {
+                $line .= "@{$called[$line]}";
+            }
+            $called[$calledKey] = $called[$calledKey] ?? 0;
+            $called[$calledKey]++;
+
+            $callLine = "$lastCall$delim$line";
+            $lastCall = $line;
+
+
+            $xhpStartCall = "main()$delim$line";
+            if (!empty($xhpStartCalls[$xhpStartCall]) && empty($starts[$xhpStartCall])) {
+                $starts[$xhpStartCall] = $index;
+            }
+
+            $out[] = $callLine;
+        }
+
+        $matches = [];
+        foreach ($starts as $startKey => $startIndex) {
+            $matches[$startKey] = $this->compareStacks($xhpData, array_slice($out, $startIndex + 1));
+        }
+        $out = [];
+        if (!empty($matches)) {
+            usort($matches, function ($a, $b) {
+                return count($a) < count($b);
+            });
+
+            $out = $matches[0];
+        }
+
+        return $out;
+    }
+
+    protected function compareStacks(array $xhpData, array $needleKeys): array
+    {
+        $out = [];
+        foreach ($needleKeys as $key) {
+            if (!empty($xhpData[$key])) {
+                $out[] = $key;
+            }
+        }
+
+        return $out;
     }
 
     /**
