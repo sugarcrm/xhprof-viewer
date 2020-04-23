@@ -9,6 +9,7 @@ $xhprof_legal_image_types = array(
     "gif" => 1,
     "png" => 1,
     "ps"  => 1,
+    "svg" => 1,
     );
 
 /**
@@ -53,6 +54,8 @@ function xhprof_generate_mime_header($type, $length) {
       break;
     case 'ps':
       $mime = 'application/postscript';
+    case 'svg':
+      $mime = 'images/svg+xml';
     default:
       $mime = false;
   }
