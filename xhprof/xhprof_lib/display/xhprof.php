@@ -23,7 +23,7 @@ use Sugarcrm\XHProf\Viewer\Templates\Helpers\CurrentPageHelper;
 use Sugarcrm\XHProf\Viewer\Templates\Run\SymbolSearchInputTemplate;
 
 function xhprof_count_format($num) {
-    $num = round($num, 3);
+    $num = round((float)$num, 3);
     if (round($num) == $num) {
         return number_format($num);
     } else {
