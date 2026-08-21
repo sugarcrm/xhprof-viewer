@@ -20,7 +20,7 @@
     "bootstrap": "3",
     "bootstrap-datepicker": "^1.7.1",
     "font-awesome": "4",
-    "highlightjs": "^9.10.0",
+    "highlightjs": "^9.16.2",
     "jquery": "3"
   }
 }
