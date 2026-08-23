@@ -18,7 +18,7 @@
   "homepage": "https://github.com/sugarcrm/xhprof-viewer#readme",
   "dependencies": {
     "bootstrap": "3",
-    "bootstrap-datepicker": "^1.7.1",
+    "bootstrap-datepicker": "^1.10.1",
     "font-awesome": "4",
     "highlightjs": "^9.10.0",
     "jquery": "3"
